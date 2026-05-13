@@ -1,864 +1,846 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 30.0px 'Apple SD Gothic Neo'; -webkit-text-stroke: #000000}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 30.0px 'Apple SD Gothic Neo'; -webkit-text-stroke: #000000; min-height: 31.0px}
-    span.s1 {font-kerning: none}
-    span.s2 {font: 30.0px '.Apple Color Emoji UI'; font-kerning: none}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>찐아 이유식 식단표</title>
+<style>
+:root {
+  --pink: #ff6eb4;
+  --sky: #29aaee;
+  --yellow: #f5c800;
+  --green: #2eaa55;
+  --black: #111;
+  --gray: #888;
+  --purple: #9933cc;
+  --bg: #f7f5f2;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --text-sub: #666;
+  --border: #e8e4df;
+  --done: #bbb;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* VERSION TOGGLE */
+.version-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 16px;
+  z-index: 100;
+  display: flex;
+  gap: 6px;
+}
+.ver-btn {
+  background: var(--text);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+.ver-btn.active { opacity: 1; }
+
+/* HEADER */
+.header {
+  background: #fff;
+  padding: 16px 16px 0;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.header-title { font-size: 18px; font-weight: 700; color: var(--text); }
+.header-sub { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.month-nav button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-sub);
+  padding: 4px;
+}
+.month-nav span { font-size: 15px; font-weight: 600; min-width: 40px; text-align: center; }
+
+/* WEEK BAR */
+.week-bar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  padding: 8px 0 0;
+}
+.week-day-label {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-sub);
+  padding-bottom: 4px;
+}
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 2px 10px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.15s;
+  position: relative;
+}
+.week-day .day-num {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1;
+}
+.week-day .day-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  margin-top: 4px;
+  background: transparent;
+}
+.week-day.has-data .day-dot { background: var(--green); }
+.week-day.done .day-dot { background: var(--done); }
+.week-day.selected {
+  background: var(--text);
+}
+.week-day.selected .day-num { color: #fff; }
+.week-day.selected .day-dot { background: rgba(255,255,255,0.5); }
+.week-day.today .day-num { color: var(--pink); font-weight: 700; }
+.week-day.selected.today .day-num { color: #fff; }
+
+/* MAIN CONTENT */
+.main { padding: 16px; }
+
+/* DAY HEADER */
+.day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.day-header-left .day-date { font-size: 20px; font-weight: 700; }
+.day-header-left .day-dday { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+.day-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+.day-status.done { background: #e8f5e9; color: var(--green); }
+.day-status.pending { background: #fff3e0; color: #e65100; }
+.day-status.future { background: #f5f5f5; color: var(--gray); }
+
+/* MEAL CARD */
+.meal-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.meal-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.meal-items { display: flex; flex-direction: column; gap: 6px; }
+.meal-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.meal-item-name { font-size: 15px; font-weight: 500; }
+.meal-item-amount { font-size: 14px; color: var(--text-sub); }
+.meal-note {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+.b-new { background: var(--pink); color: #fff; }
+.b-직접 { background: var(--sky); color: #fff; }
+.b-시판 { background: var(--yellow); color: #fff; }
+.b-혼합 { background: var(--green); color: #fff; }
+.b-warn { background: var(--black); color: #fff; }
+.b-rep { background: var(--gray); color: #fff; }
+.b-kit { background: var(--purple); color: #fff; }
+
+/* MEMO CARD */
+.memo-card {
+  background: #fffbf0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid #f0e8c0;
+}
+.memo-card-title { font-size: 12px; font-weight: 600; color: #a07820; margin-bottom: 6px; }
+.memo-text { font-size: 13px; color: #5a4010; line-height: 1.6; }
+
+/* NEW INGREDIENT CARD */
+.new-card {
+  background: #fff0f6;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid #ffd0e8;
+}
+.new-card-title { font-size: 12px; font-weight: 600; color: #c03060; margin-bottom: 8px; }
+.new-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.new-item {
+  background: var(--pink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* ACCORDION */
+.accordion {
+  background: var(--card);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.accordion-title { font-size: 14px; font-weight: 600; }
+.accordion-arrow {
+  font-size: 12px;
+  color: var(--text-sub);
+  transition: transform 0.2s;
+}
+.accordion.open .accordion-arrow { transform: rotate(180deg); }
+.accordion-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
+.accordion.open .accordion-body { display: block; }
+.stock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.stock-item:last-child { border-bottom: none; }
+.stock-amount { font-weight: 600; color: var(--sky); }
+.stock-low { color: #e65100; }
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.shop-item:last-child { border-bottom: none; }
+.shop-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }
+
+/* DONE OVERLAY */
+.done-overlay {
+  opacity: 0.5;
+}
+
+/* ==================== VERSION 2 ==================== */
+#v2 { display: none; }
+
+.v2-header {
+  background: #fff;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.v2-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.v2-title { font-size: 18px; font-weight: 700; }
+.v2-week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.v2-week-nav button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text);
+}
+.v2-week-label { font-size: 13px; font-weight: 600; color: var(--text-sub); }
+
+.v2-main { padding: 12px 16px; }
+
+.v2-day-card {
+  background: var(--card);
+  border-radius: 16px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.v2-day-card.today-card {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 2px rgba(255,110,180,0.15);
+}
+.v2-day-card.done-card { opacity: 0.6; }
+
+.v2-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.v2-day-left { display: flex; align-items: center; gap: 10px; }
+.v2-day-num {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  min-width: 32px;
+}
+.v2-day-info .v2-dow { font-size: 11px; color: var(--text-sub); }
+.v2-day-info .v2-dday { font-size: 11px; color: var(--text-sub); }
+.v2-day-right { display: flex; align-items: center; gap: 8px; }
+.v2-day-preview { font-size: 11px; color: var(--text-sub); max-width: 130px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+.v2-chevron { font-size: 12px; color: var(--text-sub); transition: transform 0.2s; }
+.v2-day-card.open .v2-chevron { transform: rotate(180deg); }
+
+.v2-day-body {
+  display: none;
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--border);
+}
+.v2-day-card.open .v2-day-body { display: block; }
+
+.v2-meal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.v2-meal-row:last-child { border-bottom: none; }
+.v2-meal-name { font-weight: 500; }
+.v2-meal-amt { color: var(--text-sub); font-size: 12px; }
+.v2-memo {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #fffbf0;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #a07820;
+}
+.v2-done-mark { font-size: 11px; color: var(--green); font-weight: 600; }
+
+/* TODAY HIGHLIGHT in v2 */
+.v2-day-num.today-num { color: var(--pink); }
+</style>
 </head>
 <body>
-<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
-<p class="p1"><span class="s1">&lt;html lang="ko"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;head&gt;</span></p>
-<p class="p1"><span class="s1">&lt;meta charset="UTF-8"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;title&gt;찐아 이유식 식단표&lt;/title&gt;</span></p>
-<p class="p1"><span class="s1">&lt;style&gt;</span></p>
-<p class="p1"><span class="s1">:root {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--pink: #ff6eb4;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--sky: #29aaee;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--yellow: #f5c800;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--green: #2eaa55;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--black: #111;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--gray: #888;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--purple: #9933cc;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--bg: #f7f5f2;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--card: #ffffff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--text: #1a1a1a;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--text-sub: #666;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--border: #e8e4df;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>--done: #bbb;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: var(--bg);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: var(--text);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>min-height: 100vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>max-width: 480px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin: 0 auto;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* VERSION TOGGLE */</span></p>
-<p class="p1"><span class="s1">.version-toggle {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>position: fixed;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>bottom: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>right: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>z-index: 100;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>gap: 6px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.ver-btn {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: var(--text);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: #fff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 8px 14px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-weight: 600;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>opacity: 0.4;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>transition: opacity 0.2s;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.ver-btn.active { opacity: 1; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* HEADER */</span></p>
-<p class="p1"><span class="s1">.header {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: #fff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 16px 16px 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-bottom: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>position: sticky;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>top: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>z-index: 50;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.header-top {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: space-between;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-bottom: 12px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.header-title { font-size: 18px; font-weight: 700; color: var(--text); }</span></p>
-<p class="p1"><span class="s1">.header-sub { font-size: 12px; color: var(--text-sub); margin-top: 2px; }</span></p>
-<p class="p1"><span class="s1">.month-nav {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>gap: 12px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.month-nav button {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 18px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: var(--text-sub);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 4px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.month-nav span { font-size: 15px; font-weight: 600; min-width: 40px; text-align: center; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* WEEK BAR */</span></p>
-<p class="p1"><span class="s1">.week-bar {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: grid;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>grid-template-columns: repeat(7, 1fr);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>gap: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 8px 0 0;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.week-day-label {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>text-align: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: var(--text-sub);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding-bottom: 4px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.week-day {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>flex-direction: column;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 6px 2px 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>transition: background 0.15s;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>position: relative;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.week-day .day-num {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 15px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-weight: 500;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: var(--text);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>line-height: 1;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.week-day .day-dot {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>width: 5px; height: 5px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 50%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-top: 4px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: transparent;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.week-day.has-data .day-dot { background: var(--green); }</span></p>
-<p class="p1"><span class="s1">.week-day.done .day-dot { background: var(--done); }</span></p>
-<p class="p1"><span class="s1">.week-day.selected {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: var(--text);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.week-day.selected .day-num { color: #fff; }</span></p>
-<p class="p1"><span class="s1">.week-day.selected .day-dot { background: rgba(255,255,255,0.5); }</span></p>
-<p class="p1"><span class="s1">.week-day.today .day-num { color: var(--pink); font-weight: 700; }</span></p>
-<p class="p1"><span class="s1">.week-day.selected.today .day-num { color: #fff; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* MAIN CONTENT */</span></p>
-<p class="p1"><span class="s1">.main { padding: 16px; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* DAY HEADER */</span></p>
-<p class="p1"><span class="s1">.day-header {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: space-between;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-bottom: 14px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.day-header-left .day-date { font-size: 20px; font-weight: 700; }</span></p>
-<p class="p1"><span class="s1">.day-header-left .day-dday { font-size: 12px; color: var(--text-sub); margin-top: 2px; }</span></p>
-<p class="p1"><span class="s1">.day-status {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 11px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-weight: 600;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 5px 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 20px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.day-status.done { background: #e8f5e9; color: var(--green); }</span></p>
-<p class="p1"><span class="s1">.day-status.pending { background: #fff3e0; color: #e65100; }</span></p>
-<p class="p1"><span class="s1">.day-status.future { background: #f5f5f5; color: var(--gray); }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* MEAL CARD */</span></p>
-<p class="p1"><span class="s1">.meal-card {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: var(--card);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-bottom: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>box-shadow: 0 2px 8px rgba(0,0,0,0.04);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.meal-card-title {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 13px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-weight: 600;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: var(--text-sub);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-bottom: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>gap: 6px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.meal-items { display: flex; flex-direction: column; gap: 6px; }</span></p>
-<p class="p1"><span class="s1">.meal-item {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: space-between;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.meal-item-name { font-size: 15px; font-weight: 500; }</span></p>
-<p class="p1"><span class="s1">.meal-item-amount { font-size: 14px; color: var(--text-sub); }</span></p>
-<p class="p1"><span class="s1">.meal-note {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 11px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: var(--text-sub);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-top: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding-top: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-top: 1px dashed var(--border);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* BADGES */</span></p>
-<p class="p1"><span class="s1">.badge {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: inline-block;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 9px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-weight: 600;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 2px 6px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 4px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-left: 6px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.b-new { background: var(--pink); color: #fff; }</span></p>
-<p class="p1"><span class="s1">.b-직접 { background: var(--sky); color: #fff; }</span></p>
-<p class="p1"><span class="s1">.b-시판 { background: var(--yellow); color: #fff; }</span></p>
-<p class="p1"><span class="s1">.b-혼합 { background: var(--green); color: #fff; }</span></p>
-<p class="p1"><span class="s1">.b-warn { background: var(--black); color: #fff; }</span></p>
-<p class="p1"><span class="s1">.b-rep { background: var(--gray); color: #fff; }</span></p>
-<p class="p1"><span class="s1">.b-kit { background: var(--purple); color: #fff; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* MEMO CARD */</span></p>
-<p class="p1"><span class="s1">.memo-card {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: #fffbf0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 14px 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-bottom: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border: 1px solid #f0e8c0;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.memo-card-title { font-size: 12px; font-weight: 600; color: #a07820; margin-bottom: 6px; }</span></p>
-<p class="p1"><span class="s1">.memo-text { font-size: 13px; color: #5a4010; line-height: 1.6; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* NEW INGREDIENT CARD */</span></p>
-<p class="p1"><span class="s1">.new-card {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: #fff0f6;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 14px 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-bottom: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border: 1px solid #ffd0e8;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.new-card-title { font-size: 12px; font-weight: 600; color: #c03060; margin-bottom: 8px; }</span></p>
-<p class="p1"><span class="s1">.new-items { display: flex; flex-wrap: wrap; gap: 6px; }</span></p>
-<p class="p1"><span class="s1">.new-item {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: var(--pink);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: #fff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-weight: 600;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 4px 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 20px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* ACCORDION */</span></p>
-<p class="p1"><span class="s1">.accordion {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: var(--card);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-bottom: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>overflow: hidden;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.accordion-header {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: space-between;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 14px 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>user-select: none;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.accordion-title { font-size: 14px; font-weight: 600; }</span></p>
-<p class="p1"><span class="s1">.accordion-arrow {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: var(--text-sub);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>transition: transform 0.2s;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.accordion.open .accordion-arrow { transform: rotate(180deg); }</span></p>
-<p class="p1"><span class="s1">.accordion-body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 0 16px 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-top: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.accordion.open .accordion-body { display: block; }</span></p>
-<p class="p1"><span class="s1">.stock-item {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: space-between;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 8px 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-bottom: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 13px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.stock-item:last-child { border-bottom: none; }</span></p>
-<p class="p1"><span class="s1">.stock-amount { font-weight: 600; color: var(--sky); }</span></p>
-<p class="p1"><span class="s1">.stock-low { color: #e65100; }</span></p>
-<p class="p1"><span class="s1">.shop-item {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>gap: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 8px 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-bottom: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 13px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.shop-item:last-child { border-bottom: none; }</span></p>
-<p class="p1"><span class="s1">.shop-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* DONE OVERLAY */</span></p>
-<p class="p1"><span class="s1">.done-overlay {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>opacity: 0.5;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* ==================== VERSION 2 ==================== */</span></p>
-<p class="p1"><span class="s1">#v2 { display: none; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.v2-header {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: #fff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-bottom: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>position: sticky;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>top: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>z-index: 50;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-header-top {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: space-between;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-bottom: 12px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-title { font-size: 18px; font-weight: 700; }</span></p>
-<p class="p1"><span class="s1">.v2-week-nav {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: space-between;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-week-nav button {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 6px 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 13px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: var(--text);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-week-label { font-size: 13px; font-weight: 600; color: var(--text-sub); }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.v2-main { padding: 12px 16px; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.v2-day-card {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: var(--card);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-bottom: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>overflow: hidden;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>transition: box-shadow 0.2s;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-day-card.today-card {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-color: var(--pink);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>box-shadow: 0 0 0 2px rgba(255,110,180,0.15);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-day-card.done-card { opacity: 0.6; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.v2-day-header {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: space-between;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 12px 14px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-day-left { display: flex; align-items: center; gap: 10px; }</span></p>
-<p class="p1"><span class="s1">.v2-day-num {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 22px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-weight: 800;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>line-height: 1;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>min-width: 32px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-day-info .v2-dow { font-size: 11px; color: var(--text-sub); }</span></p>
-<p class="p1"><span class="s1">.v2-day-info .v2-dday { font-size: 11px; color: var(--text-sub); }</span></p>
-<p class="p1"><span class="s1">.v2-day-right { display: flex; align-items: center; gap: 8px; }</span></p>
-<p class="p1"><span class="s1">.v2-day-preview { font-size: 11px; color: var(--text-sub); max-width: 130px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }</span></p>
-<p class="p1"><span class="s1">.v2-chevron { font-size: 12px; color: var(--text-sub); transition: transform 0.2s; }</span></p>
-<p class="p1"><span class="s1">.v2-day-card.open .v2-chevron { transform: rotate(180deg); }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.v2-day-body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 0 14px 14px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-top: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-day-card.open .v2-day-body { display: block; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">.v2-meal-row {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>justify-content: space-between;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 7px 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-bottom: 1px solid var(--border);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 13px;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-meal-row:last-child { border-bottom: none; }</span></p>
-<p class="p1"><span class="s1">.v2-meal-name { font-weight: 500; }</span></p>
-<p class="p1"><span class="s1">.v2-meal-amt { color: var(--text-sub); font-size: 12px; }</span></p>
-<p class="p1"><span class="s1">.v2-memo {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>margin-top: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>padding: 8px 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>background: #fffbf0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>border-radius: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>font-size: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>color: #a07820;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">.v2-done-mark { font-size: 11px; color: var(--green); font-weight: 600; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">/* TODAY HIGHLIGHT in v2 */</span></p>
-<p class="p1"><span class="s1">.v2-day-num.today-num { color: var(--pink); }</span></p>
-<p class="p1"><span class="s1">&lt;/style&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
-<p class="p1"><span class="s1">&lt;body&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;!-- VERSION 1: 날짜 선택형 --&gt;</span></p>
-<p class="p1"><span class="s1">&lt;div id="v1"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="header"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="header-top"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="header-title"&gt;</span><span class="s2">🍚</span><span class="s1"> 찐아 이유식&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="header-sub" id="v1-dday-sub"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="month-nav"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;button onclick="changeMonth(-1)"&gt;‹&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;span id="month-label"&gt;&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;button onclick="changeMonth(1)"&gt;›&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div style="display:grid;grid-template-columns:repeat(7,1fr);padding-bottom:4px;"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;"&gt;월&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;"&gt;화&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;"&gt;수&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;"&gt;목&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;"&gt;금&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;"&gt;토&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;"&gt;일&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="week-bar" id="week-bar"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="main" id="v1-main"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;!-- VERSION 2: 주간 카드형 --&gt;</span></p>
-<p class="p1"><span class="s1">&lt;div id="v2"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="v2-header"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="v2-header-top"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="v2-title"&gt;</span><span class="s2">🍚</span><span class="s1"> 찐아 이유식&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div id="v2-dday" style="font-size:12px;color:#888;"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="v2-week-nav"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;button onclick="changeWeek(-1)"&gt;‹ 이전주&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;span class="v2-week-label" id="v2-week-label"&gt;&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;button onclick="changeWeek(1)"&gt;다음주 ›&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="v2-main" id="v2-main"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;!-- VERSION TOGGLE BUTTONS --&gt;</span></p>
-<p class="p1"><span class="s1">&lt;div class="version-toggle"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;button class="ver-btn active" id="btn-v1" onclick="switchVersion(1)"&gt;V1&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;button class="ver-btn" id="btn-v2" onclick="switchVersion(2)"&gt;V2&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;script&gt;</span></p>
-<p class="p1"><span class="s1">// ========== 식단 데이터 ==========</span></p>
-<p class="p1"><span class="s1">const mealData = {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/9":<span class="Apple-converted-space">  </span>{ items:[{name:"쌀미음",amt:"45g"}], badges:["시판"], done:true, memo:"섭취완료" },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/10": { items:[{name:"쌀미음",amt:"60g"}], badges:["시판"], done:true, memo:"섭취완료" },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/11": { items:[{name:"쌀미음",amt:"60g"}], badges:["시판"], done:true, memo:"섭취완료" },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/12": { items:[{name:"한우미음",amt:"60g"}], badges:["NEW","시판"], done:true, memo:"섭취완료" },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/13": { items:[{name:"한우미음",amt:"60g"}], badges:["시판"], done:true, memo:"섭취완료" },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/14": { items:[{name:"쌀미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], note:"물 약간 추가", done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/15": { items:[{name:"쌀미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], note:"물 약간 추가", done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/16": { items:[{name:"쌀",amt:"60g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/17": { items:[{name:"브로콜리미음",amt:"30g"},{name:"한우",amt:"15g"}], badges:["NEW","시판+직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/18": { items:[{name:"브로콜리미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/19": { items:[{name:"브로콜리미음",amt:"65g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/20": { items:[{name:"감자미음",amt:"30g"},{name:"한우",amt:"15g"}], badges:["NEW","시판+직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/21": { items:[{name:"감자미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/22": { items:[{name:"감자미음",amt:"65g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/23": { items:[{name:"쌀",amt:"60g"},{name:"애호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/24": { items:[{name:"쌀",amt:"45g"},{name:"애호박",amt:"30g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/25": { items:[{name:"쌀",amt:"30g"},{name:"오트밀",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/26": { items:[{name:"쌀",amt:"30g"},{name:"오트밀",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/27": { items:[{name:"쌀",amt:"30g"},{name:"오트밀",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/28": { items:[{name:"오트밀",amt:"30g"},{name:"애호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/29": { items:[{name:"오트밀",amt:"30g"},{name:"애호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/30": { items:[{name:"고구마미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["NEW","시판+직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"5/31": { items:[{name:"고구마미음",amt:"55g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/1":<span class="Apple-converted-space">  </span>{ items:[{name:"고구마미음 소량"},{name:"오트밀",amt:"30g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/2":<span class="Apple-converted-space">  </span>{ items:[{name:"쌀",amt:"45g"},{name:"노른자","amt":"소량"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/3":<span class="Apple-converted-space">  </span>{ items:[{name:"쌀",amt:"45g"},{name:"노른자",amt:"5g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/4":<span class="Apple-converted-space">  </span>{ items:[{name:"쌀",amt:"45g"},{name:"노른자",amt:"5g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/5":<span class="Apple-converted-space">  </span>{ items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"10g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/6":<span class="Apple-converted-space">  </span>{ items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"10g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/7":<span class="Apple-converted-space">  </span>{ items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"10g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/8":<span class="Apple-converted-space">  </span>{ items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/9":<span class="Apple-converted-space">  </span>{ items:[{name:"쌀",amt:"30g"},{name:"땅콩","amt":"소량"},{name:"한우",amt:"15g"}], badges:["주의","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/10": { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/11": { items:[{name:"쌀",amt:"30g"},{name:"땅콩",amt:"5g"},{name:"한우",amt:"15g"}], badges:["반복","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/12": { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/13": { items:[{name:"쌀",amt:"30g"},{name:"땅콩",amt:"5g"},{name:"한우",amt:"15g"}], badges:["반복","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/14": { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/15": { items:[{name:"쌀",amt:"30g"},{name:"양배추",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/16": { items:[{name:"쌀",amt:"30g"},{name:"양배추",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/17": { items:[{name:"쌀",amt:"30g"},{name:"양배추",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/18": { items:[{name:"쌀",amt:"30g"},{name:"단호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/19": { items:[{name:"쌀",amt:"30g"},{name:"단호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/20": { items:[{name:"쌀",amt:"30g"},{name:"단호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/21": { items:[{name:"쌀",amt:"30g"},{name:"두부",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","키트"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/22": { items:[{name:"쌀",amt:"30g"},{name:"두부",amt:"15g"},{name:"한우",amt:"15g"}], badges:["키트","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/23": { items:[{name:"쌀",amt:"30g"},{name:"두부",amt:"15g"},{name:"한우",amt:"15g"}], badges:["키트","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/24": { items:[{name:"쌀",amt:"30g"},{name:"밀가루","amt":"소량"},{name:"한우",amt:"15g"}], badges:["NEW","키트"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/25": { items:[{name:"쌀",amt:"30g"},{name:"밀가루",amt:"5g"},{name:"한우",amt:"15g"}], badges:["키트","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/26": { items:[{name:"쌀",amt:"30g"},{name:"밀가루",amt:"5g"},{name:"한우",amt:"15g"}], badges:["키트","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/27": { items:[{name:"쌀",amt:"30g"},{name:"단호박",amt:"15g"},{name:"양배추",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/28": { items:[{name:"쌀",amt:"30g"},{name:"땅콩",amt:"5g"},{name:"한우",amt:"15g"}], badges:["반복","직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/29": { items:[{name:"쌀",amt:"30g"},{name:"두부",amt:"15g"},{name:"단호박",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"6/30": { items:[{name:"쌀",amt:"30g"},{name:"양배추",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },</span></p>
-<p class="p1"><span class="s1">};</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">const START_DATE = new Date(2025, 4, 9); // 5/9 이유식 시작</span></p>
-<p class="p1"><span class="s1">const TODAY = new Date(2025, 4, 14); // 오늘 5/14</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">const DOW = ["월","화","수","목","금","토","일"];</span></p>
-<p class="p1"><span class="s1">const DOW_EN = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function dateKey(date) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return `${date.getMonth()+1}/${date.getDate()}`;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">function getDDay(date) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const diff = Math.floor((date - START_DATE) / 86400000);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return `D+${diff + 1}`;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p1"><span class="s1">function getDow(date) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const d = date.getDay();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return DOW[d === 0 ? 6 : d - 1];</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function badgeClass(b) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const map = {"NEW":"b-new","직접":"b-직접","시판":"b-시판","시판+직접":"b-혼합","주의":"b-warn","반복":"b-rep","키트":"b-kit"};</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return map[b] || "b-직접";</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">// 재고 데이터</span></p>
-<p class="p1"><span class="s1">const stockData = [</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>{ name:"한우 큐브 (15g)", amount:"11개 (165g)", low: false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>{ name:"브로콜리미음", amount:"140g (5/16 도착)", low: false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>{ name:"감자미음", amount:"140g (5/16 도착)", low: false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>{ name:"고구마미음", amount:"100g", low: false },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>{ name:"쌀가루 (아이보리)", amount:"구매 필요", low: true },</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>{ name:"오트밀 파우더 (아이보리)", amount:"구매 필요", low: true },</span></p>
-<p class="p1"><span class="s1">];</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">const shopData = [</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"아이보리 쌀가루 초기 1단계",</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"아이보리 오트밀 파우더 200g",</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>"한우 우둔살 350g (5/24 전 구매)",</span></p>
-<p class="p1"><span class="s1">];</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">// ========== VERSION 1 ==========</span></p>
-<p class="p1"><span class="s1">let currentMonth = TODAY.getMonth(); // 0-indexed</span></p>
-<p class="p1"><span class="s1">let selectedDate = new Date(TODAY);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function getWeekDates(date) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const day = date.getDay();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const mon = new Date(date);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>mon.setDate(date.getDate() - (day === 0 ? 6 : day - 1));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const days = [];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>for (let i = 0; i &lt; 7; i++) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const d = new Date(mon);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>d.setDate(mon.getDate() + i);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>days.push(d);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return days;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function renderWeekBar() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const bar = document.getElementById('week-bar');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const ml = document.getElementById('month-label');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>ml.textContent = `${currentMonth+1}월`;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">  </span></span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const weekDays = getWeekDates(selectedDate);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>bar.innerHTML = weekDays.map(d =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const key = dateKey(d);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const data = mealData[key];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const isToday = d.toDateString() === TODAY.toDateString();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const isSelected = d.toDateString() === selectedDate.toDateString();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const hasDone = data &amp;&amp; data.done;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const hasData = !!data;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span></span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>let cls = 'week-day';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (isToday) cls += ' today';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (isSelected) cls += ' selected';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (hasDone) cls += ' done';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>else if (hasData) cls += ' has-data';</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span></span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>return `&lt;div class="${cls}" onclick="selectDate(new Date(${d.getFullYear()},${d.getMonth()},${d.getDate()}))"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="day-num"&gt;${d.getDate()}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="day-dot"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}).join('');</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function selectDate(date) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>selectedDate = date;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>currentMonth = date.getMonth();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>renderWeekBar();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>renderDayContent();</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function changeMonth(dir) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>currentMonth += dir;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (currentMonth &lt; 0) currentMonth = 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (currentMonth &gt; 11) currentMonth = 11;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>// 해당 월의 첫 날로 이동</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const newDate = new Date(2025, currentMonth, 1);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>// 이유식 데이터 있는 첫 날 찾기</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>for (let i = 1; i &lt;= 31; i++) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const d = new Date(2025, currentMonth, i);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (d.getMonth() !== currentMonth) break;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (mealData[dateKey(d)]) { selectedDate = d; break; }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>renderWeekBar();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>renderDayContent();</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function getNewIngredientsThisWeek(date) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const weekDays = getWeekDates(date);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const newItems = [];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>weekDays.forEach(d =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const key = dateKey(d);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const data = mealData[key];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (data &amp;&amp; data.badges &amp;&amp; data.badges.includes('NEW')) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>data.items.forEach(item =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>if (!newItems.includes(item.name)) newItems.push(item.name);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>});</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>});</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>return newItems;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function renderDayContent() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const key = dateKey(selectedDate);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const data = mealData[key];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const dow = getDow(selectedDate);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const dday = getDDay(selectedDate);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const main = document.getElementById('v1-main');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const sub = document.getElementById('v1-dday-sub');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>sub.textContent = `${getDDay(TODAY)} · ${TODAY.getMonth()+1}/${TODAY.getDate()} 기준`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>let html = '';</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>// Day header</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const isToday = selectedDate.toDateString() === TODAY.toDateString();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const statusText = !data ? '식단 없음' : data.done ? '섭취 완료 ✓' : isToday ? '오늘 예정' : selectedDate &lt; TODAY ? '기록 없음' : '예정';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const statusClass = !data ? 'future' : data.done ? 'done' : 'pending';</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>html += `&lt;div class="day-header"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="day-header-left"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="day-date"&gt;${selectedDate.getMonth()+1}월 ${selectedDate.getDate()}일 (${dow})&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="day-dday"&gt;${dday}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="day-status ${statusClass}"&gt;${statusText}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (!data) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>html += `&lt;div class="meal-card" style="text-align:center;color:#aaa;padding:30px;"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>이날은 이유식 기록이 없어요</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>} else {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// Meal card</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const badgeHtml = data.badges ? data.badges.map(b =&gt; `&lt;span class="badge ${badgeClass(b)}"&gt;${b}&lt;/span&gt;`).join('') : '';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const doneStyle = data.done ? 'class="done-overlay"' : '';</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span></span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>html += `&lt;div class="meal-card" ${doneStyle}&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="meal-card-title"&gt;</span><span class="s2">🥣</span><span class="s1"> 오늘의 이유식 ${badgeHtml}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="meal-items"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>${data.items.map(item =&gt; `&lt;div class="meal-item"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;span class="meal-item-name"&gt;${item.name}&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;span class="meal-item-amount"&gt;${item.amt || ''}&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;`).join('')}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>${data.note ? `&lt;div class="meal-note"&gt;</span><span class="s2">💧</span><span class="s1"> ${data.note}&lt;/div&gt;` : ''}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// Memo</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (data.memo) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>html += `&lt;div class="memo-card"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="memo-card-title"&gt;</span><span class="s2">📝</span><span class="s1"> 섭취 기록&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="memo-text"&gt;${data.memo}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>// 이번주 NEW 재료</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const newItems = getNewIngredientsThisWeek(selectedDate);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>if (newItems.length &gt; 0) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>html += `&lt;div class="new-card"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="new-card-title"&gt;</span><span class="s2">✨</span><span class="s1"> 이번 주 새 식재료&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="new-items"&gt;${newItems.map(i =&gt; `&lt;span class="new-item"&gt;${i}&lt;/span&gt;`).join('')}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>// 재고 현황 (아코디언)</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>html += `&lt;div class="accordion" id="acc-stock"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="accordion-header" onclick="toggleAccordion('acc-stock')"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;span class="accordion-title"&gt;</span><span class="s2">📦</span><span class="s1"> 재고 현황&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;span class="accordion-arrow"&gt;▼&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="accordion-body"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>${stockData.map(s =&gt; `&lt;div class="stock-item"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;span&gt;${s.name}&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;span class="stock-amount ${s.low ? 'stock-low' : ''}"&gt;${s.amount}&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;`).join('')}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>// 장봐야 할 재료 (아코디언)</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>html += `&lt;div class="accordion" id="acc-shop"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="accordion-header" onclick="toggleAccordion('acc-shop')"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;span class="accordion-title"&gt;</span><span class="s2">🛒</span><span class="s1"> 장봐야 할 재료&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;span class="accordion-arrow"&gt;▼&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="accordion-body"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>${shopData.map(s =&gt; `&lt;div class="shop-item"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="shop-dot"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;span&gt;${s}&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;`).join('')}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>html += '&lt;div style="height:80px;"&gt;&lt;/div&gt;';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>main.innerHTML = html;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function toggleAccordion(id) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const el = document.getElementById(id);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>el.classList.toggle('open');</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">// ========== VERSION 2 ==========</span></p>
-<p class="p1"><span class="s1">let currentWeekStart = new Date(TODAY);</span></p>
-<p class="p1"><span class="s1">// 월요일로 맞추기</span></p>
-<p class="p1"><span class="s1">const todayDay = TODAY.getDay();</span></p>
-<p class="p1"><span class="s1">currentWeekStart.setDate(TODAY.getDate() - (todayDay === 0 ? 6 : todayDay - 1));</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function changeWeek(dir) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>currentWeekStart.setDate(currentWeekStart.getDate() + dir * 7);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>renderV2();</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function renderV2() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const dday = document.getElementById('v2-dday');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>dday.textContent = `${getDDay(TODAY)} · ${TODAY.getMonth()+1}/${TODAY.getDate()} 기준`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const weekLabel = document.getElementById('v2-week-label');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const end = new Date(currentWeekStart);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>end.setDate(currentWeekStart.getDate() + 6);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>weekLabel.textContent = `${currentWeekStart.getMonth()+1}/${currentWeekStart.getDate()} ~ ${end.getMonth()+1}/${end.getDate()}`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>const main = document.getElementById('v2-main');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>let html = '';</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>for (let i = 0; i &lt; 7; i++) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const d = new Date(currentWeekStart);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>d.setDate(currentWeekStart.getDate() + i);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const key = dateKey(d);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const data = mealData[key];</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const isToday = d.toDateString() === TODAY.toDateString();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const dow = getDow(d);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const dday = getDDay(d);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>let cardCls = 'v2-day-card';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (isToday) cardCls += ' today-card open';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (data &amp;&amp; data.done) cardCls += ' done-card';</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const preview = data ? data.items.map(i =&gt; i.name).join(' + ') : '식단 없음';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const numCls = isToday ? 'v2-day-num today-num' : 'v2-day-num';</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>html += `&lt;div class="${cardCls}" id="v2-card-${i}"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="v2-day-header" onclick="toggleV2Card('v2-card-${i}')"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="v2-day-left"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div class="${numCls}"&gt;${d.getDate()}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div class="v2-day-info"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="v2-dow"&gt;${d.getMonth()+1}/${d.getDate()} (${dow})&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="v2-dday"&gt;${dday}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="v2-day-right"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div class="v2-day-preview"&gt;${preview}&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;div class="v2-chevron"&gt;▼&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>if (data) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const badgeHtml = data.badges ? data.badges.map(b =&gt; `&lt;span class="badge ${badgeClass(b)}"&gt;${b}&lt;/span&gt;`).join('') : '';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>html += `&lt;div class="v2-day-body"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div style="padding-top:10px;"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>${badgeHtml ? `&lt;div style="margin-bottom:8px;"&gt;${badgeHtml}&lt;/div&gt;` : ''}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>${data.items.map(item =&gt; `&lt;div class="v2-meal-row"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;span class="v2-meal-name"&gt;${item.name}&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;span class="v2-meal-amt"&gt;${item.amt || ''}&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;/div&gt;`).join('')}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>${data.note ? `&lt;div class="v2-memo"&gt;</span><span class="s2">💧</span><span class="s1"> ${data.note}&lt;/div&gt;` : ''}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>${data.memo ? `&lt;div class="v2-memo" style="margin-top:6px;background:#e8f5e9;color:#2e7d32;"&gt;</span><span class="s2">📝</span><span class="s1"> ${data.memo}&lt;/div&gt;` : ''}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>${data.done ? `&lt;div style="text-align:right;margin-top:8px;"&gt;&lt;span class="v2-done-mark"&gt;✓ 섭취 완료&lt;/span&gt;&lt;/div&gt;` : ''}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>} else {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>html += `&lt;div class="v2-day-body"&gt;&lt;div style="padding:10px 0;color:#aaa;font-size:13px;"&gt;이날은 이유식 기록이 없어요&lt;/div&gt;&lt;/div&gt;`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>html += '&lt;/div&gt;';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>// 재고/장보기 아코디언</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>html += `&lt;div class="accordion" id="v2-acc-stock"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="accordion-header" onclick="toggleAccordion('v2-acc-stock')"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;span class="accordion-title"&gt;</span><span class="s2">📦</span><span class="s1"> 재고 현황&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;span class="accordion-arrow"&gt;▼&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="accordion-body"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>${stockData.map(s =&gt; `&lt;div class="stock-item"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;span&gt;${s.name}&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;span class="stock-amount ${s.low ? 'stock-low' : ''}"&gt;${s.amount}&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;`).join('')}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="accordion" id="v2-acc-shop"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="accordion-header" onclick="toggleAccordion('v2-acc-shop')"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;span class="accordion-title"&gt;</span><span class="s2">🛒</span><span class="s1"> 장봐야 할 재료&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;span class="accordion-arrow"&gt;▼&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="accordion-body"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>${shopData.map(s =&gt; `&lt;div class="shop-item"&gt;&lt;div class="shop-dot"&gt;&lt;/div&gt;&lt;span&gt;${s}&lt;/span&gt;&lt;/div&gt;`).join('')}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div style="height:80px;"&gt;&lt;/div&gt;`;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>main.innerHTML = html;</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function toggleV2Card(id) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById(id).classList.toggle('open');</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">// ========== VERSION SWITCH ==========</span></p>
-<p class="p1"><span class="s1">function switchVersion(v) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById('v1').style.display = v === 1 ? 'block' : 'none';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById('v2').style.display = v === 2 ? 'block' : 'none';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById('btn-v1').classList.toggle('active', v === 1);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>document.getElementById('btn-v2').classList.toggle('active', v === 2);</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">// ========== INIT ==========</span></p>
-<p class="p1"><span class="s1">renderWeekBar();</span></p>
-<p class="p1"><span class="s1">renderDayContent();</span></p>
-<p class="p1"><span class="s1">renderV2();</span></p>
-<p class="p1"><span class="s1">&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+
+<!-- VERSION 1: 날짜 선택형 -->
+<div id="v1">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="header-title">🍚 찐아 이유식</div>
+        <div class="header-sub" id="v1-dday-sub"></div>
+      </div>
+      <div class="month-nav">
+        <button onclick="changeMonth(-1)">‹</button>
+        <span id="month-label"></span>
+        <button onclick="changeMonth(1)">›</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);padding-bottom:4px;">
+      <div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;">월</div>
+      <div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;">화</div>
+      <div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;">수</div>
+      <div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;">목</div>
+      <div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;">금</div>
+      <div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;">토</div>
+      <div style="text-align:center;font-size:10px;color:#aaa;padding-bottom:2px;">일</div>
+    </div>
+    <div class="week-bar" id="week-bar"></div>
+  </div>
+  <div class="main" id="v1-main"></div>
+</div>
+
+<!-- VERSION 2: 주간 카드형 -->
+<div id="v2">
+  <div class="v2-header">
+    <div class="v2-header-top">
+      <div class="v2-title">🍚 찐아 이유식</div>
+      <div id="v2-dday" style="font-size:12px;color:#888;"></div>
+    </div>
+    <div class="v2-week-nav">
+      <button onclick="changeWeek(-1)">‹ 이전주</button>
+      <span class="v2-week-label" id="v2-week-label"></span>
+      <button onclick="changeWeek(1)">다음주 ›</button>
+    </div>
+  </div>
+  <div class="v2-main" id="v2-main"></div>
+</div>
+
+<!-- VERSION TOGGLE BUTTONS -->
+<div class="version-toggle">
+  <button class="ver-btn active" id="btn-v1" onclick="switchVersion(1)">V1</button>
+  <button class="ver-btn" id="btn-v2" onclick="switchVersion(2)">V2</button>
+</div>
+
+<script>
+// ========== 식단 데이터 ==========
+const mealData = {
+  "5/9":  { items:[{name:"쌀미음",amt:"45g"}], badges:["시판"], done:true, memo:"섭취완료" },
+  "5/10": { items:[{name:"쌀미음",amt:"60g"}], badges:["시판"], done:true, memo:"섭취완료" },
+  "5/11": { items:[{name:"쌀미음",amt:"60g"}], badges:["시판"], done:true, memo:"섭취완료" },
+  "5/12": { items:[{name:"한우미음",amt:"60g"}], badges:["NEW","시판"], done:true, memo:"섭취완료" },
+  "5/13": { items:[{name:"한우미음",amt:"60g"}], badges:["시판"], done:true, memo:"섭취완료" },
+  "5/14": { items:[{name:"쌀미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], note:"물 약간 추가", done:false },
+  "5/15": { items:[{name:"쌀미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], note:"물 약간 추가", done:false },
+  "5/16": { items:[{name:"쌀",amt:"60g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "5/17": { items:[{name:"브로콜리미음",amt:"30g"},{name:"한우",amt:"15g"}], badges:["NEW","시판+직접"], done:false },
+  "5/18": { items:[{name:"브로콜리미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },
+  "5/19": { items:[{name:"브로콜리미음",amt:"65g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },
+  "5/20": { items:[{name:"감자미음",amt:"30g"},{name:"한우",amt:"15g"}], badges:["NEW","시판+직접"], done:false },
+  "5/21": { items:[{name:"감자미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },
+  "5/22": { items:[{name:"감자미음",amt:"65g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },
+  "5/23": { items:[{name:"쌀",amt:"60g"},{name:"애호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },
+  "5/24": { items:[{name:"쌀",amt:"45g"},{name:"애호박",amt:"30g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "5/25": { items:[{name:"쌀",amt:"30g"},{name:"오트밀",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },
+  "5/26": { items:[{name:"쌀",amt:"30g"},{name:"오트밀",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "5/27": { items:[{name:"쌀",amt:"30g"},{name:"오트밀",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "5/28": { items:[{name:"오트밀",amt:"30g"},{name:"애호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "5/29": { items:[{name:"오트밀",amt:"30g"},{name:"애호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "5/30": { items:[{name:"고구마미음",amt:"45g"},{name:"한우",amt:"15g"}], badges:["NEW","시판+직접"], done:false },
+  "5/31": { items:[{name:"고구마미음",amt:"55g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },
+  "6/1":  { items:[{name:"고구마미음 소량"},{name:"오트밀",amt:"30g"},{name:"한우",amt:"15g"}], badges:["시판+직접"], done:false },
+  "6/2":  { items:[{name:"쌀",amt:"45g"},{name:"노른자","amt":"소량"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },
+  "6/3":  { items:[{name:"쌀",amt:"45g"},{name:"노른자",amt:"5g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/4":  { items:[{name:"쌀",amt:"45g"},{name:"노른자",amt:"5g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/5":  { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"10g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/6":  { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"10g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/7":  { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"10g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/8":  { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/9":  { items:[{name:"쌀",amt:"30g"},{name:"땅콩","amt":"소량"},{name:"한우",amt:"15g"}], badges:["주의","직접"], done:false },
+  "6/10": { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/11": { items:[{name:"쌀",amt:"30g"},{name:"땅콩",amt:"5g"},{name:"한우",amt:"15g"}], badges:["반복","직접"], done:false },
+  "6/12": { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/13": { items:[{name:"쌀",amt:"30g"},{name:"땅콩",amt:"5g"},{name:"한우",amt:"15g"}], badges:["반복","직접"], done:false },
+  "6/14": { items:[{name:"쌀",amt:"30g"},{name:"노른자",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/15": { items:[{name:"쌀",amt:"30g"},{name:"양배추",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },
+  "6/16": { items:[{name:"쌀",amt:"30g"},{name:"양배추",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/17": { items:[{name:"쌀",amt:"30g"},{name:"양배추",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/18": { items:[{name:"쌀",amt:"30g"},{name:"단호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","직접"], done:false },
+  "6/19": { items:[{name:"쌀",amt:"30g"},{name:"단호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/20": { items:[{name:"쌀",amt:"30g"},{name:"단호박",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+  "6/21": { items:[{name:"쌀",amt:"30g"},{name:"두부",amt:"15g"},{name:"한우",amt:"15g"}], badges:["NEW","키트"], done:false },
+  "6/22": { items:[{name:"쌀",amt:"30g"},{name:"두부",amt:"15g"},{name:"한우",amt:"15g"}], badges:["키트","직접"], done:false },
+  "6/23": { items:[{name:"쌀",amt:"30g"},{name:"두부",amt:"15g"},{name:"한우",amt:"15g"}], badges:["키트","직접"], done:false },
+  "6/24": { items:[{name:"쌀",amt:"30g"},{name:"밀가루","amt":"소량"},{name:"한우",amt:"15g"}], badges:["NEW","키트"], done:false },
+  "6/25": { items:[{name:"쌀",amt:"30g"},{name:"밀가루",amt:"5g"},{name:"한우",amt:"15g"}], badges:["키트","직접"], done:false },
+  "6/26": { items:[{name:"쌀",amt:"30g"},{name:"밀가루",amt:"5g"},{name:"한우",amt:"15g"}], badges:["키트","직접"], done:false },
+  "6/27": { items:[{name:"쌀",amt:"30g"},{name:"단호박",amt:"15g"},{name:"양배추",amt:"15g"}], badges:["직접"], done:false },
+  "6/28": { items:[{name:"쌀",amt:"30g"},{name:"땅콩",amt:"5g"},{name:"한우",amt:"15g"}], badges:["반복","직접"], done:false },
+  "6/29": { items:[{name:"쌀",amt:"30g"},{name:"두부",amt:"15g"},{name:"단호박",amt:"15g"}], badges:["직접"], done:false },
+  "6/30": { items:[{name:"쌀",amt:"30g"},{name:"양배추",amt:"15g"},{name:"한우",amt:"15g"}], badges:["직접"], done:false },
+};
+
+const START_DATE = new Date(2025, 4, 9); // 5/9 이유식 시작
+const TODAY = new Date(2025, 4, 14); // 오늘 5/14
+
+const DOW = ["월","화","수","목","금","토","일"];
+const DOW_EN = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+function dateKey(date) {
+  return `${date.getMonth()+1}/${date.getDate()}`;
+}
+function getDDay(date) {
+  const diff = Math.floor((date - START_DATE) / 86400000);
+  return `D+${diff + 1}`;
+}
+function getDow(date) {
+  const d = date.getDay();
+  return DOW[d === 0 ? 6 : d - 1];
+}
+
+function badgeClass(b) {
+  const map = {"NEW":"b-new","직접":"b-직접","시판":"b-시판","시판+직접":"b-혼합","주의":"b-warn","반복":"b-rep","키트":"b-kit"};
+  return map[b] || "b-직접";
+}
+
+// 재고 데이터
+const stockData = [
+  { name:"한우 큐브 (15g)", amount:"11개 (165g)", low: false },
+  { name:"브로콜리미음", amount:"140g (5/16 도착)", low: false },
+  { name:"감자미음", amount:"140g (5/16 도착)", low: false },
+  { name:"고구마미음", amount:"100g", low: false },
+  { name:"쌀가루 (아이보리)", amount:"구매 필요", low: true },
+  { name:"오트밀 파우더 (아이보리)", amount:"구매 필요", low: true },
+];
+
+const shopData = [
+  "아이보리 쌀가루 초기 1단계",
+  "아이보리 오트밀 파우더 200g",
+  "한우 우둔살 350g (5/24 전 구매)",
+];
+
+// ========== VERSION 1 ==========
+let currentMonth = TODAY.getMonth(); // 0-indexed
+let selectedDate = new Date(TODAY);
+
+function getWeekDates(date) {
+  const day = date.getDay();
+  const mon = new Date(date);
+  mon.setDate(date.getDate() - (day === 0 ? 6 : day - 1));
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(mon);
+    d.setDate(mon.getDate() + i);
+    days.push(d);
+  }
+  return days;
+}
+
+function renderWeekBar() {
+  const bar = document.getElementById('week-bar');
+  const ml = document.getElementById('month-label');
+  ml.textContent = `${currentMonth+1}월`;
+  
+  const weekDays = getWeekDates(selectedDate);
+  bar.innerHTML = weekDays.map(d => {
+    const key = dateKey(d);
+    const data = mealData[key];
+    const isToday = d.toDateString() === TODAY.toDateString();
+    const isSelected = d.toDateString() === selectedDate.toDateString();
+    const hasDone = data && data.done;
+    const hasData = !!data;
+    
+    let cls = 'week-day';
+    if (isToday) cls += ' today';
+    if (isSelected) cls += ' selected';
+    if (hasDone) cls += ' done';
+    else if (hasData) cls += ' has-data';
+    
+    return `<div class="${cls}" onclick="selectDate(new Date(${d.getFullYear()},${d.getMonth()},${d.getDate()}))">
+      <div class="day-num">${d.getDate()}</div>
+      <div class="day-dot"></div>
+    </div>`;
+  }).join('');
+}
+
+function selectDate(date) {
+  selectedDate = date;
+  currentMonth = date.getMonth();
+  renderWeekBar();
+  renderDayContent();
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth < 0) currentMonth = 0;
+  if (currentMonth > 11) currentMonth = 11;
+  // 해당 월의 첫 날로 이동
+  const newDate = new Date(2025, currentMonth, 1);
+  // 이유식 데이터 있는 첫 날 찾기
+  for (let i = 1; i <= 31; i++) {
+    const d = new Date(2025, currentMonth, i);
+    if (d.getMonth() !== currentMonth) break;
+    if (mealData[dateKey(d)]) { selectedDate = d; break; }
+  }
+  renderWeekBar();
+  renderDayContent();
+}
+
+function getNewIngredientsThisWeek(date) {
+  const weekDays = getWeekDates(date);
+  const newItems = [];
+  weekDays.forEach(d => {
+    const key = dateKey(d);
+    const data = mealData[key];
+    if (data && data.badges && data.badges.includes('NEW')) {
+      data.items.forEach(item => {
+        if (!newItems.includes(item.name)) newItems.push(item.name);
+      });
+    }
+  });
+  return newItems;
+}
+
+function renderDayContent() {
+  const key = dateKey(selectedDate);
+  const data = mealData[key];
+  const dow = getDow(selectedDate);
+  const dday = getDDay(selectedDate);
+  const main = document.getElementById('v1-main');
+  const sub = document.getElementById('v1-dday-sub');
+  sub.textContent = `${getDDay(TODAY)} · ${TODAY.getMonth()+1}/${TODAY.getDate()} 기준`;
+
+  let html = '';
+
+  // Day header
+  const isToday = selectedDate.toDateString() === TODAY.toDateString();
+  const statusText = !data ? '식단 없음' : data.done ? '섭취 완료 ✓' : isToday ? '오늘 예정' : selectedDate < TODAY ? '기록 없음' : '예정';
+  const statusClass = !data ? 'future' : data.done ? 'done' : 'pending';
+
+  html += `<div class="day-header">
+    <div class="day-header-left">
+      <div class="day-date">${selectedDate.getMonth()+1}월 ${selectedDate.getDate()}일 (${dow})</div>
+      <div class="day-dday">${dday}</div>
+    </div>
+    <div class="day-status ${statusClass}">${statusText}</div>
+  </div>`;
+
+  if (!data) {
+    html += `<div class="meal-card" style="text-align:center;color:#aaa;padding:30px;">
+      이날은 이유식 기록이 없어요
+    </div>`;
+  } else {
+    // Meal card
+    const badgeHtml = data.badges ? data.badges.map(b => `<span class="badge ${badgeClass(b)}">${b}</span>`).join('') : '';
+    const doneStyle = data.done ? 'class="done-overlay"' : '';
+    
+    html += `<div class="meal-card" ${doneStyle}>
+      <div class="meal-card-title">🥣 오늘의 이유식 ${badgeHtml}</div>
+      <div class="meal-items">
+        ${data.items.map(item => `<div class="meal-item">
+          <span class="meal-item-name">${item.name}</span>
+          <span class="meal-item-amount">${item.amt || ''}</span>
+        </div>`).join('')}
+      </div>
+      ${data.note ? `<div class="meal-note">💧 ${data.note}</div>` : ''}
+    </div>`;
+
+    // Memo
+    if (data.memo) {
+      html += `<div class="memo-card">
+        <div class="memo-card-title">📝 섭취 기록</div>
+        <div class="memo-text">${data.memo}</div>
+      </div>`;
+    }
+  }
+
+  // 이번주 NEW 재료
+  const newItems = getNewIngredientsThisWeek(selectedDate);
+  if (newItems.length > 0) {
+    html += `<div class="new-card">
+      <div class="new-card-title">✨ 이번 주 새 식재료</div>
+      <div class="new-items">${newItems.map(i => `<span class="new-item">${i}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  // 재고 현황 (아코디언)
+  html += `<div class="accordion" id="acc-stock">
+    <div class="accordion-header" onclick="toggleAccordion('acc-stock')">
+      <span class="accordion-title">📦 재고 현황</span>
+      <span class="accordion-arrow">▼</span>
+    </div>
+    <div class="accordion-body">
+      ${stockData.map(s => `<div class="stock-item">
+        <span>${s.name}</span>
+        <span class="stock-amount ${s.low ? 'stock-low' : ''}">${s.amount}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+
+  // 장봐야 할 재료 (아코디언)
+  html += `<div class="accordion" id="acc-shop">
+    <div class="accordion-header" onclick="toggleAccordion('acc-shop')">
+      <span class="accordion-title">🛒 장봐야 할 재료</span>
+      <span class="accordion-arrow">▼</span>
+    </div>
+    <div class="accordion-body">
+      ${shopData.map(s => `<div class="shop-item">
+        <div class="shop-dot"></div>
+        <span>${s}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+
+  html += '<div style="height:80px;"></div>';
+  main.innerHTML = html;
+}
+
+function toggleAccordion(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ========== VERSION 2 ==========
+let currentWeekStart = new Date(TODAY);
+// 월요일로 맞추기
+const todayDay = TODAY.getDay();
+currentWeekStart.setDate(TODAY.getDate() - (todayDay === 0 ? 6 : todayDay - 1));
+
+function changeWeek(dir) {
+  currentWeekStart.setDate(currentWeekStart.getDate() + dir * 7);
+  renderV2();
+}
+
+function renderV2() {
+  const dday = document.getElementById('v2-dday');
+  dday.textContent = `${getDDay(TODAY)} · ${TODAY.getMonth()+1}/${TODAY.getDate()} 기준`;
+
+  const weekLabel = document.getElementById('v2-week-label');
+  const end = new Date(currentWeekStart);
+  end.setDate(currentWeekStart.getDate() + 6);
+  weekLabel.textContent = `${currentWeekStart.getMonth()+1}/${currentWeekStart.getDate()} ~ ${end.getMonth()+1}/${end.getDate()}`;
+
+  const main = document.getElementById('v2-main');
+  let html = '';
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(currentWeekStart);
+    d.setDate(currentWeekStart.getDate() + i);
+    const key = dateKey(d);
+    const data = mealData[key];
+    const isToday = d.toDateString() === TODAY.toDateString();
+    const dow = getDow(d);
+    const dday = getDDay(d);
+
+    let cardCls = 'v2-day-card';
+    if (isToday) cardCls += ' today-card open';
+    if (data && data.done) cardCls += ' done-card';
+
+    const preview = data ? data.items.map(i => i.name).join(' + ') : '식단 없음';
+    const numCls = isToday ? 'v2-day-num today-num' : 'v2-day-num';
+
+    html += `<div class="${cardCls}" id="v2-card-${i}">
+      <div class="v2-day-header" onclick="toggleV2Card('v2-card-${i}')">
+        <div class="v2-day-left">
+          <div class="${numCls}">${d.getDate()}</div>
+          <div class="v2-day-info">
+            <div class="v2-dow">${d.getMonth()+1}/${d.getDate()} (${dow})</div>
+            <div class="v2-dday">${dday}</div>
+          </div>
+        </div>
+        <div class="v2-day-right">
+          <div class="v2-day-preview">${preview}</div>
+          <div class="v2-chevron">▼</div>
+        </div>
+      </div>`;
+
+    if (data) {
+      const badgeHtml = data.badges ? data.badges.map(b => `<span class="badge ${badgeClass(b)}">${b}</span>`).join('') : '';
+      html += `<div class="v2-day-body">
+        <div style="padding-top:10px;">
+          ${badgeHtml ? `<div style="margin-bottom:8px;">${badgeHtml}</div>` : ''}
+          ${data.items.map(item => `<div class="v2-meal-row">
+            <span class="v2-meal-name">${item.name}</span>
+            <span class="v2-meal-amt">${item.amt || ''}</span>
+          </div>`).join('')}
+          ${data.note ? `<div class="v2-memo">💧 ${data.note}</div>` : ''}
+          ${data.memo ? `<div class="v2-memo" style="margin-top:6px;background:#e8f5e9;color:#2e7d32;">📝 ${data.memo}</div>` : ''}
+          ${data.done ? `<div style="text-align:right;margin-top:8px;"><span class="v2-done-mark">✓ 섭취 완료</span></div>` : ''}
+        </div>
+      </div>`;
+    } else {
+      html += `<div class="v2-day-body"><div style="padding:10px 0;color:#aaa;font-size:13px;">이날은 이유식 기록이 없어요</div></div>`;
+    }
+    html += '</div>';
+  }
+
+  // 재고/장보기 아코디언
+  html += `<div class="accordion" id="v2-acc-stock">
+    <div class="accordion-header" onclick="toggleAccordion('v2-acc-stock')">
+      <span class="accordion-title">📦 재고 현황</span>
+      <span class="accordion-arrow">▼</span>
+    </div>
+    <div class="accordion-body">
+      ${stockData.map(s => `<div class="stock-item">
+        <span>${s.name}</span>
+        <span class="stock-amount ${s.low ? 'stock-low' : ''}">${s.amount}</span>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="accordion" id="v2-acc-shop">
+    <div class="accordion-header" onclick="toggleAccordion('v2-acc-shop')">
+      <span class="accordion-title">🛒 장봐야 할 재료</span>
+      <span class="accordion-arrow">▼</span>
+    </div>
+    <div class="accordion-body">
+      ${shopData.map(s => `<div class="shop-item"><div class="shop-dot"></div><span>${s}</span></div>`).join('')}
+    </div>
+  </div>
+  <div style="height:80px;"></div>`;
+
+  main.innerHTML = html;
+}
+
+function toggleV2Card(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ========== VERSION SWITCH ==========
+function switchVersion(v) {
+  document.getElementById('v1').style.display = v === 1 ? 'block' : 'none';
+  document.getElementById('v2').style.display = v === 2 ? 'block' : 'none';
+  document.getElementById('btn-v1').classList.toggle('active', v === 1);
+  document.getElementById('btn-v2').classList.toggle('active', v === 2);
+}
+
+// ========== INIT ==========
+renderWeekBar();
+renderDayContent();
+renderV2();
+</script>
 </body>
 </html>
