@@ -1,0 +1,260 @@
+
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>찐아 이유식 식단표</title>
+<style>
+  
+    *{box-sizing:border-box;margin:0;padding:0;}
+    @font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-1Thin.woff2') format('woff2');
+    font-weight: 100;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-2ExtraLight.woff2') format('woff2');
+    font-weight: 200;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-3Light.woff2') format('woff2');
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-4Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-5Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-6SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-7Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-8ExtraBold.woff2') format('woff2');
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Paperozi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-9Black.woff2') format('woff2');
+    font-weight: 900;
+    font-display: swap;
+}
+    body {font-family: 'Paperozi' /* 적용 */}
+    .page{padding:40px;}
+    .header{border-bottom:0 solid #222;padding-bottom:12px;margin-bottom:16px;}
+    .header-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;}
+    .h-title{font-size:30px;font-weight:500;color:var(--color-text-primary);}
+    .legend-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;}
+    .leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary);}
+    .leg-box{width:13px;height:13px;border-radius:2px;}
+    .month-label{font-size:20px;font-weight:600;color:var(--color-text-primary);margin-bottom:7px;margin-top:22px;}
+    .cal-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+    .cal-table th{font-size:11px;font-weight:500;color:#000;background:#cbcbcb;text-align:center;padding:6px 4px;}
+    .cal-table td{vertical-align:top;padding:0;border:1px solid #ddd;}
+    .cal-table td.emp{background:#f7f7f7;border-color:#eee;}
+    .cell-inner{padding:7px 8px 8px;min-height:105px;}
+    .c-date{font-size:14px;font-weight:600;color:#111;margin-bottom:6px;line-height:1;}
+    .c-body{font-size:11px;color:#333;line-height:1.65;}
+    .c-body span{display:block;}
+    .badge-row{margin-top:6px;display:flex;gap:3px;flex-wrap:wrap;align-items:center;}
+    .badge{font-size:9px;font-weight:500;padding:2px 6px;border-radius:3px;}
+    .b-new{background:#ff6eb4;color:#fff;}
+    .b-warn{background:#111;color:#fff;}
+    .b-rep{background:#888;color:#fff;}
+    .b-직접{background:#29aaee;color:#fff;}
+    .b-시판{background:#f5c800;color:#fff;}
+    .b-혼합{background:#2eaa55;color:#fff;}
+    .b-kit{background:#9933cc;color:#fff;}
+    .notes-section{margin-top:18px;border-top:0 solid #ccc;padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .note-card{background:#f8f8f8;border-radius:6px;padding:10px 12px;border:1px solid #e5e5e5;}
+    .note-title{font-size:11px;font-weight:500;color:#111;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #ddd;}
+    .note-item{font-size:11px;color:#444;line-height:1.75;padding-left:10px;position:relative;}
+    .note-item::before{content:"·";position:absolute;left:2px;color:#888;}
+    .changes{margin-top:12px;background:#e5e5e5;border:1px solid #ccc;border-radius:6px;padding:10px 14px;}
+    .changes-title{font-size:11px;font-weight:500;color:#111;margin-bottom:5px;}
+    .changes-item{font-size:11px;color:#5f5f5f;line-height:1.75;padding-left:12px;position:relative;}
+    .changes-item::before{content:"→";position:absolute;left:0;color:#5f5f5f;}
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    @media(max-width:768px){
+      .page{padding:12px;}
+      .h-title{font-size:16px;}
+      .legend-row{gap:8px;}
+      .notes-section{grid-template-columns:1fr;}
+      .cell-inner{min-height:80px;padding:5px 5px 6px;}
+      .c-date{font-size:12px;}
+      .c-body{font-size:10px;}
+      .badge{font-size:8px;padding:1px 4px;}
+    }
+    </style>
+    
+    </head><body><div class="page">
+    <div class="header">
+      <div class="header-top">
+        <div class="h-title">찐아 이유식 식단표</div>
+      </div>
+      <div class="legend-row">
+        <div class="leg-item"><div class="leg-box" style="background:#29aaee;"></div>직접 조리</div>
+        <div class="leg-item"><div class="leg-box" style="background:#f5c800;"></div>시판</div>
+        <div class="leg-item"><div class="leg-box" style="background:#2eaa55;"></div>시판+직접</div>
+        <div class="leg-item"><div class="leg-box" style="background:#ff6eb4;"></div>NEW 식재료</div>
+        <div class="leg-item"><div class="leg-box" style="background:#111;"></div>주의 필요</div>
+        <div class="leg-item"><div class="leg-box" style="background:#888;"></div>반복 노출</div>
+        <div class="leg-item"><div class="leg-box" style="background:#9933cc;"></div>키트 사용</div>
+      </div>
+    </div>
+    
+    <div class="month-label">5월</div>
+    <div class="table-wrap">
+    <table class="cal-table">
+      <colgroup><col><col><col><col><col><col><col></colgroup>
+      <thead><tr><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th><th>일</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="emp"></td><td class="emp"></td><td class="emp"></td><td class="emp"></td><td class="emp"></td>
+          <td><div class="cell-inner"><div class="c-date" style="color:#aaa;">9 ✓</div><div class="c-body" style="color:#aaa;text-decoration:line-through;"><span>쌀미음 45g</span></div><div class="badge-row"><span class="badge b-시판" style="opacity:0.5;">시판</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date" style="color:#aaa;">10 ✓</div><div class="c-body" style="color:#aaa;text-decoration:line-through;"><span>쌀미음 60g</span></div><div class="badge-row"><span class="badge b-시판" style="opacity:0.5;">시판</span></div></div></td>
+        </tr>
+        <tr>
+          <td><div class="cell-inner"><div class="c-date" style="color:#aaa;">11 ✓</div><div class="c-body" style="color:#aaa;text-decoration:line-through;"><span>쌀미음 60g</span></div><div class="badge-row"><span class="badge b-시판" style="opacity:0.5;">시판</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date" style="color:#aaa;">12 ✓</div><div class="c-body" style="color:#aaa;text-decoration:line-through;"><span>한우미음 60g</span></div><div class="badge-row"><span class="badge b-new" style="opacity:0.5;">NEW</span><span class="badge b-시판" style="opacity:0.5;">시판</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date" style="color:#aaa;">13 ✓</div><div class="c-body" style="color:#aaa;text-decoration:line-through;"><span>한우미음 60g</span></div><div class="badge-row"><span class="badge b-시판" style="opacity:0.5;">시판</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">14</div><div class="c-body"><span>쌀미음 45g</span><span>+ 한우 15g</span><span style="font-size:10px;color:#888;">(물 약간 추가)</span></div><div class="badge-row"><span class="badge b-혼합">시판+직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">15</div><div class="c-body"><span>쌀미음 45g</span><span>+ 한우 15g</span><span style="font-size:10px;color:#888;">(물 약간 추가)</span></div><div class="badge-row"><span class="badge b-혼합">시판+직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">16</div><div class="c-body"><span>쌀 60g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">17</div><div class="c-body"><span>브로콜리미음 30g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-혼합">시판+직접</span></div></div></td>
+        </tr>
+        <tr>
+          <td><div class="cell-inner"><div class="c-date">18</div><div class="c-body"><span>브로콜리미음 45g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-혼합">시판+직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">19</div><div class="c-body"><span>브로콜리미음 65g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-혼합">시판+직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">20</div><div class="c-body"><span>감자미음 30g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-혼합">시판+직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">21</div><div class="c-body"><span>감자미음 45g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-혼합">시판+직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">22</div><div class="c-body"><span>감자미음 65g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-혼합">시판+직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">23</div><div class="c-body"><span>쌀 60g</span><span>+ 애호박 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">24</div><div class="c-body"><span>쌀 45g</span><span>+ 애호박 30g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+        </tr>
+        <tr>
+          <td><div class="cell-inner"><div class="c-date">25</div><div class="c-body"><span>쌀 30g</span><span>+ 오트밀 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">26</div><div class="c-body"><span>쌀 30g</span><span>+ 오트밀 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">27</div><div class="c-body"><span>쌀 30g</span><span>+ 오트밀 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">28</div><div class="c-body"><span>오트밀 30g</span><span>+ 애호박 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">29</div><div class="c-body"><span>오트밀 30g</span><span>+ 애호박 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">30</div><div class="c-body"><span>고구마미음 45g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-혼합">시판+직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">31</div><div class="c-body"><span>고구마미음 55g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-혼합">시판+직접</span></div></div></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <br>
+    <div class="month-label">6월</div>
+    <div class="table-wrap">
+    <table class="cal-table">
+      <colgroup><col><col><col><col><col><col><col></colgroup>
+      <thead><tr><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th><th>일</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="cell-inner"><div class="c-date">1</div><div class="c-body"><span>고구마미음 소량</span><span>+ 오트밀 30g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-혼합">시판+직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">2</div><div class="c-body"><span>쌀 45g</span><span>+ 노른자 소량</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">3</div><div class="c-body"><span>쌀 45g</span><span>+ 노른자 5g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">4</div><div class="c-body"><span>쌀 45g</span><span>+ 노른자 5g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">5</div><div class="c-body"><span>쌀 30g</span><span>+ 노른자 10g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">6</div><div class="c-body"><span>쌀 30g</span><span>+ 노른자 10g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">7</div><div class="c-body"><span>쌀 30g</span><span>+ 노른자 10g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+        </tr>
+        <tr>
+          <td><div class="cell-inner"><div class="c-date">8</div><div class="c-body"><span>쌀 30g</span><span>+ 노른자 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">9</div><div class="c-body"><span>쌀 30g</span><span>+ 땅콩 소량</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-warn">주의</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">10</div><div class="c-body"><span>쌀 30g</span><span>+ 노른자 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">11</div><div class="c-body"><span>쌀 30g</span><span>+ 땅콩 5g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-rep">반복</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">12</div><div class="c-body"><span>쌀 30g</span><span>+ 노른자 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">13</div><div class="c-body"><span>쌀 30g</span><span>+ 땅콩 5g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-rep">반복</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">14</div><div class="c-body"><span>쌀 30g</span><span>+ 노른자 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+        </tr>
+        <tr>
+          <td><div class="cell-inner"><div class="c-date">15</div><div class="c-body"><span>쌀 30g</span><span>+ 양배추 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">16</div><div class="c-body"><span>쌀 30g</span><span>+ 양배추 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">17</div><div class="c-body"><span>쌀 30g</span><span>+ 양배추 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">18</div><div class="c-body"><span>쌀 30g</span><span>+ 단호박 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">19</div><div class="c-body"><span>쌀 30g</span><span>+ 단호박 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">20</div><div class="c-body"><span>쌀 30g</span><span>+ 단호박 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">21</div><div class="c-body"><span>쌀 30g</span><span>+ 두부 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-kit">키트</span></div></div></td>
+        </tr>
+        <tr>
+          <td><div class="cell-inner"><div class="c-date">22</div><div class="c-body"><span>쌀 30g</span><span>+ 두부 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-kit">키트</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">23</div><div class="c-body"><span>쌀 30g</span><span>+ 두부 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-kit">키트</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">24</div><div class="c-body"><span>쌀 30g</span><span>+ 밀가루 소량</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-new">NEW</span><span class="badge b-kit">키트</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">25</div><div class="c-body"><span>쌀 30g</span><span>+ 밀가루 5g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-kit">키트</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">26</div><div class="c-body"><span>쌀 30g</span><span>+ 밀가루 5g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-kit">키트</span><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">27</div><div class="c-body"><span>쌀 30g</span><span>+ 단호박 15g</span><span>+ 양배추 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">28</div><div class="c-body"><span>쌀 30g</span><span>+ 땅콩 5g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-rep">반복</span><span class="badge b-직접">직접</span></div></div></td>
+        </tr>
+        <tr>
+          <td><div class="cell-inner"><div class="c-date">29</div><div class="c-body"><span>쌀 30g</span><span>+ 두부 15g</span><span>+ 단호박 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td><div class="cell-inner"><div class="c-date">30</div><div class="c-body"><span>쌀 30g</span><span>+ 양배추 15g</span><span>+ 한우 15g</span></div><div class="badge-row"><span class="badge b-직접">직접</span></div></div></td>
+          <td class="emp"></td><td class="emp"></td><td class="emp"></td><td class="emp"></td><td class="emp"></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    
+    <div class="notes-section">
+      <div class="note-card">
+        <div class="note-title">재료별 주의사항</div>
+        <div class="note-item">오트밀: 글루텐 프리 인증 제품 사용</div>
+        <div class="note-item">노른자: 완숙 후 으깨어 사용, 흰자는 돌 이후</div>
+        <div class="note-item">땅콩: 100% 땅콩버터를 물에 개어 사용</div>
+        <div class="note-item">양배추: 충분히 익혀 곱게 으깨어 사용</div>
+        <div class="note-item">단호박: 쪄서 껍질 제거 후 곱게 으깨기</div>
+        <div class="note-item">두부/밀: 스푼타임 키트 파우더 활용</div>
+      </div>
+      <div class="note-card">
+        <div class="note-title">알러지 테스트 원칙</div>
+        <div class="note-item">새 식재료는 반드시 3일 이상 단독 관찰</div>
+        <div class="note-item">땅콩 첫날: 오전, 병원 진료 가능한 시간에</div>
+        <div class="note-item">반응 시 즉시 중단 후 소아과 방문</div>
+        <div class="note-item">땅콩은 주 2~3회 반복 노출이 예방 핵심</div>
+        <div class="note-item">키트 사용 식재료도 동일하게 3일 단독 관찰</div>
+        <div class="note-item">당근·닭고기는 7월 중기 이유식에서 도입</div>
+      </div>
+    </div>
+    
+    <div class="changes">
+      <div class="changes-title">6월 하반기 재료 도입 순서</div>
+      <div class="changes-item">6/15~17: 양배추 단독 테스트 (소화 부드러움, 초기 말 적합)</div>
+      <div class="changes-item">6/18~20: 단호박 단독 테스트 (단맛, 거부감 낮음)</div>
+      <div class="changes-item">6/21~23: 두부/대두 — 스푼타임 키트 활용</div>
+      <div class="changes-item">6/24~26: 밀 — 스푼타임 키트 활용</div>
+      <div class="changes-item">6/27~30: 기존 재료 조합 안정화 + 땅콩 반복 유지</div>
+      <div class="changes-item">당근·닭고기는 7월 중기 이유식 시작 시 도입 예정</div>
+    </div>
+    </div>
+</body></html>
