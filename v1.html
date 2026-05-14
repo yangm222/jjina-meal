@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>찐아 이유식 — 날짜선택형</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#ff6eb4;--sky:#29aaee;--yellow:#f5c800;--green:#2eaa55;--gray:#888;--purple:#9933cc;--bg:#f5f5f5;--text:#1a1a1a;--text-sub:#888;--border:#e0e0e0;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+
+.badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 9px;border-radius:20px;}
+.b-new{background:var(--pink);color:#fff;}.b-직접{background:var(--sky);color:#fff;}.b-시판{background:var(--yellow);color:#fff;}.b-혼합{background:var(--green);color:#fff;}.b-warn{background:#111;color:#fff;}.b-rep{background:var(--gray);color:#fff;}.b-kit{background:var(--purple);color:#fff;}
+
+.bottom-tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#f0f0f0;display:flex;z-index:300;border-top:1px solid var(--border);}
+.btab{flex:1;background:none;border:none;color:#aaa;font-size:12px;font-weight:700;padding:12px 4px 14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:color 0.2s;}
+.btab.active{color:#111;border-top:2px solid #111;}
+
+.acc{background:#fff;border-bottom:1px solid var(--border);}
+.acc-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;}
+.acc-title{font-size:13px;font-weight:700;color:#111;}
+.acc-arrow{font-size:12px;color:#111;font-weight:700;transition:transform 0.2s;}
+.acc.open .acc-arrow{transform:rotate(180deg);}
+.acc-body{display:none;padding:0 16px 14px;border-top:1px solid var(--border);}
+.acc.open .acc-body{display:block;}
+
+.stock-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;color:#111;}
+.stock-row:last-child{border-bottom:none;}
+.stock-val{font-weight:700;color:var(--sky);}
+.stock-low{color:#e65100!important;}
+.shop-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;color:#111;}
+.shop-row:last-child{border-bottom:none;}
+.shop-dot{width:5px;height:5px;border-radius:50%;background:var(--pink);flex-shrink:0;}
+.notice-list{padding-top:8px;}
+.notice-list li{font-size:12px;color:#444;line-height:1.8;list-style:none;padding:2px 0;border-bottom:1px solid var(--border);}
+.notice-list li:last-child{border-bottom:none;}
+
+/* PC TABLE */
+.pc-table{min-width:640px;border-collapse:collapse;table-layout:fixed;width:100%;}
+.pc-table th{background:#333;color:#fff;font-size:10px;font-weight:600;padding:5px;text-align:center;}
+.pc-table td{border:1px solid #ddd;vertical-align:top;}
+.pc-table td.emp{background:#f8f8f8;border-color:#eee;}
+.pc-cell{padding:5px;min-height:72px;}
+.pc-date{font-size:11px;font-weight:700;margin-bottom:3px;color:#111;}
+.pc-items{font-size:9px;color:#333;line-height:1.6;}
+.pc-note-sm{font-size:8px;color:#aaa;}
+.pc-badges{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;}
+.pc-badge{font-size:7px;font-weight:700;padding:1px 5px;border-radius:10px;}
+.pc-done{opacity:0.45;}
+.pc-today-cell{outline:2px solid var(--pink);}
+.pc-month-lbl{font-size:14px;font-weight:700;padding:12px 16px 6px;color:#111;}
+.cal-overflow{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 16px 12px;}
+
+/* HEADER - LIGHT GRAY */
+.header{background:#f0f0f0;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;}
+.title{font-size:18px;font-weight:800;color:#111;}
+.sub{font-size:11px;color:#888;margin-top:2px;}
+.today-btn{background:var(--pink);border:none;padding:7px 16px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:'Noto Sans KR',sans-serif;border-radius:20px;}
+.month-nav{display:flex;align-items:center;gap:8px;padding:0 16px 8px;}
+.month-nav button{background:rgba(0,0,0,0.06);border:none;padding:4px 10px;font-size:13px;cursor:pointer;color:#111;font-family:'Noto Sans KR',sans-serif;border-radius:4px;}
+.month-nav span{font-size:14px;font-weight:700;color:#111;}
+
+/* DATE STRIP */
+.strip-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 16px 12px;scrollbar-width:none;}
+.strip-wrap::-webkit-scrollbar{display:none;}
+.strip{display:flex;gap:6px;width:max-content;}
+.day-item{display:flex;flex-direction:column;align-items:center;width:38px;padding:7px 3px;cursor:pointer;border-radius:50%;flex-shrink:0;transition:background 0.15s;}
+.day-item .dn{font-size:15px;font-weight:600;color:#888;line-height:1;}
+/* Today: thin pink circle outline, pink text */
+.day-item.today{border:1.5px solid var(--pink);border-radius:50%;}
+.day-item.today .dn{color:var(--pink);font-weight:800;}
+/* Selected: white fill, black text */
+.day-item.selected{background:#fff;border-radius:50%;border:1.5px solid var(--border);}
+.day-item.selected .dn{color:#111;}
+/* Selected + today: thin pink outline, pink text */
+.day-item.selected.today{background:#fff;border:1.5px solid var(--pink);}
+.day-item.selected.today .dn{color:var(--pink);}
+.day-item.done-day .dn{color:#ccc;}
+.day-item.selected.done-day .dn{color:#111;}
+
+/* CONTENT */
+.day-hd{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 16px 12px;background:#fff;border-bottom:1px solid var(--border);}
+.day-title{font-size:24px;font-weight:800;line-height:1.2;color:#111;}
+.today-lbl{display:block;font-size:12px;color:var(--pink);font-weight:700;margin-bottom:2px;}
+.dday-txt{font-size:12px;color:var(--text-sub);margin-top:3px;}
+.status{font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;margin-top:4px;}
+.status.done{background:#e8f5e9;color:var(--green);}
+.status.pending{background:var(--pink);color:#fff;}
+.status.future{background:#f0f0f0;color:var(--gray);}
+
+.meal-card{background:#fff;padding:15px 16px;border-bottom:1px solid var(--border);}
+.meal-lbl{font-size:15px;font-weight:600;color:#111;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.meal-items{display:flex;flex-direction:column;gap:9px;}
+.meal-item{display:flex;justify-content:space-between;align-items:center;}
+.meal-name{font-size:16px;font-weight:600;color:#111;}
+.meal-amt{font-size:14px;color:var(--text-sub);}
+.meal-note{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);font-size:11px;color:#aaa;}
+.meal-card.dimmed{opacity:0.45;}
+
+.memo-card{background:#fffbf0;padding:13px 16px;border-bottom:1px solid var(--border);}
+.memo-lbl{font-size:11px;font-weight:700;color:#a07820;margin-bottom:4px;}
+.memo-txt{font-size:13px;color:#5a4010;line-height:1.6;}
+
+.new-card{background:#fff0f6;padding:13px 16px;border-bottom:1px solid var(--border);}
+.new-lbl{font-size:11px;font-weight:700;color:#c03060;margin-bottom:7px;}
+.new-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.new-chip{background:var(--pink);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;}
+
+#main-view{display:block;padding-bottom:56px;min-height:100vh;}
+#cal-view{display:none;padding-bottom:56px;min-height:100vh;}
+</style>
+</head>
+<body>
+
+<div id="main-view">
+  <div class="header">
+    <div class="header-top">
+      <div><div class="title">🍚 찐아 이유식</div><div class="sub" id="sub"></div></div>
+      <button class="today-btn" onclick="goToday()">Today</button>
+    </div>
+    <div class="month-nav">
+      <button onclick="changeMonth(-1)">‹</button>
+      <span id="month-lbl"></span>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="strip-wrap" id="strip-wrap">
+      <div class="strip" id="strip"></div>
+    </div>
+  </div>
+  <div id="content"></div>
+</div>
+
+<div id="cal-view">
+  <div class="header">
+    <div class="header-top">
+      <div><div class="title">🍚 찐아 이유식</div><div class="sub">월간 달력</div></div>
+    </div>
+  </div>
+  <div id="cal-content"></div>
+</div>
+
+<div class="bottom-tabs">
+  <button class="btab active" id="tab-main" onclick="switchTab('main')">날짜선택형</button>
+  <button class="btab" id="tab-cal" onclick="switchTab('cal')">월간</button>
+</div>
+
+<script>
+const START=new Date(2025,4,9),TODAY=new Date(2025,4,14),BIRTH=new Date(2024,10,14);
+const meals={"5/9":{items:[{n:"쌀미음",a:"45g"}],badges:["시판"],done:true,memo:"섭취완료"},"5/10":{items:[{n:"쌀미음",a:"60g"}],badges:["시판"],done:true,memo:"섭취완료"},"5/11":{items:[{n:"쌀미음",a:"60g"}],badges:["시판"],done:true,memo:"섭취완료"},"5/12":{items:[{n:"한우미음",a:"60g"}],badges:["NEW","시판"],done:true,memo:"섭취완료"},"5/13":{items:[{n:"한우미음",a:"60g"}],badges:["시판"],done:true,memo:"섭취완료"},"5/14":{items:[{n:"쌀미음",a:"45g"},{n:"한우",a:"15g"}],badges:["시판+직접"],note:"물 약간 추가"},"5/15":{items:[{n:"쌀미음",a:"45g"},{n:"한우",a:"15g"}],badges:["시판+직접"],note:"물 약간 추가"},"5/16":{items:[{n:"쌀",a:"60g"},{n:"한우",a:"15g"}],badges:["직접"]},"5/17":{items:[{n:"브로콜리미음",a:"30g"},{n:"한우",a:"15g"}],badges:["NEW","시판+직접"]},"5/18":{items:[{n:"브로콜리미음",a:"45g"},{n:"한우",a:"15g"}],badges:["시판+직접"]},"5/19":{items:[{n:"브로콜리미음",a:"65g"},{n:"한우",a:"15g"}],badges:["시판+직접"]},"5/20":{items:[{n:"감자미음",a:"30g"},{n:"한우",a:"15g"}],badges:["NEW","시판+직접"]},"5/21":{items:[{n:"감자미음",a:"45g"},{n:"한우",a:"15g"}],badges:["시판+직접"]},"5/22":{items:[{n:"감자미음",a:"65g"},{n:"한우",a:"15g"}],badges:["시판+직접"]},"5/23":{items:[{n:"쌀",a:"60g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}],badges:["NEW","직접"]},"5/24":{items:[{n:"쌀",a:"45g"},{n:"애호박",a:"30g"},{n:"한우",a:"15g"}],badges:["직접"]},"5/25":{items:[{n:"쌀",a:"30g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}],badges:["NEW","직접"]},"5/26":{items:[{n:"쌀",a:"30g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"5/27":{items:[{n:"쌀",a:"30g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"5/28":{items:[{n:"오트밀",a:"30g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"5/29":{items:[{n:"오트밀",a:"30g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"5/30":{items:[{n:"고구마미음",a:"45g"},{n:"한우",a:"15g"}],badges:["NEW","시판+직접"]},"5/31":{items:[{n:"고구마미음",a:"55g"},{n:"한우",a:"15g"}],badges:["시판+직접"]},"6/1":{items:[{n:"고구마미음",a:"소량"},{n:"오트밀",a:"30g"},{n:"한우",a:"15g"}],badges:["시판+직접"]},"6/2":{items:[{n:"쌀",a:"45g"},{n:"노른자",a:"소량"},{n:"한우",a:"15g"}],badges:["NEW","직접"]},"6/3":{items:[{n:"쌀",a:"45g"},{n:"노른자",a:"5g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/4":{items:[{n:"쌀",a:"45g"},{n:"노른자",a:"5g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/5":{items:[{n:"쌀",a:"30g"},{n:"노른자",a:"10g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/6":{items:[{n:"쌀",a:"30g"},{n:"노른자",a:"10g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/7":{items:[{n:"쌀",a:"30g"},{n:"노른자",a:"10g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/8":{items:[{n:"쌀",a:"30g"},{n:"노른자",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/9":{items:[{n:"쌀",a:"30g"},{n:"땅콩",a:"소량"},{n:"한우",a:"15g"}],badges:["주의","직접"]},"6/10":{items:[{n:"쌀",a:"30g"},{n:"노른자",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/11":{items:[{n:"쌀",a:"30g"},{n:"땅콩",a:"5g"},{n:"한우",a:"15g"}],badges:["반복","직접"]},"6/12":{items:[{n:"쌀",a:"30g"},{n:"노른자",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/13":{items:[{n:"쌀",a:"30g"},{n:"땅콩",a:"5g"},{n:"한우",a:"15g"}],badges:["반복","직접"]},"6/14":{items:[{n:"쌀",a:"30g"},{n:"노른자",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/15":{items:[{n:"쌀",a:"30g"},{n:"양배추",a:"15g"},{n:"한우",a:"15g"}],badges:["NEW","직접"]},"6/16":{items:[{n:"쌀",a:"30g"},{n:"양배추",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/17":{items:[{n:"쌀",a:"30g"},{n:"양배추",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/18":{items:[{n:"쌀",a:"30g"},{n:"단호박",a:"15g"},{n:"한우",a:"15g"}],badges:["NEW","직접"]},"6/19":{items:[{n:"쌀",a:"30g"},{n:"단호박",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/20":{items:[{n:"쌀",a:"30g"},{n:"단호박",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]},"6/21":{items:[{n:"쌀",a:"30g"},{n:"두부",a:"15g"},{n:"한우",a:"15g"}],badges:["NEW","키트"]},"6/22":{items:[{n:"쌀",a:"30g"},{n:"두부",a:"15g"},{n:"한우",a:"15g"}],badges:["키트","직접"]},"6/23":{items:[{n:"쌀",a:"30g"},{n:"두부",a:"15g"},{n:"한우",a:"15g"}],badges:["키트","직접"]},"6/24":{items:[{n:"쌀",a:"30g"},{n:"밀가루",a:"소량"},{n:"한우",a:"15g"}],badges:["NEW","키트"]},"6/25":{items:[{n:"쌀",a:"30g"},{n:"밀가루",a:"5g"},{n:"한우",a:"15g"}],badges:["키트","직접"]},"6/26":{items:[{n:"쌀",a:"30g"},{n:"밀가루",a:"5g"},{n:"한우",a:"15g"}],badges:["키트","직접"]},"6/27":{items:[{n:"쌀",a:"30g"},{n:"단호박",a:"15g"},{n:"양배추",a:"15g"}],badges:["직접"]},"6/28":{items:[{n:"쌀",a:"30g"},{n:"땅콩",a:"5g"},{n:"한우",a:"15g"}],badges:["반복","직접"]},"6/29":{items:[{n:"쌀",a:"30g"},{n:"두부",a:"15g"},{n:"단호박",a:"15g"}],badges:["직접"]},"6/30":{items:[{n:"쌀",a:"30g"},{n:"양배추",a:"15g"},{n:"한우",a:"15g"}],badges:["직접"]}};
+const stocks=[{n:"한우 큐브 (15g)",a:"11개 (165g)",low:false},{n:"브로콜리미음",a:"140g (5/16 도착)",low:false},{n:"감자미음",a:"140g (5/16 도착)",low:false},{n:"고구마미음",a:"100g",low:false},{n:"쌀가루 (아이보리)",a:"구매 필요",low:true},{n:"오트밀 파우더",a:"구매 필요",low:true}];
+const shops=["아이보리 쌀가루 초기 1단계","아이보리 오트밀 파우더 200g","한우 우둔살 350g (5/24 전)"];
+const notices=["오트밀: 글루텐 프리 인증 제품 사용","노른자: 완숙 후 으깨어 사용 / 흰자는 돌 이후","땅콩: 첫날 반드시 오전 + 병원 진료 가능 시간","땅콩: 주 2~3회 반복 노출 필수","새 식재료: 3일 이상 단독 관찰","양배추: 충분히 익혀 곱게 으깨기","단호박: 쪄서 껍질 제거 후 곱게 으깨기","키트 사용 식재료도 동일하게 3일 단독 관찰"];
+const DOW=["월","화","수","목","금","토","일"];
+function dk(d){return `${d.getMonth()+1}/${d.getDate()}`;}
+function dds(d){return `D+${Math.floor((d-START)/86400000)+1}`;}
+function dows(d){const x=d.getDay();return DOW[x===0?6:x-1];}
+function isToday(d){return d.toDateString()===TODAY.toDateString();}
+function isPast(d){return d<TODAY&&!isToday(d);}
+function bc(b){return {NEW:"b-new",직접:"b-직접",시판:"b-시판","시판+직접":"b-혼합",주의:"b-warn",반복:"b-rep",키트:"b-kit"}[b]||"b-직접";}
+function ws(d){const x=d.getDay();const m=new Date(d);m.setDate(d.getDate()-(x===0?6:x-1));return m;}
+function wd(s){return Array.from({length:7},(_,i)=>{const d=new Date(s);d.setDate(s.getDate()+i);return d;});}
+function wn(d){const f=new Date(2025,d.getMonth(),1);return Math.ceil((d.getDate()+((f.getDay()||7)-1))/7);}
+function stockH(){return stocks.map(s=>`<div class="stock-row"><span>${s.n}</span><span class="stock-val${s.low?' stock-low':''}">${s.a}</span></div>`).join('');}
+function shopH(){return shops.map(s=>`<div class="shop-row"><div class="shop-dot"></div><span>${s}</span></div>`).join('');}
+function noticeH(){return `<ul class="notice-list">${notices.map(n=>`<li>${n}</li>`).join('')}</ul>`;}
+
+function buildPC(){
+  const months=[{m:4,label:"5월",days:31,d0:3},{m:5,label:"6월",days:30,d0:6}];
+  let h='';
+  months.forEach(({m,label,days,d0})=>{
+    h+=`<div class="pc-month-lbl">${label}</div><div class="cal-overflow"><table class="pc-table"><thead><tr>${["월","화","수","목","금","토","일"].map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody><tr>`;
+    let col=0;
+    for(let i=0;i<d0;i++){h+=`<td class="emp"></td>`;col++;}
+    for(let day=1;day<=days;day++){
+      if(col===7){h+=`</tr><tr>`;col=0;}
+      const d=new Date(2025,m,day);const key=dk(d);const data=meals[key];
+      h+=`<td class="${isToday(d)?'pc-today-cell':''}"><div class="pc-cell${data&&data.done?' pc-done':''}"><div class="pc-date">${day}${data&&data.done?' ✓':''}</div>`;
+      if(data){h+=`<div class="pc-items">${data.items.map(it=>`${it.n}${it.a?' '+it.a:''}`).join('<br>')}</div>`;if(data.note)h+=`<div class="pc-note-sm">${data.note}</div>`;h+=`<div class="pc-badges">${(data.badges||[]).map(b=>`<span class="pc-badge ${bc(b)}">${b}</span>`).join('')}</div>`;}
+      h+=`</div></td>`;col++;
+    }
+    while(col<7){h+=`<td class="emp"></td>`;col++;}
+    h+=`</tr></tbody></table></div>`;
+  });
+  return h;
+}
+
+function downloadCal(){
+  const w=window.open('','_blank');
+  const months=[{m:4,label:"5월",days:31,d0:3},{m:5,label:"6월",days:30,d0:6}];
+  let body='<h2 style="margin-bottom:16px;">🍚 찐아 이유식 식단표</h2>';
+  months.forEach(({m,label,days,d0})=>{
+    body+=`<h3 style="margin:12px 0 6px;">${label}</h3><table style="min-width:600px;border-collapse:collapse;table-layout:fixed;width:100%;"><thead><tr>`;
+    ["월","화","수","목","금","토","일"].forEach(d=>{body+=`<th style="background:#333;color:#fff;font-size:10px;padding:5px;text-align:center;">${d}</th>`;});
+    body+='</tr></thead><tbody><tr>';
+    let col=0;
+    for(let i=0;i<d0;i++){body+=`<td style="border:1px solid #eee;background:#f8f8f8;min-height:70px;"></td>`;col++;}
+    for(let day=1;day<=days;day++){
+      if(col===7){body+='</tr><tr>';col=0;}
+      const d=new Date(2025,m,day);const key=dk(d);const data=meals[key];
+      body+=`<td style="border:1px solid #ddd;vertical-align:top;${isToday(d)?'outline:2px solid #ff6eb4;':''}"><div style="padding:5px;min-height:70px;${data&&data.done?'opacity:0.45;':''}"><div style="font-size:11px;font-weight:700;margin-bottom:3px;">${day}${data&&data.done?' ✓':''}</div>`;
+      if(data){body+=`<div style="font-size:9px;color:#333;line-height:1.6;">${data.items.map(it=>`${it.n}${it.a?' '+it.a:''}`).join('<br>')}</div>`;if(data.note)body+=`<div style="font-size:8px;color:#aaa;">${data.note}</div>`;(data.badges||[]).forEach(b=>{const bg={NEW:"#ff6eb4",직접:"#29aaee",시판:"#f5c800","시판+직접":"#2eaa55",주의:"#111",반복:"#888",키트:"#9933cc"}[b]||"#888";body+=`<span style="display:inline-block;font-size:7px;font-weight:700;padding:1px 5px;border-radius:10px;background:${bg};color:#fff;margin:1px;">${b}</span>`;});}
+      body+=`</div></td>`;col++;
+    }
+    while(col<7){body+=`<td style="border:1px solid #eee;background:#f8f8f8;"></td>`;col++;}
+    body+='</tr></tbody></table>';
+  });
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>찐아 이유식</title><style>body{font-family:sans-serif;padding:20px;max-width:900px;margin:0 auto;}@media print{.np{display:none;}}</style></head><body><div class="np" style="margin-bottom:16px;"><button onclick="window.print()" style="padding:10px 20px;background:#111;color:#fff;border:none;cursor:pointer;font-size:14px;">🖨️ 인쇄 / PDF 저장</button></div>${body}</body></html>`);
+  w.document.close();w.onload=()=>setTimeout(()=>w.print(),300);
+}
+
+let curMonth=TODAY.getMonth(),sel=new Date(TODAY);
+function goToday(){sel=new Date(TODAY);curMonth=TODAY.getMonth();renderStrip();renderContent();}
+function changeMonth(dir){
+  curMonth=Math.max(4,Math.min(5,curMonth+dir));
+  for(let i=1;i<=31;i++){const d=new Date(2025,curMonth,i);if(d.getMonth()!==curMonth)break;if(meals[dk(d)]){sel=d;break;}}
+  renderStrip();renderContent();
+}
+function pick(y,m,d){sel=new Date(y,m,d);curMonth=m;renderStrip();renderContent();}
+
+function renderStrip(){
+  document.getElementById('month-lbl').textContent=`${curMonth+1}월`;
+  document.getElementById('sub').textContent=`${dds(TODAY)} · 오늘 ${TODAY.getMonth()+1}/${TODAY.getDate()}`;
+  let h='';
+  for(let day=1;day<=31;day++){
+    const d=new Date(2025,curMonth,day);if(d.getMonth()!==curMonth)break;
+    const data=meals[dk(d)];
+    let cls='day-item';
+    if(isToday(d))cls+=' today';
+    if(d.toDateString()===sel.toDateString())cls+=' selected';
+    if(data&&data.done)cls+=' done-day';
+    h+=`<div class="${cls}" onclick="pick(${d.getFullYear()},${d.getMonth()},${d.getDate()})"><div class="dn">${day}</div></div>`;
+  }
+  document.getElementById('strip').innerHTML=h;
+  setTimeout(()=>{
+    const wrap=document.getElementById('strip-wrap'),items=document.getElementById('strip').querySelectorAll('.day-item');
+    const idx=sel.getDate()-1;
+    if(items[idx]){const il=items[idx].getBoundingClientRect().left,wl=wrap.getBoundingClientRect().left;wrap.scrollTo({left:wrap.scrollLeft+il-wl-wrap.clientWidth/2+items[idx].clientWidth/2,behavior:'smooth'});}
+  },50);
+}
+
+function renderContent(){
+  const key=dk(sel),data=meals[key],isTd=isToday(sel),isPst=isPast(sel);
+  let stTxt,stCls;
+  if(!data){stTxt='식단 없음';stCls='future';}
+  else if(data.done){stTxt='섭취 완료 ✓';stCls='done';}
+  else if(isTd){stTxt='오늘 예정';stCls='pending';}
+  else if(isPst){stTxt='기록 없음';stCls='future';}
+  else{stTxt='예정';stCls='future';}
+
+  let h=`<div class="day-hd"><div><div class="day-title">${isTd?`<span class="today-lbl">오늘</span>`:''}${sel.getMonth()+1}월 ${sel.getDate()}일 (${dows(sel)})</div><div class="dday-txt">${dds(sel)}</div></div><div class="status ${stCls}">${stTxt}</div></div>`;
+  if(!data){h+=`<div class="meal-card"><div style="text-align:center;color:#bbb;padding:20px 0;font-size:13px;">이날은 식단이 없어요</div></div>`;}
+  else{
+    const bh=(data.badges||[]).map(b=>`<span class="badge ${bc(b)}">${b}</span>`).join(' ');
+    h+=`<div class="meal-card${data.done?' dimmed':''}"><div class="meal-lbl">🥣 Baby food ${bh}</div><div class="meal-items">${data.items.map(it=>`<div class="meal-item"><span class="meal-name">${it.n}</span><span class="meal-amt">${it.a||''}</span></div>`).join('')}</div>${data.note?`<div class="meal-note">💧 ${data.note}</div>`:''}</div>`;
+    if(data.memo)h+=`<div class="memo-card"><div class="memo-lbl">📝 섭취 기록</div><div class="memo-txt">${data.memo}</div></div>`;
+  }
+  const newItems=[];
+  wd(ws(sel)).forEach(d=>{const dd=meals[dk(d)];if(dd&&(dd.badges||[]).includes('NEW'))dd.items.forEach(it=>{if(!newItems.includes(it.n))newItems.push(it.n);});});
+  if(newItems.length>0)h+=`<div class="new-card"><div class="new-lbl">✨ ${sel.getMonth()+1}월 ${wn(sel)}주차 새 식재료</div><div class="new-chips">${newItems.map(i=>`<span class="new-chip">${i}</span>`).join('')}</div></div>`;
+  h+=`<div class="acc" id="a-s"><div class="acc-header" onclick="ta('a-s')"><span class="acc-title">📦 재고 현황</span><span class="acc-arrow">▼</span></div><div class="acc-body">${stockH()}</div></div>
+  <div class="acc" id="a-h"><div class="acc-header" onclick="ta('a-h')"><span class="acc-title">🛒 장볼 재료</span><span class="acc-arrow">▼</span></div><div class="acc-body">${shopH()}</div></div>
+  <div class="acc" id="a-n"><div class="acc-header" onclick="ta('a-n')"><span class="acc-title">⚠️ 알러지 유의사항</span><span class="acc-arrow">▼</span></div><div class="acc-body">${noticeH()}</div></div>
+  <div style="height:80px;"></div>`;
+  document.getElementById('content').innerHTML=h;
+}
+function ta(id){document.getElementById(id).classList.toggle('open');}
+
+function switchTab(tab){
+  document.getElementById('main-view').style.display=tab==='main'?'block':'none';
+  document.getElementById('cal-view').style.display=tab==='cal'?'block':'none';
+  document.getElementById('tab-main').classList.toggle('active',tab==='main');
+  document.getElementById('tab-cal').classList.toggle('active',tab==='cal');
+  if(tab==='cal'){document.getElementById('cal-content').innerHTML=buildPC()+`<div style="padding:12px 16px 80px;"><button onclick="downloadCal()" style="width:100%;background:#111;color:#fff;border:none;padding:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">📥 인쇄 / PDF 저장</button></div>`;}
+}
+
+renderStrip();renderContent();
+</script>
+</body>
+</html>
