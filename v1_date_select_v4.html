@@ -147,7 +147,7 @@ input { font-family: 'Pretendard', sans-serif; }
 .stock-row:last-of-type { border-bottom: none; }
 .stock-name { flex: 1; }
 .stock-val { font-weight: 700; color: var(--text); }
-.stock-low { color: #e60000 !important; }
+.stock-low { color: #fd0c0c; !important; }
 
 /* 수정 모드 */
 .stock-edit-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: #111; gap: 8px; }
@@ -612,7 +612,7 @@ function stockHtml() {
       return `
         <div class="stock-row">
           <span class="stock-name">${esc(s.name)}</span>
-          <span class="stock-val${isLow ? ' stock-low' : ''}">${s.amount}${esc(s.unit)} ${isLow ? '❗️' : ''}</span>
+          <span class="stock-val${isLow ? ' stock-low' : ''}">${s.amount}${esc(s.unit)} ${isLow ? '✅' : ''}</span>
         </div>`;
     }).join('');
     html += `<button class="stock-edit-btn" onclick="startStockEdit()">✏️ 재고 수정하기</button>`;
