@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';">
 <title>찐아 이유식 — 날짜선택형</title>
 
 <style>
@@ -567,6 +568,22 @@ async function loadStocks(){
   async function loadMealLog(){
   try {
     const { data, error } = await sb.from('meal_log').select('*');
+    if(error){ console.error('meal_log 로딩 오류:', error); return; }
+    if(data && data.length > 0){
+      data.forEach(log => {
+        if(meals[log.date]){
+          meals[log.date].done = log.done;
+          meals[log.date].memo = log.memo || '섭취완료';
+        }
+      });
+    }
+  } catch(e){
+    console.error('meal_log 연결 오류:', e);
+  }
+}async function loadMealLog(){
+  try {
+    const { data, error } = await sb.from('meal_log').select('*');
+    console.log('meal_log 데이터:', data, '에러:', error);
     if(error){ console.error('meal_log 로딩 오류:', error); return; }
     if(data && data.length > 0){
       data.forEach(log => {
