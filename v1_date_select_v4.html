@@ -619,13 +619,14 @@ function stockHtml() {
   } else {
     // 수정 모드: 각 항목마다 입력칸 노출
     html += dbStocks.map(s => `
-      <div class="stock-edit-row">
-        <span class="stock-name">${esc(s.name)}</span>
-        <div style="display:flex;align-items:center;gap:5px;">
-          <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" />
-          <span class="stock-unit">${esc(s.unit)}</span>
-        </div>
-      </div>`).join('');
+  <div class="stock-edit-row">
+    <span class="stock-name">${esc(s.name)}</span>
+    <div style="display:flex;align-items:center;gap:5px;">
+      <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" />
+      <span class="stock-unit">${esc(s.unit)}</span>
+      <button onclick="deleteStock(${s.id},'${esc(s.name)}')" style="background:none;border:1px solid #ffcccc;border-radius:6px;padding:3px 7px;font-size:11px;color:#e65100;cursor:pointer;">삭제</button>
+    </div>
+  </div>`).join('');
     html += `<button class="stock-save-all-btn" onclick="saveAllStocks()">💾 전체 저장</button>`;
     html += `<button class="stock-cancel-btn" onclick="cancelStockEdit()">취소</button>`;
   }
@@ -715,6 +716,15 @@ async function saveAllStocks() {
     const { error } = await sb.from('inventory').update({ amount: newAmt }).eq('id', s.id);
     if (error) { alert(`${s.name} 저장 실패: ${error.message}`); return; }
   }
+  async function deleteStock(id, name) {
+  if (!confirm(`'${name}'을(를) 삭제할까요?`)) return;
+  const { error } = await sb.from('inventory').delete().eq('id', id);
+  if (error) { alert('삭제 실패: ' + error.message); return; }
+  stockEditMode = true;
+  await loadStocks();
+  const acc = document.getElementById('a-s');
+  if (acc) acc.classList.add('open');
+}
   stockEditMode = false;
   await loadStocks();
   // 아코디언 열림 상태 유지
