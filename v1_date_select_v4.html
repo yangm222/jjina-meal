@@ -350,7 +350,7 @@ const meals = {
    Supabase 재고 기준 low_alert 이하 항목이
    장볼 재료에 자동 추가됨
 ================================================ */
-const shops = [
+let shops = [
   "아이보리 쌀가루 초기 1단계",
   "아이보리 오트밀 파우더 200g",
   "한우 우둔살 350g (5/24 전)"
@@ -676,18 +676,81 @@ function toggleAddForm() {
 
 /* ================================================
    장볼 재료 HTML 생성
-   - Supabase 재고에서 low_alert 이하인 항목 자동 추가
+   - Supabase 재고 low_alert 이하 항목 자동 추가
+   - 수동 항목 추가/삭제 가능
 ================================================ */
+let showShopAddForm = false; // 장볼 재료 추가 폼 표시 여부
+
 function shopHtml() {
+  // 재고 기준 자동 추가 항목 (low_alert 이하)
   const autoShops = dbStocks.filter(s => s.amount <= s.low_alert).map(s => s.name);
-  const allShops = [...new Set([...autoShops, ...shops])];
-  return allShops.map(s => `
+  // 수동 항목 (자동 항목과 중복 제거)
+  const manualShops = shops.filter(s => !autoShops.includes(s));
+
+  let html = '';
+
+  // 자동 항목: 재고 부족 표시 (삭제 불가 — 재고 수정으로만 제거)
+  html += autoShops.map(s => `
     <div class="shop-row">
       <div class="shop-dot"></div>
-      <span>${esc(s)}</span>
+      <span style="flex:1;">${esc(s)}</span>
+      <span style="font-size:10px;color:var(--text-sub);">재고부족</span>
     </div>`).join('');
+
+  // 수동 항목: 삭제 버튼 포함
+  html += manualShops.map((s, i) => `
+    <div class="shop-row">
+      <div class="shop-dot"></div>
+      <span style="flex:1;">${esc(s)}</span>
+      <button onclick="removeShopItem(${shops.indexOf(s)})" style="background:none;border:none;font-size:13px;color:#ccc;padding:0 2px;line-height:1;">✕</button>
+    </div>`).join('');
+
+  // 항목이 없을 때
+  if (autoShops.length === 0 && manualShops.length === 0) {
+    html += `<div style="padding:8px 0;font-size:12px;color:#aaa;">장볼 재료가 없어요 👍</div>`;
+  }
+
+  // 추가 버튼/폼
+  html += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">`;
+  html += `<button class="add-stock-btn" onclick="toggleShopAddForm()">+ 장볼 재료 추가</button>`;
+  if (showShopAddForm) {
+    html += `
+      <div class="add-form" style="margin-top:8px;">
+        <input type="text" id="new-shop-item" placeholder="예) 한우 우둔살 350g" />
+        <button class="add-confirm-btn" onclick="addShopItem()">추가하기</button>
+      </div>`;
+  }
+  html += `</div>`;
+  return html;
 }
 
+// 장볼 재료 추가 폼 토글
+function toggleShopAddForm() {
+  showShopAddForm = !showShopAddForm;
+  refreshShopBody();
+}
+
+// 장볼 재료 추가
+function addShopItem() {
+  const input = document.getElementById('new-shop-item');
+  const val = input?.value?.trim();
+  if (!val) { alert('재료 이름을 입력해주세요.'); return; }
+  shops.push(val);
+  showShopAddForm = false;
+  refreshShopBody();
+}
+
+// 장볼 재료 삭제
+function removeShopItem(idx) {
+  shops.splice(idx, 1);
+  refreshShopBody();
+}
+
+// 장볼 재료 아코디언 바디만 업데이트
+function refreshShopBody() {
+  const body = document.querySelector('#a-h .acc-body');
+  if (body) body.innerHTML = shopHtml();
+}
 /* ================================================
    알러지 유의사항 HTML 생성
 ================================================ */
