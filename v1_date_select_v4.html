@@ -412,7 +412,7 @@ function renderStrip(){
 
   let html = "";
   for(let day=1; day<=31; day++){
-    const d = new Date(2025, curMonth, day);
+    const d = new Date(TODAY.getFullYear(), curMonth, day);
     if(d.getMonth() !== curMonth) break;
     const data = meals[dk(d)];
     let cls = "day-item";
@@ -519,9 +519,9 @@ function goToday(){
   renderContent();
 }
 function changeMonth(dir){
-  curMonth = Math.max(4, Math.min(5, curMonth + dir));
+  curMonth = Math.max(0, Math.min(11, curMonth + dir));
   for(let i=1; i<=31; i++){
-    const d = new Date(2025, curMonth, i);
+    onst d = new Date(TODAY.getFullYear(), curMonth, i);
     if(d.getMonth() !== curMonth) break;
     if(meals[dk(d)]){ sel = d; break; }
   }
