@@ -29,15 +29,23 @@ button{font-family:'Pretendard',sans-serif;}
 .strip{display:flex;gap:6px;width:max-content;}
 .day-item{display:flex;flex-direction:column;align-items:center;justify-content:center;width:38px;height:38px;cursor:pointer;border-radius:50%;flex-shrink:0;transition:background 0.15s;}
 .day-item .dn{font-size:15px;font-weight:500;color:#888;line-height:1;}
-.day-item.today{border:1px solid var(--pink);}
-.day-item.today .dn{color:var(--pink);font-weight:500;}
+/* 오늘 날짜 (선택 안 됨): 핑크 테두리 + 핑크 숫자 */
+.day-item.today{border:1.5px solid var(--pink);}
+.day-item.today .dn{color:var(--pink);font-weight:700;}
+
+/* 오늘 날짜 (선택됨): 핑크 배경 + 흰 숫자 */
+.day-item.selected.today{background:var(--pink);border:1.5px solid var(--pink);}
+.day-item.selected.today .dn{color:#fff;font-weight:700;}
+
+/* 일반 날짜 (선택됨): 검정 배경 + 흰 숫자 */
 .day-item.selected{background:#111;}
 .day-item.selected .dn{color:#fff;}
-.day-item.selected.today{background:#fff0f6;border:1px solid var(--pink);}
-.day-item.selected.today .dn{color:var(--pink);font-weight:700;}
+
+/* done-day가 겹쳐도 오늘 선택 스타일 유지 */
+.day-item.selected.today.done-day .dn{color:#fff;font-weight:700;}
+  
 .day-item.done-day .dn{color:#ccc;}
 .day-item.selected.done-day .dn{color:#fff;}
-.day-item.selected.today.done-day .dn{color:var(--pink);font-weight:700;}
 #main-view{display:block;padding-bottom:56px;min-height:100vh;}
 #cal-view{display:none;padding-bottom:56px;min-height:100vh;}
 .day-hd{display:flex;align-items:flex-start;justify-content:space-between;padding:16px;background:#fff;border-bottom:1px solid var(--border);}
@@ -285,22 +293,31 @@ function renderContent(){
       <div class="meal-items">${data.items.map(it=>`<div class="meal-item"><span class="meal-name">${esc(it.n)}</span><span class="meal-amt">${esc(it.a||'')}</span></div>`).join('')}</div>
       ${data.note?`<div class="meal-note">💧 ${esc(data.note)}</div>`:''}
     </div>`;
+
     if(!data.done){
-  html+=`<div class="memo-input-wrap">
-    <div class="memo-input-lbl">📝 섭취 메모 (선택)</div>
-    <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
-  </div>
-  <div class="check-btn-wrap">
-    <button class="check-btn" onclick="checkDone('${dk(sel)}')">✓ 섭취 완료 체크</button>
-  </div>`;
-} else {
-  // 완료된 날도 메모 수정 가능
-  html+=`<div class="memo-input-wrap">
-    <div class="memo-input-lbl">📝 메모 수정</div>
-    <textarea id="memo-input" class="memo-input" rows="2">${esc(data.memo||'')}</textarea>
-    <button onclick="updateMemo('${dk(sel)}')" style="margin-top:8px;width:100%;padding:10px;background:#888;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;">메모 수정 저장</button>
-  </div>`;
-}
+      // 미완료: 메모 입력 + 섭취완료 버튼
+      html+=`<div class="memo-input-wrap">
+        <div class="memo-input-lbl">📝 섭취 메모 (선택)</div>
+        <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
+      </div>
+      <div class="check-btn-wrap">
+        <button class="check-btn" onclick="checkDone('${dk(sel)}')">✓ 섭취 완료 체크</button>
+      </div>`;
+    } else {
+      // 완료: 섭취 기록 표시 + 수정 버튼 + 숨겨진 수정 폼
+      html+=`<div class="memo-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <div class="memo-lbl">📝 섭취 기록</div>
+          <button onclick="showMemoEdit()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--gray);cursor:pointer;font-family:'Pretendard',sans-serif;">수정</button>
+        </div>
+        <div class="memo-txt" id="memo-display-txt">${esc(data.memo||'섭취완료')}</div>
+      </div>
+      <div id="memo-edit-wrap" style="display:none;background:#fff;padding:13px 16px;border-bottom:1px solid var(--border);">
+        <div class="memo-input-lbl">📝 메모 수정</div>
+        <textarea id="memo-input" class="memo-input" rows="2">${esc(data.memo||'')}</textarea>
+        <button onclick="updateMemo('${dk(sel)}')" style="margin-top:8px;width:100%;padding:10px;background:#888;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;">저장</button>
+      </div>`;
+    }
   }
 
   const newItems=[];
@@ -358,6 +375,11 @@ function toggleAddForm(){
   showAddForm=!showAddForm;
   const body=document.querySelector('#a-s .acc-body');
   if(body)body.innerHTML=stockHtml();
+}
+
+function showMemoEdit(){
+  const wrap=document.getElementById('memo-edit-wrap');
+  if(wrap)wrap.style.display='block';
 }
 
 async function updateStock(id){
@@ -426,6 +448,7 @@ async function checkDone(dateKey){
   meals[dateKey].done=true;meals[dateKey].memo=memo;
   await loadStocks();renderStrip();renderContent();
 }
+
 async function updateMemo(dateKey){
   const memoEl=document.getElementById('memo-input');
   if(!memoEl)return;
@@ -433,8 +456,13 @@ async function updateMemo(dateKey){
   const {error}=await sb.from('meal_log').upsert({date:dateKey,done:true,memo},{onConflict:'date'});
   if(error){alert('저장 실패: '+error.message);return;}
   meals[dateKey].memo=memo;
-  renderContent();
+  // 수정 폼 숨기고 기록 텍스트 업데이트
+  const editWrap=document.getElementById('memo-edit-wrap');
+  const displayTxt=document.getElementById('memo-display-txt');
+  if(editWrap)editWrap.style.display='none';
+  if(displayTxt)displayTxt.textContent=memo;
 }
+
 function goToday(){sel=new Date(TODAY);curMonth=TODAY.getMonth();renderStrip();renderContent();}
 function changeMonth(dir){
   curMonth=Math.max(4,Math.min(5,curMonth+dir));
@@ -463,12 +491,14 @@ function buildPC(){
     html+=`</tr></tbody></table></div>`;
   });return html;
 }
+
 function downloadCal(){
   const cc=document.getElementById('cal-content').innerHTML;
   const w=window.open('','_blank');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>찐아 이유식 식단표</title><style>body{font-family:sans-serif;padding:20px;max-width:900px;margin:0 auto;}table{min-width:640px;border-collapse:collapse;table-layout:fixed;width:100%;}th{background:#333;color:#fff;font-size:10px;padding:5px;text-align:center;}td{border:1px solid #ddd;vertical-align:top;}.np{margin-bottom:16px;}@media print{.np{display:none;}}</style></head><body><div class="np"><button onclick="window.print()" style="padding:10px 20px;background:#111;color:#fff;border:none;cursor:pointer;font-size:14px;">🖨️ 인쇄 / PDF 저장</button></div>${cc}</body></html>`);
   w.document.close();w.onload=()=>setTimeout(()=>w.print(),300);
 }
+
 function switchTab(tab){
   document.getElementById('main-view').style.display=tab==='main'?'block':'none';
   document.getElementById('cal-view').style.display=tab==='cal'?'block':'none';
@@ -476,6 +506,7 @@ function switchTab(tab){
   document.getElementById('tab-cal').classList.toggle('active',tab==='cal');
   if(tab==='cal')document.getElementById('cal-content').innerHTML=buildPC()+`<div class="print-btn-wrap"><button class="print-btn" onclick="downloadCal()">📥 인쇄 / PDF 저장</button></div>`;
 }
+
 async function init(){await loadMealLog();await loadStocks();renderStrip();renderContent();}
 init();
 </script>
