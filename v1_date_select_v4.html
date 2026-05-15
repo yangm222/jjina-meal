@@ -624,7 +624,7 @@ function stockHtml() {
     <div style="display:flex;align-items:center;gap:5px;">
       <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" />
       <span class="stock-unit">${esc(s.unit)}</span>
-      <button onclick="deleteStock(${s.id},'${esc(s.name)}')" style="background:none;border:1px solid #ffcccc;border-radius:6px;padding:3px 7px;font-size:11px;color:#e65100;cursor:pointer;">삭제</button>
+      <button onclick="deleteStock(${s.id})" style="background:none;border:1px solid #ffcccc;border-radius:6px;padding:3px 7px;font-size:11px;color:#e65100;cursor:pointer;">삭제</button>
     </div>
   </div>`).join('');
     html += `<button class="stock-save-all-btn" onclick="saveAllStocks()">💾 전체 저장</button>`;
@@ -725,8 +725,10 @@ async function saveAllStocks() {
 /* ================================================
    Supabase — 재고 항목 삭제
 ================================================ */
-async function deleteStock(id, name) {
-  if (!confirm(`'${name}'을(를) 삭제할까요?`)) return;
+async function deleteStock(id) {
+  const stock = dbStocks.find(s => s.id === id);
+  if (!stock) return;
+  if (!confirm(`'${stock.name}'을(를) 삭제할까요?`)) return;
   const { error } = await sb.from('inventory').delete().eq('id', id);
   if (error) { alert('삭제 실패: ' + error.message); return; }
   stockEditMode = true;
