@@ -99,26 +99,30 @@ button{font-family:'Pretendard',sans-serif;}
   border-bottom:1px solid var(--border);
 }
 .header-top{
-  /* display:flex; */
-  align-items:center;
-  justify-content:space-between;
-  padding:14px 16px 8px;
+  padding:14px 16px 4px;
 }
 .title{font-size:24px;font-weight:700;color:#111;}
-.sub{font-size:12px;color:#5f5f5f;margin-top:10px;}
+.sub{font-size:12px;color:#5f5f5f;margin-top:6px;}
 .today-btn{
   background:var(--pink);
   border:none;
-  margin-top: 10px;
-  padding:7px 16px;
+  padding:6px 14px;
   font-size:12px;
   font-weight:500;
   color:#fff;
   cursor:pointer;
   border-radius:20px;
 }
-.month-nav{display:flex;align-items:center;gap:20px;padding:0 16px 8px;}
-.month-nav button{
+/* Today 버튼을 month-nav 오른쪽 끝에 배치 */
+.month-nav{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:8px 16px 8px;
+  justify-content:flex-start;
+}
+.month-nav-right{margin-left:auto;}
+.month-nav button.nav-arrow{
   background:rgba(0,0,0,0);
   border:none;
   padding:4px 5px;
@@ -157,7 +161,7 @@ button{font-family:'Pretendard',sans-serif;}
 .day-item.selected.today{background:#fff;border:1px solid var(--pink);}
 .day-item.selected.today .dn{color:var(--pink);}
 .day-item.done-day .dn{color:#ccc;}
-.day-item.selected.done-day .dn{color:#ccc;font-weight:500;}
+.day-item.selected.done-day .dn{color:#fff;font-weight:500;}
 
 #main-view{display:block;padding-bottom:56px;min-height:100vh;}
 #cal-view{display:none;padding-bottom:56px;min-height:100vh;}
@@ -268,13 +272,15 @@ button{font-family:'Pretendard',sans-serif;}
         <div class="title">찐아 이유식 🍚</div>
       </div>
       <div class="sub" id="sub"></div>
-      <button class="today-btn" onclick="goToday()">Today</button>
       
     </div>
     <div class="month-nav">
-      <button onclick="changeMonth(-1)">‹</button>
+      <button class="nav-arrow" onclick="changeMonth(-1)">‹</button>
       <span id="month-lbl"></span>
-      <button onclick="changeMonth(1)">›</button>
+      <button class="nav-arrow" onclick="changeMonth(1)">›</button>
+      <div class="month-nav-right">
+        <button class="today-btn" onclick="goToday()">Today</button>
+      </div>
     </div>
     <div class="strip-wrap" id="strip-wrap">
       <div class="strip" id="strip"></div>
@@ -445,10 +451,9 @@ function renderContent(){
   let html = "";
   html += `<div class="day-hd">`;
   html += `<div>`;
-  html += `<div class="day-title">
-
-    ${sel.getMonth()+1}월
-    ${sel.getDate()}일 (${dows(sel)})</div>`;
+  html += `<div class="day-title">`;
+  if(todaySelected) html += `<span class="today-lbl">오늘</span>`;
+  html += `${sel.getMonth()+1}월 ${sel.getDate()}일 (${dows(sel)})</div>`;
   html += `<div class="dday-txt">${dds(sel)}</div>`;
   html += `</div>`;
   html += `<div class="status ${stCls}">${stTxt}</div>`;
@@ -567,7 +572,29 @@ function buildPC(){
 
   return html;
 }
-function downloadCal(){ window.print(); }
+function downloadCal(){
+  const calContent = document.getElementById('cal-content').innerHTML;
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>찐아 이유식 식단표</title>
+    <style>
+      body{font-family:sans-serif;padding:20px;max-width:900px;margin:0 auto;}
+      table{min-width:640px;border-collapse:collapse;table-layout:fixed;width:100%;}
+      th{background:#333;color:#fff;font-size:10px;padding:5px;text-align:center;}
+      td{border:1px solid #ddd;vertical-align:top;}
+      .np{margin-bottom:16px;}
+      @media print{.np{display:none;}}
+    </style>
+    </head><body>
+    <div class="np">
+      <button onclick="window.print()" style="padding:10px 20px;background:#111;color:#fff;border:none;cursor:pointer;font-size:14px;">🖨️ 인쇄 / PDF 저장</button>
+    </div>
+    ${calContent}
+    </body></html>`);
+  w.document.close();
+  w.onload = () => setTimeout(() => w.print(), 300);
+}
 function switchTab(tab){
   document.getElementById('main-view').style.display = tab === 'main' ? 'block' : 'none';
   document.getElementById('cal-view').style.display = tab === 'cal' ? 'block' : 'none';
