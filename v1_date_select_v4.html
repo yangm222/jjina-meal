@@ -528,9 +528,9 @@ function goToday(){
   renderContent();
 }
 function changeMonth(dir){
-  curMonth = Math.max(0, Math.min(11, curMonth + dir));
+  curMonth = Math.max(4, Math.min(5, curMonth + dir));
   for(let i=1; i<=31; i++){
-    onst d = new Date(TODAY.getFullYear(), curMonth, i);
+    const d = new Date(TODAY.getFullYear(), curMonth, i);
     if(d.getMonth() !== curMonth) break;
     if(meals[dk(d)]){ sel = d; break; }
   }
