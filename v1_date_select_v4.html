@@ -528,16 +528,16 @@ function accordionHtml(id, title, body){
   return `<div class="acc" id="${id}"><div class="acc-header" onclick="toggleAcc('${id}')"><span class="acc-title">${title}</span><span class="acc-arrow">▼</span></div><div class="acc-body">${body}</div></div>`;
 }
 function stockHtml(){
-  if(dbStocks.length === 0){
-    return stocks.map(s => `<div class="stock-row"><span>${esc(s.n)}</span><span class="stock-val${s.low?' stock-low':''}">${esc(s.a)}</span></div>`).join("");
-  }
-  return dbStocks.map(s => {
+  const source = dbStocks.length > 0 ? dbStocks.map(s => {
     const isLow = s.amount <= s.low_alert;
     return `<div class="stock-row">
       <span>${esc(s.name)}</span>
       <span class="stock-val${isLow?' stock-low':''}">${s.amount}${esc(s.unit)} ${isLow?'🔴':''}</span>
     </div>`;
-  }).join("");
+  }) : stocks.map(s =>
+    `<div class="stock-row"><span>${esc(s.n)}</span><span class="stock-val${s.low?' stock-low':''}">${esc(s.a)}</span></div>`
+  );
+  return source.join("");
 }
 function shopHtml(){
   // DB 재고 기준 2개 이하인 항목 자동 추가
@@ -552,10 +552,16 @@ function toggleAcc(id){ document.getElementById(id).classList.toggle('open'); }
 
 // Supabase에서 재고 불러오기
 async function loadStocks(){
-  const { data, error } = await sb.from('inventory').select('*').order('id');
-  if(!error && data) {
-    dbStocks = data;
-    renderContent(); // 재고 업데이트 후 화면 갱신
+  try {
+    const { data, error } = await sb.from('inventory').select('*').order('id');
+    if(error){ console.error('재고 로딩 오류:', error); return; }
+    if(data && data.length > 0){
+      dbStocks = data;
+      console.log('재고 로딩 성공:', dbStocks);
+      renderContent();
+    }
+  } catch(e){
+    console.error('Supabase 연결 오류:', e);
   }
 }
 
