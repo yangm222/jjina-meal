@@ -564,6 +564,22 @@ async function loadStocks(){
     console.error('Supabase 연결 오류:', e);
   }
 }
+  async function loadMealLog(){
+  try {
+    const { data, error } = await sb.from('meal_log').select('*');
+    if(error){ console.error('meal_log 로딩 오류:', error); return; }
+    if(data && data.length > 0){
+      data.forEach(log => {
+        if(meals[log.date]){
+          meals[log.date].done = log.done;
+          meals[log.date].memo = log.memo || '섭취완료';
+        }
+      });
+    }
+  } catch(e){
+    console.error('meal_log 연결 오류:', e);
+  }
+}
 
 // 섭취완료 체크 → 재고 차감
 async function checkDone(dateKey){
@@ -710,7 +726,11 @@ function switchTab(tab){
 
 renderStrip();
 renderContent();
-loadStocks(); // Supabase 재고 비동기 로드
+// Supabase 데이터 로드 (순서 중요: meal_log 먼저, 재고 나중)
+Promise.all([loadMealLog(), loadStocks()]).then(() => {
+  renderStrip();
+  renderContent();
+});
 </script>
 </body>
 </html>
