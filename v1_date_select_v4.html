@@ -574,19 +574,30 @@ async function checkDone(dateKey){
   }, { onConflict: 'date' });
 
   // 재고 차감: 한우 큐브 (15g 단위로 사용한 개수만큼)
-  for(const item of data.items){
-    if(item.n === '한우' || item.n === '한우미음'){
-      const stock = dbStocks.find(s => s.name.includes('한우 큐브'));
-      if(stock){
-        const useCount = item.a === '15g' ? 1 : item.a === '10g' ? 1 : 0;
-        if(useCount > 0){
-          await sb.from('inventory').update({
-            amount: Math.max(0, stock.amount - useCount)
-          }).eq('id', stock.id);
-        }
-      }
+  // 재고 차감
+for(const item of data.items){
+  let stockName = null;
+  let useCount = 0;
+
+  if(item.n === '한우'){
+    stockName = '한우큐브';
+    const grams = parseInt(item.a);
+    useCount = isNaN(grams) ? 0 : Math.round(grams / 15);
+  } else if(item.n === '쌀미음'){
+    stockName = '쌀미음큐브';
+    const grams = parseInt(item.a);
+    useCount = isNaN(grams) ? 0 : Math.round(grams / 15);
+  }
+
+  if(stockName && useCount > 0){
+    const stock = dbStocks.find(s => s.name === stockName);
+    if(stock){
+      await sb.from('inventory').update({
+        amount: Math.max(0, stock.amount - useCount)
+      }).eq('id', stock.id);
     }
   }
+}
 
   // 로컬 meals 데이터도 완료 처리
   meals[dateKey].done = true;
