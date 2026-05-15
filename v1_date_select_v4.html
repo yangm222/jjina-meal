@@ -262,6 +262,8 @@ button{font-family:'Pretendard',sans-serif;}
   .header{position:static;}
 }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -307,6 +309,13 @@ button{font-family:'Pretendard',sans-serif;}
 </div>
 
 <script>
+const SUPABASE_URL = 'https://qntrusgrggrpcduwdzld.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFudHJ1c2dyZ2dycGNkdXdkemxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjA4OTksImV4cCI6MjA5NDMzNjg5OX0.wg_UKr5qp8_vWpNx2ZBrCcUe_J0ksqm2aR6R1irLqU0';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let dbStocks = []; // Supabase에서 불러온 재고
+
+
 const START = new Date(2026, 4, 9); // 2026년 5월 9일
 const TODAY = new Date();
 const BIRTH = new Date(2025, 10, 14); // 2025년 11월 14일
@@ -480,6 +489,14 @@ function renderContent(){
     });
     html += `</div>`;
     if(data.note) html += `<div class="meal-note">💧 ${esc(data.note)}</div>`;
+    // 섭취완료 버튼 (완료되지 않은 날만 표시)
+if(!data.done){
+  html += `<div style="padding:12px 0 4px;">
+    <button onclick="checkDone('${dk(sel)}')" style="width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;">
+      ✓ 섭취 완료 체크
+    </button>
+  </div>`;
+}
     html += `</div>`;
     if(data.memo){
       html += `<div class="memo-card"><div class="memo-lbl">📝 섭취 기록</div><div class="memo-txt">${esc(data.memo)}</div></div>`;
@@ -511,15 +528,74 @@ function accordionHtml(id, title, body){
   return `<div class="acc" id="${id}"><div class="acc-header" onclick="toggleAcc('${id}')"><span class="acc-title">${title}</span><span class="acc-arrow">▼</span></div><div class="acc-body">${body}</div></div>`;
 }
 function stockHtml(){
-  return stocks.map(s => `<div class="stock-row"><span>${esc(s.n)}</span><span class="stock-val${s.low ? ' stock-low' : ''}">${esc(s.a)}</span></div>`).join("");
+  if(dbStocks.length === 0){
+    return stocks.map(s => `<div class="stock-row"><span>${esc(s.n)}</span><span class="stock-val${s.low?' stock-low':''}">${esc(s.a)}</span></div>`).join("");
+  }
+  return dbStocks.map(s => {
+    const isLow = s.amount <= s.low_alert;
+    return `<div class="stock-row">
+      <span>${esc(s.name)}</span>
+      <span class="stock-val${isLow?' stock-low':''}">${s.amount}${esc(s.unit)} ${isLow?'🔴':''}</span>
+    </div>`;
+  }).join("");
 }
 function shopHtml(){
-  return shops.map(s => `<div class="shop-row"><div class="shop-dot"></div><span>${esc(s)}</span></div>`).join("");
+  // DB 재고 기준 2개 이하인 항목 자동 추가
+  const autoShops = dbStocks.filter(s => s.amount <= s.low_alert).map(s => s.name);
+  const allShops = [...new Set([...autoShops, ...shops])];
+  return allShops.map(s => `<div class="shop-row"><div class="shop-dot"></div><span>${esc(s)}</span></div>`).join("");
 }
 function noticeHtml(){
   return `<ul class="notice-list">${notices.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
 }
 function toggleAcc(id){ document.getElementById(id).classList.toggle('open'); }
+
+// Supabase에서 재고 불러오기
+async function loadStocks(){
+  const { data, error } = await sb.from('inventory').select('*').order('id');
+  if(!error && data) {
+    dbStocks = data;
+    renderContent(); // 재고 업데이트 후 화면 갱신
+  }
+}
+
+// 섭취완료 체크 → 재고 차감
+async function checkDone(dateKey){
+  const data = meals[dateKey];
+  if(!data) return;
+
+  if(!confirm('섭취 완료로 기록할까요? 재고가 자동으로 차감됩니다.')) return;
+
+  // meal_log 테이블에 기록
+  await sb.from('meal_log').upsert({
+    date: dateKey,
+    done: true,
+    memo: '섭취완료'
+  }, { onConflict: 'date' });
+
+  // 재고 차감: 한우 큐브 (15g 단위로 사용한 개수만큼)
+  for(const item of data.items){
+    if(item.n === '한우' || item.n === '한우미음'){
+      const stock = dbStocks.find(s => s.name.includes('한우 큐브'));
+      if(stock){
+        const useCount = item.a === '15g' ? 1 : item.a === '10g' ? 1 : 0;
+        if(useCount > 0){
+          await sb.from('inventory').update({
+            amount: Math.max(0, stock.amount - useCount)
+          }).eq('id', stock.id);
+        }
+      }
+    }
+  }
+
+  // 로컬 meals 데이터도 완료 처리
+  meals[dateKey].done = true;
+  meals[dateKey].memo = '섭취완료';
+
+  // 재고 다시 불러오고 화면 갱신
+  await loadStocks();
+  renderStrip();
+}
 
 function goToday(){
   sel = new Date(TODAY);
@@ -617,6 +693,7 @@ function switchTab(tab){
 
 renderStrip();
 renderContent();
+loadStocks(); // Supabase 재고 비동기 로드
 </script>
 </body>
 </html>
