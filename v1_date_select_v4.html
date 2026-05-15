@@ -716,18 +716,21 @@ async function saveAllStocks() {
     const { error } = await sb.from('inventory').update({ amount: newAmt }).eq('id', s.id);
     if (error) { alert(`${s.name} 저장 실패: ${error.message}`); return; }
   }
-  async function deleteStock(id, name) {
+  stockEditMode = false;
+  await loadStocks();
+  const acc = document.getElementById('a-s');
+  if (acc) acc.classList.add('open');
+}
+
+/* ================================================
+   Supabase — 재고 항목 삭제
+================================================ */
+async function deleteStock(id, name) {
   if (!confirm(`'${name}'을(를) 삭제할까요?`)) return;
   const { error } = await sb.from('inventory').delete().eq('id', id);
   if (error) { alert('삭제 실패: ' + error.message); return; }
   stockEditMode = true;
   await loadStocks();
-  const acc = document.getElementById('a-s');
-  if (acc) acc.classList.add('open');
-}
-  stockEditMode = false;
-  await loadStocks();
-  // 아코디언 열림 상태 유지
   const acc = document.getElementById('a-s');
   if (acc) acc.classList.add('open');
 }
