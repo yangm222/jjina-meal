@@ -726,13 +726,13 @@ function switchTab(tab){
   }
 }
 
-renderStrip();
-renderContent();
-// Supabase 데이터 로드 (순서 중요: meal_log 먼저, 재고 나중)
-Promise.all([loadMealLog(), loadStocks()]).then(() => {
+async function init(){
+  await loadMealLog();
+  await loadStocks();
   renderStrip();
   renderContent();
-});
+}
+init();
 </script>
 </body>
 </html>
