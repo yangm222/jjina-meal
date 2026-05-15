@@ -309,7 +309,7 @@ button{font-family:'Pretendard',sans-serif;}
 <script>
 const START = new Date(2025, 4, 9);
 const TODAY = new Date();
-const BIRTH = new Date(2024, 10, 14);
+const BIRTH = new Date(2025, 10, 14); // 2025년 11월 14일
 
 const meals = {
   "5/9": {items:[{n:"쌀미음",a:"45g"}],badges:["시판"],done:true,memo:"섭취완료"},
@@ -530,7 +530,7 @@ function goToday(){
 function changeMonth(dir){
   curMonth = Math.max(4, Math.min(5, curMonth + dir));
   for(let i=1; i<=31; i++){
-    const d = new Date(TODAY.getFullYear(), curMonth, i);
+    const d = new Date(2026, curMonth, i);
     if(d.getMonth() !== curMonth) break;
     if(meals[dk(d)]){ sel = d; break; }
   }
@@ -559,7 +559,7 @@ function buildPC(){
 
     for(let day=1; day<=month.days; day++){
       if(col === 7){ html += `</tr><tr>`; col = 0; }
-      const d = new Date(2025, month.m, day);
+      const d = new Date(2026, month.m, day);
       const data = meals[dk(d)];
       html += `<td class="${isToday(d) ? 'pc-today-cell' : ''}"><div class="pc-cell${data && data.done ? ' pc-done' : ''}">`;
       html += `<div class="pc-date">${day}${data && data.done ? ' ✓' : ''}</div>`;
