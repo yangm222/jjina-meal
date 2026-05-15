@@ -558,7 +558,7 @@ async function loadStocks(){
     if(data && data.length > 0){
       dbStocks = data;
       console.log('재고 로딩 성공:', dbStocks);
-      renderContent();
+      // renderContent() 제거 - Promise.all에서 처리
     }
   } catch(e){
     console.error('Supabase 연결 오류:', e);
@@ -625,9 +625,11 @@ for(const item of data.items){
   meals[dateKey].done = true;
   meals[dateKey].memo = '섭취완료';
 
-  // 재고 다시 불러오고 화면 갱신
-  await loadStocks();
-  renderStrip();
+ // 재고 다시 불러오고 화면 갱신
+await loadStocks();
+await loadMealLog();
+renderStrip();
+renderContent();
 }
 
 function goToday(){
