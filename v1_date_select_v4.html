@@ -33,8 +33,8 @@ button{font-family:'Pretendard',sans-serif;}
 .day-item.today .dn{color:var(--pink);font-weight:500;}
 .day-item.selected{background:#111;}
 .day-item.selected .dn{color:#fff;}
-.day-item.selected.today{background:#fff;border:1px solid var(--pink);}
-.day-item.selected.today .dn{color:var(--pink);}
+.day-item.selected.today{background:#fff0f6;border:1px solid var(--pink);}
+.day-item.selected.today .dn{color:var(--pink);font-weight:700;}
 .day-item.done-day .dn{color:#ccc;}
 .day-item.selected.done-day .dn{color:#fff;}
 #main-view{display:block;padding-bottom:56px;min-height:100vh;}
@@ -285,14 +285,21 @@ function renderContent(){
       ${data.note?`<div class="meal-note">💧 ${esc(data.note)}</div>`:''}
     </div>`;
     if(!data.done){
-      html+=`<div class="memo-input-wrap">
-        <div class="memo-input-lbl">📝 섭취 메모 (선택)</div>
-        <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
-      </div>
-      <div class="check-btn-wrap">
-        <button class="check-btn" onclick="checkDone('${dk(sel)}')">✓ 섭취 완료 체크</button>
-      </div>`;
-    }
+  html+=`<div class="memo-input-wrap">
+    <div class="memo-input-lbl">📝 섭취 메모 (선택)</div>
+    <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
+  </div>
+  <div class="check-btn-wrap">
+    <button class="check-btn" onclick="checkDone('${dk(sel)}')">✓ 섭취 완료 체크</button>
+  </div>`;
+} else {
+  // 완료된 날도 메모 수정 가능
+  html+=`<div class="memo-input-wrap">
+    <div class="memo-input-lbl">📝 메모 수정</div>
+    <textarea id="memo-input" class="memo-input" rows="2">${esc(data.memo||'')}</textarea>
+    <button onclick="updateMemo('${dk(sel)}')" style="margin-top:8px;width:100%;padding:10px;background:#888;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;">메모 수정 저장</button>
+  </div>`;
+}
     if(data.memo){
       html+=`<div class="memo-card"><div class="memo-lbl">📝 섭취 기록</div><div class="memo-txt">${esc(data.memo)}</div></div>`;
     }
@@ -421,7 +428,15 @@ async function checkDone(dateKey){
   meals[dateKey].done=true;meals[dateKey].memo=memo;
   await loadStocks();renderStrip();renderContent();
 }
-
+async function updateMemo(dateKey){
+  const memoEl=document.getElementById('memo-input');
+  if(!memoEl)return;
+  const memo=memoEl.value.trim()||'섭취완료';
+  const {error}=await sb.from('meal_log').upsert({date:dateKey,done:true,memo},{onConflict:'date'});
+  if(error){alert('저장 실패: '+error.message);return;}
+  meals[dateKey].memo=memo;
+  renderContent();
+}
 function goToday(){sel=new Date(TODAY);curMonth=TODAY.getMonth();renderStrip();renderContent();}
 function changeMonth(dir){
   curMonth=Math.max(4,Math.min(5,curMonth+dir));
