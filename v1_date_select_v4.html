@@ -37,6 +37,7 @@ button{font-family:'Pretendard',sans-serif;}
 .day-item.selected.today .dn{color:var(--pink);font-weight:700;}
 .day-item.done-day .dn{color:#ccc;}
 .day-item.selected.done-day .dn{color:#fff;}
+.day-item.selected.today.done-day .dn{color:var(--pink);font-weight:700;}
 #main-view{display:block;padding-bottom:56px;min-height:100vh;}
 #cal-view{display:none;padding-bottom:56px;min-height:100vh;}
 .day-hd{display:flex;align-items:flex-start;justify-content:space-between;padding:16px;background:#fff;border-bottom:1px solid var(--border);}
@@ -300,9 +301,6 @@ function renderContent(){
     <button onclick="updateMemo('${dk(sel)}')" style="margin-top:8px;width:100%;padding:10px;background:#888;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;">메모 수정 저장</button>
   </div>`;
 }
-    if(data.memo){
-      html+=`<div class="memo-card"><div class="memo-lbl">📝 섭취 기록</div><div class="memo-txt">${esc(data.memo)}</div></div>`;
-    }
   }
 
   const newItems=[];
