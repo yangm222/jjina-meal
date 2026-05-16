@@ -526,12 +526,15 @@ function renderContent() {
           <button class="check-btn" onclick="checkDone('${dk(sel)}')">✓ 섭취 완료 체크</button>
         </div>`;
     } else {
-      // 완료: 섭취 기록 + 수정 버튼 (클릭 시 수정 폼 노출)
+      // 완료: 섭취 기록 + 수정/취소 버튼
       html += `
         <div class="memo-card">
           <div class="memo-card-header">
             <div class="memo-lbl">📝 섭취 기록</div>
-            <button class="memo-edit-btn" onclick="showMemoEdit()">수정</button>
+            <div style="display:flex;gap:6px;">
+              <button class="memo-edit-btn" onclick="showMemoEdit()">수정</button>
+              <button class="memo-edit-btn" style="color:#e65100;border-color:#ffccbc;" onclick="cancelDone('${dk(sel)}')">취소</button>
+            </div>
           </div>
           <div class="memo-txt" id="memo-display-txt">${esc(data.memo || '섭취완료')}</div>
         </div>
@@ -869,8 +872,9 @@ async function loadMealLog() {
 
 /* ================================================
    섭취완료 체크
-   - meal_log에 기록
+   - meal_log에 기록 + stock_changes에 차감 내역 저장
    - 한우/쌀미음 큐브 재고 자동 차감 (15g 단위)
+   - 취소 시 stock_changes로 재고 복구 가능
 ================================================ */
 async function checkDone(dateKey) {
   const data = meals[dateKey];
@@ -880,10 +884,8 @@ async function checkDone(dateKey) {
   const memoEl = document.getElementById('memo-input');
   const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
 
-  const { error: logErr } = await sb.from('meal_log').upsert({ date: dateKey, done: true, memo }, { onConflict: 'date' });
-  if (logErr) console.error('meal_log 저장 오류:', logErr);
-
-  // 재고 차감 (한우/쌀미음 큐브 15g 단위)
+  // 차감 내역 계산 및 재고 차감
+  const stockChanges = [];
   for (const item of data.items) {
     let stockName = null, useCount = 0;
     if (item.n === '한우') {
@@ -898,13 +900,60 @@ async function checkDone(dateKey) {
     if (stockName && useCount > 0) {
       const stock = dbStocks.find(s => s.name === stockName);
       if (stock) {
-        await sb.from('inventory').update({ amount: Math.max(0, stock.amount - useCount) }).eq('id', stock.id);
+        // 실제 차감된 양 계산 (0 미만 방지)
+        const actualDeduct = Math.min(useCount, stock.amount);
+        await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
+        // 차감 내역 기록
+        stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
       }
     }
   }
 
+  // meal_log 저장 (차감 내역 포함)
+  const { error: logErr } = await sb.from('meal_log').upsert(
+    { date: dateKey, done: true, memo, stock_changes: stockChanges },
+    { onConflict: 'date' }
+  );
+  if (logErr) console.error('meal_log 저장 오류:', logErr);
+
   meals[dateKey].done = true;
   meals[dateKey].memo = memo;
+  await loadStocks();
+  renderStrip();
+  renderContent();
+}
+
+/* ================================================
+   섭취완료 취소
+   - meal_log에서 done=false로 변경
+   - stock_changes 읽어서 재고 정확히 복구
+================================================ */
+async function cancelDone(dateKey) {
+  if (!confirm('섭취 완료를 취소할까요? 차감된 재고가 복구됩니다.')) return;
+
+  // meal_log에서 stock_changes 가져오기
+  const { data: logData, error: fetchErr } = await sb.from('meal_log')
+    .select('stock_changes')
+    .eq('date', dateKey)
+    .single();
+  if (fetchErr) { alert('취소 실패: ' + fetchErr.message); return; }
+
+  // 재고 복구
+  const changes = logData?.stock_changes || [];
+  for (const change of changes) {
+    const stock = dbStocks.find(s => s.id === change.id);
+    if (stock) {
+      await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
+    }
+  }
+
+  // meal_log done=false, stock_changes 초기화
+  const { error: updateErr } = await sb.from('meal_log').update(
+    { done: false, stock_changes: [] }
+  ).eq('date', dateKey);
+  if (updateErr) { alert('취소 실패: ' + updateErr.message); return; }
+
+  meals[dateKey].done = false;
   await loadStocks();
   renderStrip();
   renderContent();
