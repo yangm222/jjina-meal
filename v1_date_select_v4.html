@@ -141,27 +141,26 @@ input { font-family: 'Pretendard', sans-serif; }
 .acc-body { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border); }
 .acc.open .acc-body { display: block; }
 
-/* ===== 재고 현황 ===== */
-/* 보기 모드 */
+/* ===== 재고 현황 — 보기 모드 ===== */
 .stock-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: #111; }
 .stock-row:last-of-type { border-bottom: none; }
 .stock-name { flex: 1; }
 .stock-val { font-weight: 700; color: var(--text); }
-.stock-low { color: #fd0c0c; !important; }
+.stock-low { color: #fd0c0c !important; }
 
-/* 수정 모드 */
+/* 재고 현황 — 수정 모드 */
 .stock-edit-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: #111; gap: 8px; }
 .stock-edit-row:last-of-type { border-bottom: none; }
 .stock-input { width: 60px; border: 1px solid var(--border); border-radius: 6px; padding: 5px 6px; font-size: 12px; text-align: center; color: #111; outline: none; }
 .stock-input:focus { border-color: var(--sky); }
 .stock-unit { font-size: 11px; color: var(--text-sub); }
 
-/* 버튼들 */
+/* 재고 현황 — 버튼 */
 .stock-edit-btn { width: 100%; margin-top: 10px; padding: 10px; background: #f5f5f5; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: #555; }
 .stock-save-all-btn { width: 100%; margin-top: 10px; padding: 10px; background: var(--green); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; }
 .stock-cancel-btn { width: 100%; margin-top: 6px; padding: 9px; background: #f5f5f5; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; color: var(--gray); }
 
-/* ===== 새 재료 추가 폼 ===== */
+/* ===== 재료 추가 폼 (재고/장볼 공용) ===== */
 .add-divider { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .add-stock-btn { width: 100%; padding: 10px; background: #f5f5f5; border: 1px dashed var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--gray); }
 .add-form { margin-top: 10px; padding: 12px; background: #f9f9f9; border-radius: 8px; border: 1px solid var(--border); }
@@ -173,12 +172,13 @@ input { font-family: 'Pretendard', sans-serif; }
 
 /* ===== 장볼 재료 ===== */
 .shop-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: #111; }
-.shop-row:last-child { border-bottom: none; }
+.shop-row:last-of-type { border-bottom: none; }
 .shop-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }
 
 /* ===== 알러지 유의사항 ===== */
 .notice-list { padding-top: 8px; }
 .notice-list li { font-size: 13px; color: #444; line-height: 1.4; list-style: none; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.notice-list li:last-child { border-bottom: none; }
 
 /* ===== 하단 탭 ===== */
 .bottom-tabs { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #e8e8e8; display: flex; z-index: 300; }
@@ -265,9 +265,11 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 /* ================================================
    앱 상태 변수
 ================================================ */
-let dbStocks = [];       // Supabase에서 불러온 재고 목록
+let dbStocks = [];         // Supabase inventory 테이블
+let shops = [];            // Supabase shop_list 테이블
 let stockEditMode = false; // 재고 수정 모드 여부
-let showAddForm = false;   // 새 재료 추가 폼 표시 여부
+let showAddForm = false;   // 재고 새 재료 추가 폼
+let showShopAddForm = false; // 장볼 재료 추가 폼
 
 /* ================================================
    기준 날짜 설정
@@ -286,7 +288,7 @@ const BIRTH = new Date(2025, 10, 14); // 2025년 11월 14일
    - badges: 표시 배지 배열
    - done: 섭취완료 여부 (Supabase meal_log에서 덮어씀)
    - memo: 섭취 기록 메모
-   - note: 조리 메모 (예: 물 약간 추가)
+   - note: 조리 메모
 ================================================ */
 const meals = {
   "5/9":  { items:[{n:"쌀미음",a:"45g"}], badges:["시판"], done:true, memo:"섭취완료" },
@@ -297,12 +299,12 @@ const meals = {
   "5/14": { items:[{n:"쌀미음",a:"45g"},{n:"한우",a:"15g"}], badges:["시판+직접"], note:"물 약간 추가" },
   "5/15": { items:[{n:"쌀미음",a:"45g"},{n:"한우",a:"15g"}], badges:["시판+직접"], note:"물 약간 추가" },
   "5/16": { items:[{n:"쌀",a:"60g"},{n:"한우",a:"15g"}], badges:["직접"] },
-  "5/17": { items:[{n:"브로콜리미음",a:"30g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
-  "5/18": { items:[{n:"브로콜리미음",a:"45g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
-  "5/19": { items:[{n:"브로콜리미음",a:"65g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
-  "5/20": { items:[{n:"감자미음",a:"30g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
-  "5/21": { items:[{n:"감자미음",a:"45g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
-  "5/22": { items:[{n:"감자미음",a:"65g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "5/17": { items:[{n:"브로콜리미음",a:"30g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
+  "5/18": { items:[{n:"브로콜리미음",a:"45g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "5/19": { items:[{n:"브로콜리미음",a:"65g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "5/20": { items:[{n:"감자미음",a:"30g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
+  "5/21": { items:[{n:"감자미음",a:"45g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "5/22": { items:[{n:"감자미음",a:"65g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
   "5/23": { items:[{n:"쌀",a:"60g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
   "5/24": { items:[{n:"쌀",a:"45g"},{n:"애호박",a:"30g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "5/25": { items:[{n:"쌀",a:"30g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
@@ -345,16 +347,8 @@ const meals = {
 };
 
 /* ================================================
-   고정 데이터 (장봐야 할 재료 / 유의사항)
-   Supabase 재고 기준 low_alert 이하 항목이
-   장볼 재료에 자동 추가됨
+   알러지 유의사항 (고정 데이터)
 ================================================ */
-let shops = [
-  "아이보리 쌀가루 초기 1단계",
-  "아이보리 오트밀 파우더 200g",
-  "한우 우둔살 350g (5/24 전)"
-];
-
 const notices = [
   "오트밀: 글루텐 프리 인증 제품 사용",
   "노른자: 완숙 후 으깨어 사용 / 흰자는 돌 이후",
@@ -485,10 +479,10 @@ function renderContent() {
 
   // 상태 텍스트/스타일 결정
   let stTxt = "예정", stCls = "future";
-  if (!data)            { stTxt = "식단 없음"; stCls = "future"; }
-  else if (data.done)   { stTxt = "섭취 완료 ✓"; stCls = "done"; }
-  else if (todaySelected) { stTxt = "오늘 예정"; stCls = "pending"; }
-  else if (pastSelected)  { stTxt = "기록 없음"; stCls = "future"; }
+  if (!data)              { stTxt = "식단 없음";   stCls = "future"; }
+  else if (data.done)     { stTxt = "섭취 완료 ✓"; stCls = "done"; }
+  else if (todaySelected) { stTxt = "오늘 예정";   stCls = "pending"; }
+  else if (pastSelected)  { stTxt = "기록 없음";   stCls = "future"; }
 
   // 날짜 헤더
   let html = `
@@ -593,9 +587,9 @@ function toggleAcc(id) {
 
 /* ================================================
    재고 현황 HTML 생성
-   - 보기 모드: 이름 + 수량 텍스트 표시
-   - 수정 모드: 입력칸 활성화 + 전체 저장 버튼
-   - 하단: 새 재료 추가 버튼/폼
+   - 보기 모드: 이름 + 수량 표시, low_alert 이하 시 ❗️
+   - 수정 모드: 입력칸 + 삭제 버튼 + 전체 저장
+   - 하단: 새 재료 추가 폼
 ================================================ */
 function stockHtml() {
   if (dbStocks.length === 0) {
@@ -611,21 +605,21 @@ function stockHtml() {
       return `
         <div class="stock-row">
           <span class="stock-name">${esc(s.name)}</span>
-          <span class="stock-val${isLow ? ' stock-low' : ''}">${s.amount}${esc(s.unit)} ${isLow ? '✅' : ''}</span>
+          <span class="stock-val${isLow ? ' stock-low' : ''}">${s.amount}${esc(s.unit)} ${isLow ? '❗️' : ''}</span>
         </div>`;
     }).join('');
     html += `<button class="stock-edit-btn" onclick="startStockEdit()">✏️ 재고 수정하기</button>`;
   } else {
-    // 수정 모드: 각 항목마다 입력칸 노출
+    // 수정 모드
     html += dbStocks.map(s => `
-  <div class="stock-edit-row">
-    <span class="stock-name">${esc(s.name)}</span>
-    <div style="display:flex;align-items:center;gap:5px;">
-      <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" />
-      <span class="stock-unit">${esc(s.unit)}</span>
-      <button onclick="deleteStock(${s.id})" style="background:none;border:1px solid #888;border-radius:6px;padding:3px 7px;font-size:11px;color:#888;cursor:pointer;">삭제</button>
-    </div>
-  </div>`).join('');
+      <div class="stock-edit-row">
+        <span class="stock-name">${esc(s.name)}</span>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" />
+          <span class="stock-unit">${esc(s.unit)}</span>
+          <button onclick="deleteStock(${s.id})" style="background:none;border:1px solid #ddd;border-radius:6px;padding:3px 7px;font-size:11px;color:#aaa;cursor:pointer;">삭제</button>
+        </div>
+      </div>`).join('');
     html += `<button class="stock-save-all-btn" onclick="saveAllStocks()">💾 전체 저장</button>`;
     html += `<button class="stock-cancel-btn" onclick="cancelStockEdit()">취소</button>`;
   }
@@ -667,7 +661,7 @@ function refreshStockBody() {
   if (body) body.innerHTML = stockHtml();
 }
 
-// 새 재료 추가 폼 토글
+// 재고 새 재료 추가 폼 토글
 function toggleAddForm() {
   showAddForm = !showAddForm;
   refreshStockBody();
@@ -675,42 +669,39 @@ function toggleAddForm() {
 
 /* ================================================
    장볼 재료 HTML 생성
-   - Supabase 재고 low_alert 이하 항목 자동 추가
-   - 수동 항목 추가/삭제 가능
+   - 재고 low_alert 이하 항목: 자동 표시 (재고부족 라벨)
+   - shop_list 수동 항목: ✕ 버튼으로 삭제 가능
+   - 하단: 장볼 재료 추가 폼
 ================================================ */
-let showShopAddForm = false; // 장볼 재료 추가 폼 표시 여부
-
 function shopHtml() {
-  // 재고 기준 자동 추가 항목 (low_alert 이하)
-  const autoShops = dbStocks.filter(s => s.amount <= s.low_alert).map(s => s.name);
-  // 수동 항목 (자동 항목과 중복 제거)
-  const manualShops = shops.filter(s => !autoShops.includes(s));
+  const autoShopNames = dbStocks.filter(s => s.amount <= s.low_alert).map(s => s.name);
+  const manualShops = shops.filter(s => !autoShopNames.includes(s.name));
 
   let html = '';
 
-  // 자동 항목: 재고 부족 표시 (삭제 불가 — 재고 수정으로만 제거)
-  html += autoShops.map(s => `
+  // 자동 항목 (재고 부족)
+  html += autoShopNames.map(s => `
     <div class="shop-row">
       <div class="shop-dot"></div>
       <span style="flex:1;">${esc(s)}</span>
       <span style="font-size:10px;color:var(--text-sub);">재고부족</span>
     </div>`).join('');
 
-  // 수동 항목: 삭제 버튼 포함
-  html += manualShops.map((s, i) => `
+  // 수동 항목 (삭제 버튼 포함)
+  html += manualShops.map(s => `
     <div class="shop-row">
       <div class="shop-dot"></div>
-      <span style="flex:1;">${esc(s)}</span>
-      <button onclick="removeShopItem(${shops.indexOf(s)})" style="background:none;border:none;font-size:13px;color:#ccc;padding:0 2px;line-height:1;">✕</button>
+      <span style="flex:1;">${esc(s.name)}</span>
+      <button onclick="removeShopItem(${s.id})" style="background:none;border:none;font-size:14px;color:#ccc;padding:0 2px;line-height:1;">✕</button>
     </div>`).join('');
 
-  // 항목이 없을 때
-  if (autoShops.length === 0 && manualShops.length === 0) {
+  // 항목 없을 때
+  if (autoShopNames.length === 0 && manualShops.length === 0) {
     html += `<div style="padding:8px 0;font-size:12px;color:#aaa;">장볼 재료가 없어요 👍</div>`;
   }
 
   // 추가 버튼/폼
-  html += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">`;
+  html += `<div class="add-divider">`;
   html += `<button class="add-stock-btn" onclick="toggleShopAddForm()">+ 장볼 재료 추가</button>`;
   if (showShopAddForm) {
     html += `
@@ -729,27 +720,12 @@ function toggleShopAddForm() {
   refreshShopBody();
 }
 
-// 장볼 재료 추가
-function addShopItem() {
-  const input = document.getElementById('new-shop-item');
-  const val = input?.value?.trim();
-  if (!val) { alert('재료 이름을 입력해주세요.'); return; }
-  shops.push(val);
-  showShopAddForm = false;
-  refreshShopBody();
-}
-
-// 장볼 재료 삭제
-function removeShopItem(idx) {
-  shops.splice(idx, 1);
-  refreshShopBody();
-}
-
 // 장볼 재료 아코디언 바디만 업데이트
 function refreshShopBody() {
   const body = document.querySelector('#a-h .acc-body');
   if (body) body.innerHTML = shopHtml();
 }
+
 /* ================================================
    알러지 유의사항 HTML 생성
 ================================================ */
@@ -800,19 +776,16 @@ async function deleteStock(id) {
 }
 
 /* ================================================
-   Supabase — 새 재료 추가
+   Supabase — 재고 새 항목 추가
 ================================================ */
 async function addStock() {
   const name = document.getElementById('ns-name')?.value?.trim();
   const amount = parseInt(document.getElementById('ns-amt')?.value || 0);
   const unit = document.getElementById('ns-unit')?.value?.trim() || '개';
   const low_alert = parseInt(document.getElementById('ns-alert')?.value || 2);
-
   if (!name) { alert('재료 이름을 입력해주세요.'); return; }
-
   const { error } = await sb.from('inventory').insert([{ name, amount, unit, low_alert }]);
   if (error) { alert('추가 실패: ' + error.message); return; }
-
   showAddForm = false;
   await loadStocks();
   const acc = document.getElementById('a-s');
@@ -826,10 +799,50 @@ async function loadStocks() {
   try {
     const { data, error } = await sb.from('inventory').select('*').order('id');
     if (error) { console.error('재고 로딩 오류:', error); return; }
-    if (data && data.length > 0) dbStocks = data;
+    if (data) dbStocks = data;
     refreshStockBody();
   } catch (e) {
     console.error('Supabase 오류:', e);
+  }
+}
+
+/* ================================================
+   Supabase — 장볼 재료 추가 (shop_list 테이블)
+================================================ */
+async function addShopItem() {
+  const input = document.getElementById('new-shop-item');
+  const val = input?.value?.trim();
+  if (!val) { alert('재료 이름을 입력해주세요.'); return; }
+  const { error } = await sb.from('shop_list').insert([{ name: val }]);
+  if (error) { alert('추가 실패: ' + error.message); return; }
+  showShopAddForm = false;
+  await loadShops();
+  const acc = document.getElementById('a-h');
+  if (acc) acc.classList.add('open');
+}
+
+/* ================================================
+   Supabase — 장볼 재료 삭제 (shop_list 테이블)
+================================================ */
+async function removeShopItem(id) {
+  const { error } = await sb.from('shop_list').delete().eq('id', id);
+  if (error) { alert('삭제 실패: ' + error.message); return; }
+  await loadShops();
+  const acc = document.getElementById('a-h');
+  if (acc) acc.classList.add('open');
+}
+
+/* ================================================
+   Supabase — 장볼 재료 불러오기 (shop_list 테이블)
+================================================ */
+async function loadShops() {
+  try {
+    const { data, error } = await sb.from('shop_list').select('*').order('id');
+    if (error) { console.error('shop_list 오류:', error); return; }
+    shops = data || [];
+    refreshShopBody();
+  } catch (e) {
+    console.error('shop_list 연결 오류:', e);
   }
 }
 
@@ -864,15 +877,13 @@ async function checkDone(dateKey) {
   if (!data) return;
   if (!confirm('섭취 완료로 기록할까요? 재고가 자동으로 차감됩니다.')) return;
 
-  // 메모 입력값 가져오기
   const memoEl = document.getElementById('memo-input');
   const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
 
-  // meal_log 저장
   const { error: logErr } = await sb.from('meal_log').upsert({ date: dateKey, done: true, memo }, { onConflict: 'date' });
   if (logErr) console.error('meal_log 저장 오류:', logErr);
 
-  // 재고 차감 (한우/쌀미음 큐브 기준)
+  // 재고 차감 (한우/쌀미음 큐브 15g 단위)
   for (const item of data.items) {
     let stockName = null, useCount = 0;
     if (item.n === '한우') {
@@ -892,7 +903,6 @@ async function checkDone(dateKey) {
     }
   }
 
-  // 로컬 상태 업데이트 후 화면 갱신
   meals[dateKey].done = true;
   meals[dateKey].memo = memo;
   await loadStocks();
@@ -907,11 +917,8 @@ async function updateMemo(dateKey) {
   const memoEl = document.getElementById('memo-input');
   if (!memoEl) return;
   const memo = memoEl.value.trim() || '섭취완료';
-
   const { error } = await sb.from('meal_log').upsert({ date: dateKey, done: true, memo }, { onConflict: 'date' });
   if (error) { alert('저장 실패: ' + error.message); return; }
-
-  // 로컬 업데이트 후 수정 폼 숨기기 (화면 전체 재렌더 없이 텍스트만 교체)
   meals[dateKey].memo = memo;
   const editWrap = document.getElementById('memo-edit-wrap');
   const displayTxt = document.getElementById('memo-display-txt');
@@ -922,7 +929,6 @@ async function updateMemo(dateKey) {
 /* ================================================
    날짜 이동 함수
 ================================================ */
-// 오늘로 이동
 function goToday() {
   sel = new Date(TODAY);
   curMonth = TODAY.getMonth();
@@ -955,8 +961,8 @@ function pick(y, m, d) {
 ================================================ */
 function buildPC() {
   const months = [
-    { m: 4, label: "5월", days: 31, d0: 3 }, // 5월: 목요일 시작
-    { m: 5, label: "6월", days: 30, d0: 6 }, // 6월: 일요일 시작
+    { m: 4, label: "5월", days: 31, d0: 3 },
+    { m: 5, label: "6월", days: 30, d0: 6 },
   ];
   let html = "";
   months.forEach(({ m, label, days, d0 }) => {
@@ -989,7 +995,6 @@ function buildPC() {
 
 /* ================================================
    월간 달력 인쇄/PDF 저장
-   새 창을 열어 달력 내용만 인쇄
 ================================================ */
 function downloadCal() {
   const cc = document.getElementById('cal-content').innerHTML;
@@ -1030,11 +1035,12 @@ function switchTab(tab) {
 
 /* ================================================
    앱 초기화
-   meal_log → inventory 순서로 로드 후 렌더링
+   meal_log → inventory → shop_list 순서로 로드
 ================================================ */
 async function init() {
   await loadMealLog();
   await loadStocks();
+  await loadShops();
   renderStrip();
   renderContent();
 }
