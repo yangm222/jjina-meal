@@ -299,12 +299,12 @@ const meals = {
   "5/14": { items:[{n:"쌀미음",a:"45g"},{n:"한우",a:"15g"}], badges:["시판+직접"], note:"물 약간 추가" },
   "5/15": { items:[{n:"쌀미음",a:"45g"},{n:"한우",a:"15g"}], badges:["시판+직접"], note:"물 약간 추가" },
   "5/16": { items:[{n:"쌀",a:"60g"},{n:"한우",a:"15g"}], badges:["직접"] },
-  "5/17": { items:[{n:"브로콜리미음",a:"30g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
-  "5/18": { items:[{n:"브로콜리미음",a:"45g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
-  "5/19": { items:[{n:"브로콜리미음",a:"65g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
-  "5/20": { items:[{n:"감자미음",a:"30g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
-  "5/21": { items:[{n:"감자미음",a:"45g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
-  "5/22": { items:[{n:"감자미음",a:"65g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "5/17": { items:[{n:"브로콜리미음",a:"2개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["NEW","시판+직접"] },
+  "5/18": { items:[{n:"브로콜리미음",a:"3개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
+  "5/19": { items:[{n:"브로콜리미음",a:"4개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
+  "5/20": { items:[{n:"감자미음",a:"2개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["NEW","시판+직접"] },
+  "5/21": { items:[{n:"감자미음",a:"3개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
+  "5/22": { items:[{n:"감자미음",a:"4개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
   "5/23": { items:[{n:"쌀",a:"60g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
   "5/24": { items:[{n:"쌀",a:"45g"},{n:"애호박",a:"30g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "5/25": { items:[{n:"쌀",a:"30g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
@@ -312,9 +312,9 @@ const meals = {
   "5/27": { items:[{n:"쌀",a:"30g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "5/28": { items:[{n:"오트밀",a:"30g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "5/29": { items:[{n:"오트밀",a:"30g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
-  "5/30": { items:[{n:"고구마미음",a:"45g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
-  "5/31": { items:[{n:"고구마미음",a:"55g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
-  "6/1":  { items:[{n:"고구마미음",a:"소량"},{n:"오트밀",a:"30g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "5/30": { items:[{n:"고구마미음",a:"3개"},{n:"한우",a:"1개"}], badges:["NEW","시판+직접"] },
+  "5/31": { items:[{n:"고구마미음",a:"4개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
+  "6/1":  { items:[{n:"고구마미음",a:"1개"},{n:"오트밀",a:"30g"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
   "6/2":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"소량"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
   "6/3":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"5g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/4":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"5g"},{n:"한우",a:"15g"}], badges:["직접"] },
@@ -591,7 +591,7 @@ function toggleAcc(id) {
 /* ================================================
    재고 현황 HTML 생성
    - 보기 모드: 이름 + 수량 표시, low_alert 이하 시 ❗️
-   - 수정 모드: 입력칸 + 삭제 버튼 + 전체 저장
+   - 수정 모드: 입력칸 + ▲▼ 순서 이동 + 삭제 버튼 + 전체 저장
    - 하단: 새 재료 추가 폼
 ================================================ */
 function stockHtml() {
@@ -613,9 +613,13 @@ function stockHtml() {
     }).join('');
     html += `<button class="stock-edit-btn" onclick="startStockEdit()">✏️ 재고 수정하기</button>`;
   } else {
-    // 수정 모드
-    html += dbStocks.map(s => `
+    // 수정 모드: 입력칸 + ▲▼ 순서 이동 + 삭제
+    html += dbStocks.map((s, idx) => `
       <div class="stock-edit-row">
+        <div style="display:flex;flex-direction:column;gap:1px;margin-right:4px;">
+          <button onclick="moveStock(${idx}, -1)" style="background:none;border:none;font-size:10px;color:#aaa;padding:0;line-height:1;cursor:pointer;" ${idx === 0 ? 'disabled' : ''}>▲</button>
+          <button onclick="moveStock(${idx}, 1)" style="background:none;border:none;font-size:10px;color:#aaa;padding:0;line-height:1;cursor:pointer;" ${idx === dbStocks.length-1 ? 'disabled' : ''}>▼</button>
+        </div>
         <span class="stock-name">${esc(s.name)}</span>
         <div style="display:flex;align-items:center;gap:5px;">
           <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" />
@@ -746,15 +750,33 @@ function showMemoEdit() {
 }
 
 /* ================================================
-   Supabase — 재고 전체 저장
+   재고 순서 이동 (▲▼ 버튼)
+   - 로컬 배열에서 순서 변경 후 UI 업데이트
+   - 전체 저장 시 sort_order를 DB에 반영
+================================================ */
+function moveStock(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= dbStocks.length) return;
+  // 입력값 임시 보존
+  dbStocks.forEach(s => {
+    const input = document.getElementById(`si-${s.id}`);
+    if (input) s._tempAmount = parseInt(input.value);
+  });
+  // 배열 순서 변경
+  [dbStocks[idx], dbStocks[newIdx]] = [dbStocks[newIdx], dbStocks[idx]];
+  refreshStockBody();
+}
+
+/* ================================================
+   Supabase — 재고 전체 저장 (수량 + 순서)
 ================================================ */
 async function saveAllStocks() {
-  for (const s of dbStocks) {
+  for (let i = 0; i < dbStocks.length; i++) {
+    const s = dbStocks[i];
     const input = document.getElementById(`si-${s.id}`);
-    if (!input) continue;
-    const newAmt = parseInt(input.value);
+    const newAmt = input ? parseInt(input.value) : (s._tempAmount ?? s.amount);
     if (isNaN(newAmt) || newAmt < 0) continue;
-    const { error } = await sb.from('inventory').update({ amount: newAmt }).eq('id', s.id);
+    const { error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i }).eq('id', s.id);
     if (error) { alert(`${s.name} 저장 실패: ${error.message}`); return; }
   }
   stockEditMode = false;
@@ -787,7 +809,8 @@ async function addStock() {
   const unit = document.getElementById('ns-unit')?.value?.trim() || '개';
   const low_alert = parseInt(document.getElementById('ns-alert')?.value || 2);
   if (!name) { alert('재료 이름을 입력해주세요.'); return; }
-  const { error } = await sb.from('inventory').insert([{ name, amount, unit, low_alert }]);
+  const sort_order = dbStocks.length;
+  const { error } = await sb.from('inventory').insert([{ name, amount, unit, low_alert, sort_order }]);
   if (error) { alert('추가 실패: ' + error.message); return; }
   showAddForm = false;
   await loadStocks();
@@ -796,11 +819,11 @@ async function addStock() {
 }
 
 /* ================================================
-   Supabase — 재고 불러오기
+   Supabase — 재고 불러오기 (sort_order 순서로)
 ================================================ */
 async function loadStocks() {
   try {
-    const { data, error } = await sb.from('inventory').select('*').order('id');
+    const { data, error } = await sb.from('inventory').select('*').order('sort_order').order('id');
     if (error) { console.error('재고 로딩 오류:', error); return; }
     if (data) dbStocks = data;
     refreshStockBody();
@@ -873,8 +896,8 @@ async function loadMealLog() {
 /* ================================================
    섭취완료 체크
    - meal_log에 기록 + stock_changes에 차감 내역 저장
-   - 한우/쌀미음 큐브 재고 자동 차감 (15g 단위)
-   - 취소 시 stock_changes로 재고 복구 가능
+   - 재고 차감 대상: 이름에 "큐브" 포함된 항목 (15g=1개 단위)
+   - 취소 시 stock_changes로 재고 정확히 복구 가능
 ================================================ */
 async function checkDone(dateKey) {
   const data = meals[dateKey];
@@ -884,29 +907,38 @@ async function checkDone(dateKey) {
   const memoEl = document.getElementById('memo-input');
   const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
 
-  // 차감 내역 계산 및 재고 차감
+  // 재고 차감 대상 매핑
+  // 재료명 → 재고 항목명 (큐브 단위)
+  const stockMap = {
+    '한우':       '한우큐브',
+    '쌀미음':     '쌀미음큐브',
+    '브로콜리미음': '브로콜리미음큐브',
+    '감자미음':   '감자미음큐브',
+    '고구마미음': '고구마미음큐브',
+  };
+
   const stockChanges = [];
   for (const item of data.items) {
-    let stockName = null, useCount = 0;
-    if (item.n === '한우') {
-      stockName = '한우큐브';
-      const g = parseInt(item.a);
-      useCount = isNaN(g) ? 0 : Math.round(g / 15);
-    } else if (item.n === '쌀미음') {
-      stockName = '쌀미음큐브';
-      const g = parseInt(item.a);
+    const stockName = stockMap[item.n];
+    if (!stockName) continue;
+
+    // 수량 파싱: "3개" → 3, "15g" → 1, 숫자만 → 그대로
+    let useCount = 0;
+    const aStr = String(item.a || '');
+    if (aStr.includes('개')) {
+      useCount = parseInt(aStr) || 0;
+    } else {
+      const g = parseInt(aStr);
       useCount = isNaN(g) ? 0 : Math.round(g / 15);
     }
-    if (stockName && useCount > 0) {
-      const stock = dbStocks.find(s => s.name === stockName);
-      if (stock) {
-        // 실제 차감된 양 계산 (0 미만 방지)
-        const actualDeduct = Math.min(useCount, stock.amount);
-        await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
-        // 차감 내역 기록
-        stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
-      }
-    }
+
+    if (useCount <= 0) continue;
+    const stock = dbStocks.find(s => s.name === stockName);
+    if (!stock) continue;
+
+    const actualDeduct = Math.min(useCount, stock.amount);
+    await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
+    stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
   }
 
   // meal_log 저장 (차감 내역 포함)
@@ -925,13 +957,13 @@ async function checkDone(dateKey) {
 
 /* ================================================
    섭취완료 취소
-   - meal_log에서 done=false로 변경
-   - stock_changes 읽어서 재고 정확히 복구
+   - meal_log done=false로 변경
+   - stock_changes 읽어서 차감했던 재고 정확히 복구
 ================================================ */
 async function cancelDone(dateKey) {
   if (!confirm('섭취 완료를 취소할까요? 차감된 재고가 복구됩니다.')) return;
 
-  // meal_log에서 stock_changes 가져오기
+  // stock_changes 가져오기
   const { data: logData, error: fetchErr } = await sb.from('meal_log')
     .select('stock_changes')
     .eq('date', dateKey)
@@ -948,12 +980,13 @@ async function cancelDone(dateKey) {
   }
 
   // meal_log done=false, stock_changes 초기화
-  const { error: updateErr } = await sb.from('meal_log').update(
-    { done: false, stock_changes: [] }
-  ).eq('date', dateKey);
+  const { error: updateErr } = await sb.from('meal_log')
+    .update({ done: false, stock_changes: [] })
+    .eq('date', dateKey);
   if (updateErr) { alert('취소 실패: ' + updateErr.message); return; }
 
   meals[dateKey].done = false;
+  meals[dateKey].memo = '';
   await loadStocks();
   renderStrip();
   renderContent();
