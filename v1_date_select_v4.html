@@ -170,7 +170,21 @@ input { font-family: 'Pretendard', sans-serif; }
 .add-form-row input { margin-bottom: 0; flex: 1; }
 .add-confirm-btn { width: 100%; padding: 10px; background: var(--green); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; }
 
-/* ===== 장볼 재료 ===== */
+/* 재고 수정 모드 — ▲▼ 정렬 버튼 */
+.sort-btns { display:flex; flex-direction:column; gap:1px; margin-right:6px; flex-shrink:0; }
+.sort-btn { background:none; border:none; font-size:11px; color:#bbb; padding:2px 4px; line-height:1; cursor:pointer; }
+.sort-btn:disabled { opacity:0.25; cursor:default; }
+.sort-btn:not(:disabled):active { color:#111; }
+.stock-edit-ctrl { display:flex; align-items:center; gap:5px; flex-shrink:0; }
+.stock-del-btn { background:none; border:1px solid #ddd; border-radius:6px; padding:3px 7px; font-size:11px; color:#aaa; cursor:pointer; }
+
+/* 재고 소진 예고 카드 */
+.depletion-card { background:#fff8f0; padding:14px 16px; border-bottom:1px solid var(--border); }
+.depletion-title { font-size:12px; font-weight:700; color:#e65100; margin-bottom:8px; }
+.depletion-item { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.depletion-item:last-child { border-bottom:none; }
+.depletion-name { color:#111; font-weight:600; }
+.depletion-date { color:#e65100; font-weight:700; font-size:11px; }
 .shop-row { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: #111; }
 .shop-row:last-of-type { border-bottom: none; }
 .shop-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }
@@ -299,12 +313,12 @@ const meals = {
   "5/14": { items:[{n:"쌀미음",a:"45g"},{n:"한우",a:"15g"}], badges:["시판+직접"], note:"물 약간 추가" },
   "5/15": { items:[{n:"쌀미음",a:"45g"},{n:"한우",a:"15g"}], badges:["시판+직접"], note:"물 약간 추가" },
   "5/16": { items:[{n:"쌀",a:"60g"},{n:"한우",a:"15g"}], badges:["직접"] },
-  "5/17": { items:[{n:"브로콜리미음",a:"2개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["NEW","시판+직접"] },
-  "5/18": { items:[{n:"브로콜리미음",a:"3개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
-  "5/19": { items:[{n:"브로콜리미음",a:"4개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
-  "5/20": { items:[{n:"감자미음",a:"2개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["NEW","시판+직접"] },
-  "5/21": { items:[{n:"감자미음",a:"3개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
-  "5/22": { items:[{n:"감자미음",a:"4개"},{n:"쌀미음",a:"1개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
+  "5/17": { items:[{n:"브로콜리미음",a:"30g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
+  "5/18": { items:[{n:"브로콜리미음",a:"45g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "5/19": { items:[{n:"브로콜리미음",a:"60g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "5/20": { items:[{n:"감자미음",a:"30g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
+  "5/21": { items:[{n:"감자미음",a:"45g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "5/22": { items:[{n:"감자미음",a:"60g"},{n:"쌀미음",a:"15g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
   "5/23": { items:[{n:"쌀",a:"60g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
   "5/24": { items:[{n:"쌀",a:"45g"},{n:"애호박",a:"30g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "5/25": { items:[{n:"쌀",a:"30g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
@@ -312,9 +326,9 @@ const meals = {
   "5/27": { items:[{n:"쌀",a:"30g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "5/28": { items:[{n:"오트밀",a:"30g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "5/29": { items:[{n:"오트밀",a:"30g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
-  "5/30": { items:[{n:"고구마미음",a:"3개"},{n:"한우",a:"1개"}], badges:["NEW","시판+직접"] },
-  "5/31": { items:[{n:"고구마미음",a:"4개"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
-  "6/1":  { items:[{n:"고구마미음",a:"1개"},{n:"오트밀",a:"30g"},{n:"한우",a:"1개"}], badges:["시판+직접"] },
+  "5/30": { items:[{n:"고구마미음",a:"45g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
+  "5/31": { items:[{n:"고구마미음",a:"60g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+  "6/1":  { items:[{n:"고구마미음",a:"15g"},{n:"오트밀",a:"30g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
   "6/2":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"소량"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
   "6/3":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"5g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/4":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"5g"},{n:"한우",a:"15g"}], badges:["직접"] },
@@ -431,7 +445,71 @@ function ageStr(d) {
 }
 
 /* ================================================
-   날짜 스트립 렌더링
+   재고 소진 예고 계산
+   - 오늘 이후 식단 기준으로 재고가 언제 소진되는지 계산
+   - 재고 매핑(stockMap) 기준 항목만 계산
+   - 소진 예정일이 7일 이내인 항목만 표시
+================================================ */
+function calcDepletion() {
+  // 재료명 → 재고 항목명 매핑 (checkDone과 동일)
+  const stockMap = {
+    '한우':       '한우큐브',
+    '쌀미음':     '쌀미음큐브',
+    '브로콜리미음': '브로콜리미음큐브',
+    '감자미음':   '감자미음큐브',
+    '고구마미음': '고구마미음큐브',
+  };
+
+  // 현재 재고 복사 (시뮬레이션용)
+  const simStock = {};
+  dbStocks.forEach(s => { simStock[s.id] = { ...s }; });
+
+  const results = {}; // stockName → 소진 날짜
+
+  // 오늘부터 순서대로 식단 소비 시뮬레이션
+  for (let i = 0; i <= 60; i++) {
+    const d = new Date(TODAY);
+    d.setDate(TODAY.getDate() + i);
+    const key = dk(d);
+    const meal = meals[key];
+    if (!meal || meal.done) continue; // 이미 완료된 날은 건너뜀
+
+    for (const item of meal.items) {
+      const stockName = stockMap[item.n];
+      if (!stockName) continue;
+
+      const stock = Object.values(simStock).find(s => s.name === stockName);
+      if (!stock) continue;
+      if (stock.id in results) continue; // 이미 소진 날짜 기록된 항목 스킵
+
+      // 수량 파싱 (g 기준 → 큐브 개수)
+      const g = parseInt(String(item.a || ''));
+      const useCount = isNaN(g) ? 0 : Math.round(g / 15);
+      if (useCount <= 0) continue;
+
+      if (stock.amount < useCount) {
+        // 오늘부터 며칠 후인지 계산
+        const diffDays = i;
+        const month = d.getMonth() + 1;
+        const day = d.getDate();
+        results[stock.id] = {
+          name: stockName,
+          dateStr: diffDays === 0 ? '오늘' : diffDays === 1 ? '내일' : `${month}/${day}`,
+          diff: diffDays
+        };
+      } else {
+        stock.amount -= useCount;
+      }
+    }
+  }
+
+  // 7일 이내 소진 예정만 반환, 날짜순 정렬
+  return Object.values(results)
+    .filter(r => r.diff <= 7)
+    .sort((a, b) => a.diff - b.diff);
+}
+
+/* ================================================
    - 현재 월의 날짜를 가로 스크롤로 표시
    - 오늘/선택/완료 상태에 따라 스타일 적용
 ================================================ */
@@ -562,6 +640,19 @@ function renderContent() {
       </div>`;
   }
 
+  // 재고 소진 예고 카드
+  const depletions = calcDepletion();
+  if (depletions.length > 0) {
+    html += `<div class="depletion-card">
+      <div class="depletion-title">⚠️ 재고 소진 예고</div>
+      ${depletions.map(d => `
+        <div class="depletion-item">
+          <span class="depletion-name">${esc(d.name)}</span>
+          <span class="depletion-date">${d.dateStr} 소진 예정</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
   // 아코디언 섹션
   html += accHtml("a-s", "📦 재고 현황", stockHtml());
   html += accHtml("a-h", "🛒 장볼 재료", shopHtml());
@@ -591,7 +682,7 @@ function toggleAcc(id) {
 /* ================================================
    재고 현황 HTML 생성
    - 보기 모드: 이름 + 수량 표시, low_alert 이하 시 ❗️
-   - 수정 모드: 입력칸 + ▲▼ 순서 이동 + 삭제 버튼 + 전체 저장
+   - 수정 모드: ▲▼ 왼쪽 배치(border없음) + 입력칸 + 삭제
    - 하단: 새 재료 추가 폼
 ================================================ */
 function stockHtml() {
@@ -613,18 +704,20 @@ function stockHtml() {
     }).join('');
     html += `<button class="stock-edit-btn" onclick="startStockEdit()">✏️ 재고 수정하기</button>`;
   } else {
-    // 수정 모드: 입력칸 + ▲▼ 순서 이동 + 삭제
+    // 수정 모드: ▲▼ 왼쪽 고정 + 입력칸 오른쪽 정렬
     html += dbStocks.map((s, idx) => `
-  <div class="stock-edit-row">
-    <span class="stock-name">${esc(s.name)}</span>
-    <div style="display:flex;align-items:center;gap:5px;">
-      <button onclick="moveStock(${idx}, -1)" style="background:#f5f5f5;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;color:#555;cursor:pointer;" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''}>◀</button>
-      <button onclick="moveStock(${idx}, 1)" style="background:#f5f5f5;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;color:#555;cursor:pointer;" ${idx === dbStocks.length-1 ? 'disabled style="opacity:0.3;"' : ''}>▶</button>
-      <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" />
-      <span class="stock-unit">${esc(s.unit)}</span>
-      <button onclick="deleteStock(${s.id})" style="background:none;border:1px solid #ddd;border-radius:6px;padding:4px 8px;font-size:11px;color:#aaa;cursor:pointer;">삭제</button>
-    </div>
-  </div>`).join('');
+      <div class="stock-edit-row">
+        <div class="sort-btns">
+          <button onclick="moveStock(${idx}, -1)" class="sort-btn" ${idx === 0 ? 'disabled' : ''}>▲</button>
+          <button onclick="moveStock(${idx}, 1)" class="sort-btn" ${idx === dbStocks.length-1 ? 'disabled' : ''}>▼</button>
+        </div>
+        <span class="stock-name">${esc(s.name)}</span>
+        <div class="stock-edit-ctrl">
+          <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" />
+          <span class="stock-unit">${esc(s.unit)}</span>
+          <button onclick="deleteStock(${s.id})" class="stock-del-btn">삭제</button>
+        </div>
+      </div>`).join('');
     html += `<button class="stock-save-all-btn" onclick="saveAllStocks()">💾 전체 저장</button>`;
     html += `<button class="stock-cancel-btn" onclick="cancelStockEdit()">취소</button>`;
   }
