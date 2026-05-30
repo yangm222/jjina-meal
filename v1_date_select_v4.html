@@ -56,19 +56,12 @@ input { font-family: 'Pretendard', sans-serif; }
 .day-item { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; transition: background 0.15s; }
 .day-item .dn { font-size: 15px; font-weight: 500; color: #888; line-height: 1; }
 
-/* 일반 날짜 — 완료됨 */
 .day-item.done-day .dn { color: #ccc; }
-
-/* 오늘 날짜 (미선택): 핑크 테두리 + 핑크 숫자 */
 .day-item.today { border: 1.5px solid var(--pink); }
 .day-item.today .dn { color: var(--pink); font-weight: 700; }
-
-/* 일반 날짜 (선택됨): 검정 배경 + 흰 숫자 */
 .day-item.selected { background: #111; }
 .day-item.selected .dn { color: #fff; }
 .day-item.selected.done-day .dn { color: #fff; }
-
-/* 오늘 날짜 (선택됨): 핑크 배경 + 흰 숫자 — 가장 높은 우선순위 */
 .day-item.selected.today,
 .day-item.selected.today.done-day { background: var(--pink); border: 1.5px solid var(--pink); }
 .day-item.selected.today .dn,
@@ -117,7 +110,6 @@ input { font-family: 'Pretendard', sans-serif; }
 .check-btn-wrap { padding: 12px 16px; background: #fff; border-bottom: 1px solid var(--border); }
 .check-btn { width: 100%; padding: 12px; background: var(--green); color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; }
 
-/* 섭취 기록 카드 */
 .memo-card { background: #fffbf0; padding: 13px 16px; border-bottom: 1px solid var(--border); }
 .memo-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
 .memo-lbl { font-size: 12px; font-weight: 700; color: #585858; }
@@ -132,6 +124,11 @@ input { font-family: 'Pretendard', sans-serif; }
 .new-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .new-chip { background: var(--pink); color: #fff; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; }
 
+/* ===== 중기 전환 배너 ===== */
+.mid-banner { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.mid-banner-title { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.mid-banner-sub { font-size: 11px; color: rgba(255,255,255,0.85); line-height: 1.5; }
+
 /* ===== 아코디언 ===== */
 .acc { background: #fff; border-bottom: 1px solid var(--border); }
 .acc-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 16px; user-select: none; }
@@ -141,26 +138,24 @@ input { font-family: 'Pretendard', sans-serif; }
 .acc-body { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border); }
 .acc.open .acc-body { display: block; }
 
-/* ===== 재고 현황 — 보기 모드 ===== */
+/* ===== 재고 현황 ===== */
 .stock-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: #111; }
 .stock-row:last-of-type { border-bottom: none; }
 .stock-name { flex: 1; }
 .stock-val { font-weight: 700; color: var(--text); }
 .stock-low { color: #fd0c0c !important; }
 
-/* 재고 현황 — 수정 모드 */
 .stock-edit-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: #111; gap: 8px; }
 .stock-edit-row:last-of-type { border-bottom: none; }
 .stock-input { width: 60px; border: 1px solid var(--border); border-radius: 6px; padding: 5px 6px; font-size: 12px; text-align: center; color: #111; outline: none; }
 .stock-input:focus { border-color: var(--sky); }
 .stock-unit { font-size: 11px; color: var(--text-sub); }
 
-/* 재고 현황 — 버튼 */
 .stock-edit-btn { width: 100%; margin-top: 10px; padding: 10px; background: #f5f5f5; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: #555; }
 .stock-save-all-btn { width: 100%; margin-top: 10px; padding: 10px; background: var(--green); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; }
 .stock-cancel-btn { width: 100%; margin-top: 6px; padding: 9px; background: #f5f5f5; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; color: var(--gray); }
 
-/* ===== 재료 추가 폼 (재고/장볼 공용) ===== */
+/* ===== 재료 추가 폼 ===== */
 .add-divider { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .add-stock-btn { width: 100%; padding: 10px; background: #f5f5f5; border: 1px dashed var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--gray); }
 .add-form { margin-top: 10px; padding: 12px; background: #f9f9f9; border-radius: 8px; border: 1px solid var(--border); }
@@ -200,6 +195,9 @@ input { font-family: 'Pretendard', sans-serif; }
 .pc-badge { font-size: 7px; font-weight: 700; padding: 1px 5px; border-radius: 10px; }
 .pc-done { opacity: 0.45; }
 .pc-today-cell { outline: 2px solid var(--pink); }
+.pc-mid-marker { background: linear-gradient(135deg, #667eea, #764ba2); }
+.pc-mid-marker .pc-date { color: #fff; }
+.pc-mid-marker .pc-items { color: rgba(255,255,255,0.9); }
 .print-btn-wrap { padding: 12px 16px 80px; }
 .print-btn { width: 100%; background: #111; color: #fff; border: none; padding: 14px; font-size: 13px; font-weight: 700; border-radius: 8px; }
 
@@ -220,7 +218,6 @@ input { font-family: 'Pretendard', sans-serif; }
       <div class="title">찐아 이유식 🍚</div>
       <div class="sub" id="sub"></div>
     </div>
-    <!-- 월 네비게이션 -->
     <div class="month-nav">
       <button class="nav-arrow" onclick="changeMonth(-1)">‹</button>
       <span id="month-lbl"></span>
@@ -229,7 +226,6 @@ input { font-family: 'Pretendard', sans-serif; }
         <button class="today-btn" onclick="goToday()">Today</button>
       </div>
     </div>
-    <!-- 날짜 스트립 -->
     <div class="strip-wrap" id="strip-wrap">
       <div class="strip" id="strip"></div>
     </div>
@@ -265,32 +261,25 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 /* ================================================
    앱 상태 변수
 ================================================ */
-let dbStocks = [];         // Supabase inventory 테이블
-let shops = [];            // Supabase shop_list 테이블
-let stockEditMode = false; // 재고 수정 모드 여부
-let showAddForm = false;   // 재고 새 재료 추가 폼
-let showShopAddForm = false; // 장볼 재료 추가 폼
+let dbStocks = [];
+let shops = [];
+let stockEditMode = false;
+let showAddForm = false;
+let showShopAddForm = false;
 
 /* ================================================
    기준 날짜 설정
-   - START: 이유식 시작일 (D+1 기준)
-   - TODAY: 오늘 날짜 (자동)
-   - BIRTH: 찐아 생년월일 → 생후 계산에 사용
 ================================================ */
 const START = new Date(2026, 4, 9);   // 2026년 5월 9일
 const TODAY = new Date();
 const BIRTH = new Date(2025, 10, 14); // 2025년 11월 14일
+const MID_START = new Date(2026, 6, 12); // 중기 전환 기준일 (7/12)
 
 /* ================================================
-   식단 데이터
-   형식: "월/일": { items, badges, done, memo, note }
-   - items: [{n:재료명, a:용량}]
-   - badges: 표시 배지 배열
-   - done: 섭취완료 여부 (Supabase meal_log에서 덮어씀)
-   - memo: 섭취 기록 메모
-   - note: 조리 메모
+   식단 데이터 — 5월 ~ 7월
 ================================================ */
 const meals = {
+  /* ── 5월 완료 구간 ── */
   "5/9":  { items:[{n:"쌀미음",a:"45g"}], badges:["시판"], done:true, memo:"섭취완료" },
   "5/10": { items:[{n:"쌀미음",a:"60g"}], badges:["시판"], done:true, memo:"섭취완료" },
   "5/11": { items:[{n:"쌀미음",a:"60g"}], badges:["시판"], done:true, memo:"섭취완료" },
@@ -314,24 +303,26 @@ const meals = {
   "5/29": { items:[{n:"오트밀",a:"30g"},{n:"애호박",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "5/30": { items:[{n:"고구마미음",a:"45g"},{n:"한우",a:"15g"}], badges:["NEW","시판+직접"] },
   "5/31": { items:[{n:"고구마미음",a:"60g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
+
+  /* ── 6월 ── */
   "6/1":  { items:[{n:"고구마미음",a:"15g"},{n:"오트밀",a:"30g"},{n:"한우",a:"15g"}], badges:["시판+직접"] },
-  "6/2":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"소량"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
+  "6/2":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"소량"},{n:"한우",a:"15g"}], badges:["NEW","직접"], note:"완숙 후 으깨어 사용, 오전에 시작" },
   "6/3":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"5g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/4":  { items:[{n:"쌀",a:"45g"},{n:"노른자",a:"5g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/5":  { items:[{n:"쌀",a:"30g"},{n:"노른자",a:"10g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/6":  { items:[{n:"쌀",a:"30g"},{n:"노른자",a:"10g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/7":  { items:[{n:"쌀",a:"30g"},{n:"노른자",a:"10g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/8":  { items:[{n:"쌀",a:"30g"},{n:"노른자",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
-  "6/9":  { items:[{n:"쌀",a:"30g"},{n:"땅콩",a:"소량"},{n:"한우",a:"15g"}], badges:["주의","직접"] },
+  "6/9":  { items:[{n:"쌀",a:"30g"},{n:"땅콩",a:"소량"},{n:"한우",a:"15g"}], badges:["주의","직접"], note:"반드시 오전 + 병원 진료 가능 시간에 시작" },
   "6/10": { items:[{n:"쌀",a:"30g"},{n:"노른자",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/11": { items:[{n:"쌀",a:"30g"},{n:"땅콩",a:"5g"},{n:"한우",a:"15g"}], badges:["반복","직접"] },
   "6/12": { items:[{n:"쌀",a:"30g"},{n:"노른자",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/13": { items:[{n:"쌀",a:"30g"},{n:"땅콩",a:"5g"},{n:"한우",a:"15g"}], badges:["반복","직접"] },
   "6/14": { items:[{n:"쌀",a:"30g"},{n:"노른자",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
-  "6/15": { items:[{n:"쌀",a:"30g"},{n:"양배추",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
+  "6/15": { items:[{n:"쌀",a:"30g"},{n:"양배추",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"], note:"충분히 익혀 곱게 으깨기" },
   "6/16": { items:[{n:"쌀",a:"30g"},{n:"양배추",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/17": { items:[{n:"쌀",a:"30g"},{n:"양배추",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
-  "6/18": { items:[{n:"쌀",a:"30g"},{n:"단호박",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"] },
+  "6/18": { items:[{n:"쌀",a:"30g"},{n:"단호박",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"], note:"쪄서 껍질 제거 후 으깨기" },
   "6/19": { items:[{n:"쌀",a:"30g"},{n:"단호박",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/20": { items:[{n:"쌀",a:"30g"},{n:"단호박",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
   "6/21": { items:[{n:"쌀",a:"30g"},{n:"두부",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","키트"] },
@@ -344,10 +335,44 @@ const meals = {
   "6/28": { items:[{n:"쌀",a:"30g"},{n:"땅콩",a:"5g"},{n:"한우",a:"15g"}], badges:["반복","직접"] },
   "6/29": { items:[{n:"쌀",a:"30g"},{n:"두부",a:"15g"},{n:"단호박",a:"15g"}], badges:["직접"] },
   "6/30": { items:[{n:"쌀",a:"30g"},{n:"양배추",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
+
+  /* ── 7월 — 초기 후반 + 중기 전환 ── */
+  "7/1":  { items:[{n:"쌀죽",a:"60g"},{n:"당근",a:"15g"},{n:"한우",a:"15g"}], badges:["NEW","직접"], note:"당근 잘 익혀 곱게 으깨기" },
+  "7/2":  { items:[{n:"쌀죽",a:"60g"},{n:"당근",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
+  "7/3":  { items:[{n:"쌀죽",a:"60g"},{n:"당근",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
+  "7/4":  { items:[{n:"쌀죽",a:"60g"},{n:"당근",a:"20g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
+  "7/5":  { items:[{n:"쌀죽",a:"60g"},{n:"당근",a:"20g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
+  "7/6":  { items:[{n:"쌀죽",a:"60g"},{n:"당근",a:"20g"},{n:"오트밀",a:"15g"},{n:"한우",a:"15g"}], badges:["직접"] },
+  "7/7":  { items:[{n:"쌀죽",a:"60g"},{n:"닭고기",a:"15g"},{n:"당근",a:"15g"}], badges:["NEW","직접"], note:"닭 안심/가슴살 삶아서 곱게 다지기" },
+  "7/8":  { items:[{n:"쌀죽",a:"60g"},{n:"닭고기",a:"15g"},{n:"당근",a:"15g"}], badges:["직접"] },
+  "7/9":  { items:[{n:"쌀죽",a:"60g"},{n:"닭고기",a:"15g"},{n:"당근",a:"15g"}], badges:["직접"] },
+  "7/10": { items:[{n:"쌀죽",a:"80g"},{n:"닭고기",a:"15g"},{n:"애호박",a:"15g"}], badges:["직접"] },
+  "7/11": { items:[{n:"쌀죽",a:"80g"},{n:"닭고기",a:"15g"},{n:"애호박",a:"15g"}], badges:["직접"] },
+  /* ── 7/12 중기 전환 ── */
+  "7/12": { items:[{n:"중기 쌀죽",a:"80g"},{n:"닭고기",a:"15g"},{n:"당근",a:"20g"}], badges:["직접"], note:"⭐ 중기 전환! 농도 올리기 (쌀:물=1:5), 2회식 시작 검토", midStart: true },
+  "7/13": { items:[{n:"중기 쌀죽",a:"80g"},{n:"닭고기",a:"15g"},{n:"당근",a:"20g"}], badges:["직접"] },
+  "7/14": { items:[{n:"중기 쌀죽",a:"80g"},{n:"닭고기",a:"20g"},{n:"단호박",a:"20g"}], badges:["직접"] },
+  "7/15": { items:[{n:"중기 쌀죽",a:"80g"},{n:"새우",a:"10g"},{n:"애호박",a:"20g"}], badges:["NEW","키트"], note:"새우 껍질·내장 제거 후 곱게 다지기" },
+  "7/16": { items:[{n:"중기 쌀죽",a:"80g"},{n:"새우",a:"15g"},{n:"애호박",a:"20g"}], badges:["키트","직접"] },
+  "7/17": { items:[{n:"중기 쌀죽",a:"80g"},{n:"새우",a:"15g"},{n:"당근",a:"20g"}], badges:["키트","직접"] },
+  "7/18": { items:[{n:"중기 쌀죽",a:"80g"},{n:"흰살생선",a:"15g"},{n:"단호박",a:"20g"}], badges:["NEW","키트"], note:"대구·명태 등 가시 완전 제거" },
+  "7/19": { items:[{n:"중기 쌀죽",a:"80g"},{n:"흰살생선",a:"15g"},{n:"단호박",a:"20g"}], badges:["키트","직접"] },
+  "7/20": { items:[{n:"중기 쌀죽",a:"80g"},{n:"흰살생선",a:"15g"},{n:"당근",a:"20g"}], badges:["키트","직접"] },
+  "7/21": { items:[{n:"중기 쌀죽",a:"80g"},{n:"대게",a:"15g"},{n:"당근",a:"20g"}], badges:["NEW","키트"] },
+  "7/22": { items:[{n:"중기 쌀죽",a:"80g"},{n:"대게",a:"15g"},{n:"애호박",a:"20g"}], badges:["키트","직접"] },
+  "7/23": { items:[{n:"중기 쌀죽",a:"80g"},{n:"대게",a:"15g"},{n:"단호박",a:"20g"}], badges:["키트","직접"] },
+  "7/24": { items:[{n:"중기 쌀죽",a:"80g"},{n:"참깨",a:"소량"},{n:"닭고기",a:"20g"}], badges:["NEW","키트"], note:"참기름 대신 통참깨 갈아서 사용" },
+  "7/25": { items:[{n:"중기 쌀죽",a:"80g"},{n:"참깨",a:"소량"},{n:"닭고기",a:"20g"}], badges:["키트","직접"] },
+  "7/26": { items:[{n:"중기 쌀죽",a:"80g"},{n:"참깨",a:"소량"},{n:"당근",a:"20g"}], badges:["키트","직접"] },
+  "7/27": { items:[{n:"중기 쌀죽",a:"80g"},{n:"호두",a:"소량"},{n:"단호박",a:"20g"}], badges:["NEW","키트"], note:"호두 잘게 갈아서 소량부터" },
+  "7/28": { items:[{n:"중기 쌀죽",a:"80g"},{n:"호두",a:"소량"},{n:"닭고기",a:"20g"}], badges:["키트","직접"] },
+  "7/29": { items:[{n:"중기 쌀죽",a:"80g"},{n:"호두",a:"소량"},{n:"당근",a:"20g"}], badges:["키트","직접"] },
+  "7/30": { items:[{n:"중기 쌀죽",a:"80g"},{n:"메밀",a:"소량"},{n:"닭고기",a:"20g"}], badges:["NEW","키트","주의"], note:"⚠️ 메밀 알러지 주의, 오전에 소량부터" },
+  "7/31": { items:[{n:"중기 쌀죽",a:"80g"},{n:"메밀",a:"소량"},{n:"단호박",a:"20g"}], badges:["키트","직접"] },
 };
 
 /* ================================================
-   알러지 유의사항 (고정 데이터)
+   알러지 유의사항
 ================================================ */
 const notices = [
   "오트밀: 글루텐 프리 인증 제품 사용",
@@ -357,7 +382,14 @@ const notices = [
   "새 식재료: 3일 이상 단독 관찰",
   "양배추: 충분히 익혀 곱게 으깨기",
   "단호박: 쪄서 껍질 제거 후 곱게 으깨기",
-  "키트 사용 식재료도 동일하게 3일 단독 관찰"
+  "키트 사용 식재료도 동일하게 3일 단독 관찰",
+  "당근: 잘 익혀 곱게 으깨기, 날것 사용 금지",
+  "닭고기: 안심/가슴살 삶아서 곱게 다지기",
+  "새우/대게: 껍질·내장 완전 제거 후 사용",
+  "흰살생선: 가시 완전 제거, 대구·명태 등 담백한 종류 추천",
+  "메밀: 알러지 반응 강할 수 있음 — 반드시 오전 소량부터",
+  "중기 전환(7/12~): 농도 쌀:물=1:5, 1회 목표량 80~120g",
+  "과일 도입: 7월 중순 이후 사과·배 등 쪄서 소량부터",
 ];
 
 /* ================================================
@@ -367,22 +399,13 @@ const DOW = ["월","화","수","목","금","토","일"];
 let curMonth = TODAY.getMonth();
 let sel = new Date(TODAY);
 
-// 날짜 → "월/일" 키 변환
 function dk(d) { return `${d.getMonth()+1}/${d.getDate()}`; }
-
-// 이유식 시작일 기준 D+ 계산
 function dds(d) { return `D+${Math.floor((d - START) / 86400000) + 1}`; }
-
-// 요일 한글 반환
 function dows(d) { const x = d.getDay(); return DOW[x === 0 ? 6 : x - 1]; }
-
-// 오늘인지 확인
 function isToday(d) { return d.toDateString() === TODAY.toDateString(); }
-
-// 과거 날짜인지 확인
 function isPast(d) { return d < TODAY && !isToday(d); }
+function isMidPhase(d) { return d >= MID_START; }
 
-// 주의 시작(월요일) 날짜 반환
 function weekStart(d) {
   const x = d.getDay();
   const m = new Date(d);
@@ -390,7 +413,6 @@ function weekStart(d) {
   return m;
 }
 
-// 주의 7일 날짜 배열 반환
 function weekDays(s) {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(s);
@@ -399,19 +421,16 @@ function weekDays(s) {
   });
 }
 
-// 해당 달의 주차 계산
 function weekNumber(d) {
   const f = new Date(2026, d.getMonth(), 1);
   return Math.ceil((d.getDate() + ((f.getDay() || 7) - 1)) / 7);
 }
 
-// 배지 CSS 클래스명 반환
 function badgeClass(b) {
   const map = { "NEW":"b-new", "직접":"b-direct", "시판":"b-store", "시판+직접":"b-mix", "주의":"b-warn", "반복":"b-repeat", "키트":"b-kit" };
   return map[b] || "b-direct";
 }
 
-// HTML 특수문자 이스케이프 (XSS 방지)
 function esc(v) {
   return String(v ?? "")
     .replaceAll("&","&amp;").replaceAll("<","&lt;")
@@ -419,7 +438,6 @@ function esc(v) {
     .replaceAll("'","&#039;");
 }
 
-// 생후 개월/일 계산 (출생일 = 1일째)
 function ageStr(d) {
   const by = BIRTH.getFullYear(), bm = BIRTH.getMonth(), bd = BIRTH.getDate();
   const dy = d.getFullYear(), dm = d.getMonth(), dd = d.getDate();
@@ -432,8 +450,6 @@ function ageStr(d) {
 
 /* ================================================
    날짜 스트립 렌더링
-   - 현재 월의 날짜를 가로 스크롤로 표시
-   - 오늘/선택/완료 상태에 따라 스타일 적용
 ================================================ */
 function renderStrip() {
   document.getElementById('month-lbl').textContent = `${curMonth + 1}월`;
@@ -441,7 +457,7 @@ function renderStrip() {
 
   let html = "";
   for (let day = 1; day <= 31; day++) {
-    const d = new Date(TODAY.getFullYear(), curMonth, day);
+    const d = new Date(2026, curMonth, day);
     if (d.getMonth() !== curMonth) break;
     const data = meals[dk(d)];
     let cls = "day-item";
@@ -454,7 +470,6 @@ function renderStrip() {
   }
   document.getElementById('strip').innerHTML = html;
 
-  // 선택된 날짜가 스트립 중앙에 오도록 스크롤
   setTimeout(() => {
     const wrap = document.getElementById('strip-wrap');
     const items = document.getElementById('strip').querySelectorAll('.day-item');
@@ -469,22 +484,20 @@ function renderStrip() {
 
 /* ================================================
    메인 콘텐츠 렌더링
-   - 선택된 날짜의 식단, 메모, 새 식재료, 아코디언 표시
 ================================================ */
 function renderContent() {
   const key = dk(sel);
   const data = meals[key];
   const todaySelected = isToday(sel);
   const pastSelected = isPast(sel);
+  const midPhase = isMidPhase(sel);
 
-  // 상태 텍스트/스타일 결정
   let stTxt = "예정", stCls = "future";
   if (!data)              { stTxt = "식단 없음";   stCls = "future"; }
   else if (data.done)     { stTxt = "섭취 완료 ✓"; stCls = "done"; }
   else if (todaySelected) { stTxt = "오늘 예정";   stCls = "pending"; }
   else if (pastSelected)  { stTxt = "기록 없음";   stCls = "future"; }
 
-  // 날짜 헤더
   let html = `
     <div class="day-hd">
       <div>
@@ -492,19 +505,28 @@ function renderContent() {
           ${todaySelected ? '<span class="today-lbl">오늘</span>' : ''}
           ${sel.getMonth()+1}월 ${sel.getDate()}일 (${dows(sel)})
         </div>
-        <div class="dday-txt">${dds(sel)}</div>
+        <div class="dday-txt">${dds(sel)} · ${ageStr(sel)}${midPhase ? ' · <span style="color:#764ba2;font-weight:700;">중기</span>' : ''}</div>
       </div>
       <div class="status ${stCls}">${stTxt}</div>
     </div>`;
 
+  // 중기 전환일 배너
+  if (data && data.midStart) {
+    html += `
+      <div class="mid-banner">
+        <div class="mid-banner-title">🎉 중기 이유식 전환! (생후 210일)</div>
+        <div class="mid-banner-sub">농도: 쌀:물 = 1:5~6 · 1회 목표 80~120g<br>2회식 전환 검토 시작 · 오트밀 → 퀵오트로 교체</div>
+      </div>`;
+  }
+
   if (!data) {
     html += `<div class="empty-card">이날은 식단이 없어요</div>`;
   } else {
-    // 식단 카드
     const badges = (data.badges || []).map(b => `<span class="badge ${badgeClass(b)}">${esc(b)}</span>`).join(" ");
+    const mealLabel = midPhase ? "🥣 Middle stage" : "🥣 Baby food";
     html += `
       <div class="meal-card${data.done ? ' dimmed' : ''}">
-        <div class="meal-lbl">🥣 Baby food ${badges}</div>
+        <div class="meal-lbl">${mealLabel} ${badges}</div>
         <div class="meal-items">
           ${data.items.map(it => `
             <div class="meal-item">
@@ -516,7 +538,6 @@ function renderContent() {
       </div>`;
 
     if (!data.done) {
-      // 미완료: 메모 입력창 + 섭취완료 버튼
       html += `
         <div class="memo-input-wrap">
           <div class="memo-input-lbl">📝 섭취 메모 (선택)</div>
@@ -526,7 +547,6 @@ function renderContent() {
           <button class="check-btn" onclick="checkDone('${dk(sel)}')">✓ 섭취 완료 체크</button>
         </div>`;
     } else {
-      // 완료: 섭취 기록 + 수정/취소 버튼
       html += `
         <div class="memo-card">
           <div class="memo-card-header">
@@ -562,7 +582,6 @@ function renderContent() {
       </div>`;
   }
 
-  // 아코디언 섹션
   html += accHtml("a-s", "📦 재고 현황", stockHtml());
   html += accHtml("a-h", "🛒 장볼 재료", shopHtml());
   html += accHtml("a-n", "⚠️ 알러지 유의사항", noticeHtml());
@@ -571,7 +590,7 @@ function renderContent() {
 }
 
 /* ================================================
-   아코디언 HTML 생성
+   아코디언
 ================================================ */
 function accHtml(id, title, body) {
   return `
@@ -589,10 +608,7 @@ function toggleAcc(id) {
 }
 
 /* ================================================
-   재고 현황 HTML 생성
-   - 보기 모드: 이름 + 수량 표시, low_alert 이하 시 ❗️
-   - 수정 모드: 입력칸 + ▲▼ 순서 이동 + 삭제 버튼 + 전체 저장
-   - 하단: 새 재료 추가 폼
+   재고 현황 HTML
 ================================================ */
 function stockHtml() {
   if (dbStocks.length === 0) {
@@ -602,7 +618,6 @@ function stockHtml() {
   let html = '';
 
   if (!stockEditMode) {
-    // 보기 모드
     html += dbStocks.map(s => {
       const isLow = s.amount <= s.low_alert;
       return `
@@ -613,7 +628,6 @@ function stockHtml() {
     }).join('');
     html += `<button class="stock-edit-btn" onclick="startStockEdit()">✏️ 재고 수정하기</button>`;
   } else {
-    // 수정 모드: 입력칸 + ▲▼ 순서 이동 + 삭제
     html += dbStocks.map((s, idx) => `
   <div class="stock-edit-row">
     <span class="stock-name">${esc(s.name)}</span>
@@ -629,7 +643,6 @@ function stockHtml() {
     html += `<button class="stock-cancel-btn" onclick="cancelStockEdit()">취소</button>`;
   }
 
-  // 새 재료 추가 폼
   html += `<div class="add-divider">`;
   html += `<button class="add-stock-btn" onclick="toggleAddForm()">+ 새 재료 추가</button>`;
   if (showAddForm) {
@@ -648,43 +661,22 @@ function stockHtml() {
   return html;
 }
 
-// 재고 수정 모드 진입
-function startStockEdit() {
-  stockEditMode = true;
-  refreshStockBody();
-}
-
-// 재고 수정 모드 취소
-function cancelStockEdit() {
-  stockEditMode = false;
-  refreshStockBody();
-}
-
-// 재고 아코디언 바디만 업데이트 (열림 상태 유지)
+function startStockEdit() { stockEditMode = true; refreshStockBody(); }
+function cancelStockEdit() { stockEditMode = false; refreshStockBody(); }
 function refreshStockBody() {
   const body = document.querySelector('#a-s .acc-body');
   if (body) body.innerHTML = stockHtml();
 }
-
-// 재고 새 재료 추가 폼 토글
-function toggleAddForm() {
-  showAddForm = !showAddForm;
-  refreshStockBody();
-}
+function toggleAddForm() { showAddForm = !showAddForm; refreshStockBody(); }
 
 /* ================================================
-   장볼 재료 HTML 생성
-   - 재고 low_alert 이하 항목: 자동 표시 (재고부족 라벨)
-   - shop_list 수동 항목: ✕ 버튼으로 삭제 가능
-   - 하단: 장볼 재료 추가 폼
+   장볼 재료 HTML
 ================================================ */
 function shopHtml() {
   const autoShopNames = dbStocks.filter(s => s.amount <= s.low_alert).map(s => s.name);
   const manualShops = shops.filter(s => !autoShopNames.includes(s.name));
 
   let html = '';
-
-  // 자동 항목 (재고 부족)
   html += autoShopNames.map(s => `
     <div class="shop-row">
       <div class="shop-dot"></div>
@@ -692,7 +684,6 @@ function shopHtml() {
       <span style="font-size:10px;color:var(--text-sub);">재고부족</span>
     </div>`).join('');
 
-  // 수동 항목 (삭제 버튼 포함)
   html += manualShops.map(s => `
     <div class="shop-row">
       <div class="shop-dot"></div>
@@ -700,12 +691,10 @@ function shopHtml() {
       <button onclick="removeShopItem(${s.id})" style="background:none;border:none;font-size:14px;color:#ccc;padding:0 2px;line-height:1;">✕</button>
     </div>`).join('');
 
-  // 항목 없을 때
   if (autoShopNames.length === 0 && manualShops.length === 0) {
     html += `<div style="padding:8px 0;font-size:12px;color:#aaa;">장볼 재료가 없어요 👍</div>`;
   }
 
-  // 추가 버튼/폼
   html += `<div class="add-divider">`;
   html += `<button class="add-stock-btn" onclick="toggleShopAddForm()">+ 장볼 재료 추가</button>`;
   if (showShopAddForm) {
@@ -719,54 +708,43 @@ function shopHtml() {
   return html;
 }
 
-// 장볼 재료 추가 폼 토글
-function toggleShopAddForm() {
-  showShopAddForm = !showShopAddForm;
-  refreshShopBody();
-}
-
-// 장볼 재료 아코디언 바디만 업데이트
+function toggleShopAddForm() { showShopAddForm = !showShopAddForm; refreshShopBody(); }
 function refreshShopBody() {
   const body = document.querySelector('#a-h .acc-body');
   if (body) body.innerHTML = shopHtml();
 }
 
 /* ================================================
-   알러지 유의사항 HTML 생성
+   알러지 유의사항 HTML
 ================================================ */
 function noticeHtml() {
   return `<ul class="notice-list">${notices.map(n => `<li>${esc(n)}</li>`).join('')}</ul>`;
 }
 
 /* ================================================
-   메모 수정 UI 제어
+   메모 수정 UI
 ================================================ */
-// 수정 폼 노출
 function showMemoEdit() {
   const wrap = document.getElementById('memo-edit-wrap');
   if (wrap) wrap.style.display = 'block';
 }
 
 /* ================================================
-   재고 순서 이동 (▲▼ 버튼)
-   - 로컬 배열에서 순서 변경 후 UI 업데이트
-   - 전체 저장 시 sort_order를 DB에 반영
+   재고 순서 이동
 ================================================ */
 function moveStock(idx, dir) {
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= dbStocks.length) return;
-  // 입력값 임시 보존
   dbStocks.forEach(s => {
     const input = document.getElementById(`si-${s.id}`);
     if (input) s._tempAmount = parseInt(input.value);
   });
-  // 배열 순서 변경
   [dbStocks[idx], dbStocks[newIdx]] = [dbStocks[newIdx], dbStocks[idx]];
   refreshStockBody();
 }
 
 /* ================================================
-   Supabase — 재고 전체 저장 (수량 + 순서)
+   Supabase — 재고 전체 저장
 ================================================ */
 async function saveAllStocks() {
   for (let i = 0; i < dbStocks.length; i++) {
@@ -783,9 +761,6 @@ async function saveAllStocks() {
   if (acc) acc.classList.add('open');
 }
 
-/* ================================================
-   Supabase — 재고 항목 삭제
-================================================ */
 async function deleteStock(id) {
   const stock = dbStocks.find(s => s.id === id);
   if (!stock) return;
@@ -798,9 +773,6 @@ async function deleteStock(id) {
   if (acc) acc.classList.add('open');
 }
 
-/* ================================================
-   Supabase — 재고 새 항목 추가
-================================================ */
 async function addStock() {
   const name = document.getElementById('ns-name')?.value?.trim();
   const amount = parseInt(document.getElementById('ns-amt')?.value || 0);
@@ -816,23 +788,15 @@ async function addStock() {
   if (acc) acc.classList.add('open');
 }
 
-/* ================================================
-   Supabase — 재고 불러오기 (sort_order 순서로)
-================================================ */
 async function loadStocks() {
   try {
     const { data, error } = await sb.from('inventory').select('*').order('sort_order').order('id');
     if (error) { console.error('재고 로딩 오류:', error); return; }
     if (data) dbStocks = data;
     refreshStockBody();
-  } catch (e) {
-    console.error('Supabase 오류:', e);
-  }
+  } catch (e) { console.error('Supabase 오류:', e); }
 }
 
-/* ================================================
-   Supabase — 장볼 재료 추가 (shop_list 테이블)
-================================================ */
 async function addShopItem() {
   const input = document.getElementById('new-shop-item');
   const val = input?.value?.trim();
@@ -845,9 +809,6 @@ async function addShopItem() {
   if (acc) acc.classList.add('open');
 }
 
-/* ================================================
-   Supabase — 장볼 재료 삭제 (shop_list 테이블)
-================================================ */
 async function removeShopItem(id) {
   const { error } = await sb.from('shop_list').delete().eq('id', id);
   if (error) { alert('삭제 실패: ' + error.message); return; }
@@ -856,24 +817,15 @@ async function removeShopItem(id) {
   if (acc) acc.classList.add('open');
 }
 
-/* ================================================
-   Supabase — 장볼 재료 불러오기 (shop_list 테이블)
-================================================ */
 async function loadShops() {
   try {
     const { data, error } = await sb.from('shop_list').select('*').order('id');
     if (error) { console.error('shop_list 오류:', error); return; }
     shops = data || [];
     refreshShopBody();
-  } catch (e) {
-    console.error('shop_list 연결 오류:', e);
-  }
+  } catch (e) { console.error('shop_list 연결 오류:', e); }
 }
 
-/* ================================================
-   Supabase — meal_log 불러오기
-   페이지 로딩 시 섭취완료 상태 복원
-================================================ */
 async function loadMealLog() {
   try {
     const { data, error } = await sb.from('meal_log').select('*');
@@ -886,16 +838,11 @@ async function loadMealLog() {
         }
       });
     }
-  } catch (e) {
-    console.error('meal_log 연결 오류:', e);
-  }
+  } catch (e) { console.error('meal_log 연결 오류:', e); }
 }
 
 /* ================================================
    섭취완료 체크
-   - meal_log에 기록 + stock_changes에 차감 내역 저장
-   - 재고 차감 대상: 이름에 "큐브" 포함된 항목 (15g=1개 단위)
-   - 취소 시 stock_changes로 재고 정확히 복구 가능
 ================================================ */
 async function checkDone(dateKey) {
   const data = meals[dateKey];
@@ -905,8 +852,6 @@ async function checkDone(dateKey) {
   const memoEl = document.getElementById('memo-input');
   const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
 
-  // 재고 차감 대상 매핑
-  // 재료명 → 재고 항목명 (큐브 단위)
   const stockMap = {
     '한우':       '한우큐브',
     '쌀미음':     '쌀미음큐브',
@@ -919,8 +864,6 @@ async function checkDone(dateKey) {
   for (const item of data.items) {
     const stockName = stockMap[item.n];
     if (!stockName) continue;
-
-    // 수량 파싱: "3개" → 3, "15g" → 1, 숫자만 → 그대로
     let useCount = 0;
     const aStr = String(item.a || '');
     if (aStr.includes('개')) {
@@ -929,17 +872,14 @@ async function checkDone(dateKey) {
       const g = parseInt(aStr);
       useCount = isNaN(g) ? 0 : Math.round(g / 15);
     }
-
     if (useCount <= 0) continue;
     const stock = dbStocks.find(s => s.name === stockName);
     if (!stock) continue;
-
     const actualDeduct = Math.min(useCount, stock.amount);
     await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
     stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
   }
 
-  // meal_log 저장 (차감 내역 포함)
   const { error: logErr } = await sb.from('meal_log').upsert(
     { date: dateKey, done: true, memo, stock_changes: stockChanges },
     { onConflict: 'date' }
@@ -955,20 +895,16 @@ async function checkDone(dateKey) {
 
 /* ================================================
    섭취완료 취소
-   - meal_log done=false로 변경
-   - stock_changes 읽어서 차감했던 재고 정확히 복구
 ================================================ */
 async function cancelDone(dateKey) {
   if (!confirm('섭취 완료를 취소할까요? 차감된 재고가 복구됩니다.')) return;
 
-  // stock_changes 가져오기
   const { data: logData, error: fetchErr } = await sb.from('meal_log')
     .select('stock_changes')
     .eq('date', dateKey)
     .single();
   if (fetchErr) { alert('취소 실패: ' + fetchErr.message); return; }
 
-  // 재고 복구
   const changes = logData?.stock_changes || [];
   for (const change of changes) {
     const stock = dbStocks.find(s => s.id === change.id);
@@ -977,7 +913,6 @@ async function cancelDone(dateKey) {
     }
   }
 
-  // meal_log done=false, stock_changes 초기화
   const { error: updateErr } = await sb.from('meal_log')
     .update({ done: false, stock_changes: [] })
     .eq('date', dateKey);
@@ -990,9 +925,6 @@ async function cancelDone(dateKey) {
   renderContent();
 }
 
-/* ================================================
-   섭취 메모 수정 저장
-================================================ */
 async function updateMemo(dateKey) {
   const memoEl = document.getElementById('memo-input');
   if (!memoEl) return;
@@ -1007,7 +939,7 @@ async function updateMemo(dateKey) {
 }
 
 /* ================================================
-   날짜 이동 함수
+   날짜 이동
 ================================================ */
 function goToday() {
   sel = new Date(TODAY);
@@ -1016,9 +948,9 @@ function goToday() {
   renderContent();
 }
 
-// 월 변경 (4=5월, 5=6월 범위 제한)
+// 월 범위: 5월(4) ~ 7월(6)
 function changeMonth(dir) {
-  curMonth = Math.max(4, Math.min(5, curMonth + dir));
+  curMonth = Math.max(4, Math.min(6, curMonth + dir));
   for (let i = 1; i <= 31; i++) {
     const d = new Date(2026, curMonth, i);
     if (d.getMonth() !== curMonth) break;
@@ -1028,7 +960,6 @@ function changeMonth(dir) {
   renderContent();
 }
 
-// 날짜 선택
 function pick(y, m, d) {
   sel = new Date(y, m, d);
   curMonth = m;
@@ -1037,12 +968,13 @@ function pick(y, m, d) {
 }
 
 /* ================================================
-   월간 달력 HTML 생성
+   월간 달력 HTML — 5월·6월·7월
 ================================================ */
 function buildPC() {
   const months = [
-    { m: 4, label: "5월", days: 31, d0: 3 },
-    { m: 5, label: "6월", days: 30, d0: 6 },
+    { m: 4, label: "5월", days: 31, d0: 3 },  // 5/1 = 금(4) → 월 기준 3칸
+    { m: 5, label: "6월", days: 30, d0: 6 },  // 6/1 = 월(1) → 0칸 → 실제 6월1일은 일요일
+    { m: 6, label: "7월", days: 31, d0: 2 },  // 7/1 = 수(3) → 월 기준 2칸
   ];
   let html = "";
   months.forEach(({ m, label, days, d0 }) => {
@@ -1056,12 +988,12 @@ function buildPC() {
       if (col === 7) { html += `</tr><tr>`; col = 0; }
       const d = new Date(2026, m, day);
       const data = meals[dk(d)];
+      const isMid = data && data.midStart;
       html += `<td class="${isToday(d) ? 'pc-today-cell' : ''}">`;
-      html += `<div class="pc-cell${data && data.done ? ' pc-done' : ''}">`;
-      html += `<div class="pc-date">${day}${data && data.done ? ' ✓' : ''}</div>`;
+      html += `<div class="pc-cell${data && data.done ? ' pc-done' : ''}${isMid ? ' pc-mid-marker' : ''}">`;
+      html += `<div class="pc-date">${day}${data && data.done ? ' ✓' : ''}${isMid ? ' ⭐' : ''}</div>`;
       if (data) {
         html += `<div class="pc-items">${data.items.map(it => `${esc(it.n)}${it.a ? ' '+esc(it.a) : ''}`).join('<br>')}</div>`;
-        if (data.note) html += `<div class="pc-note-sm">${esc(data.note)}</div>`;
         html += `<div class="pc-badges">${(data.badges||[]).map(b => `<span class="pc-badge ${badgeClass(b)}">${esc(b)}</span>`).join('')}</div>`;
       }
       html += `</div></td>`;
@@ -1073,9 +1005,6 @@ function buildPC() {
   return html;
 }
 
-/* ================================================
-   월간 달력 인쇄/PDF 저장
-================================================ */
 function downloadCal() {
   const cc = document.getElementById('cal-content').innerHTML;
   const w = window.open('', '_blank');
@@ -1100,7 +1029,7 @@ function downloadCal() {
 }
 
 /* ================================================
-   하단 탭 전환 (Main ↔ Monthly)
+   탭 전환
 ================================================ */
 function switchTab(tab) {
   document.getElementById('main-view').style.display = tab === 'main' ? 'block' : 'none';
@@ -1115,7 +1044,6 @@ function switchTab(tab) {
 
 /* ================================================
    앱 초기화
-   meal_log → inventory → shop_list 순서로 로드
 ================================================ */
 async function init() {
   await loadMealLog();
