@@ -18,7 +18,7 @@
 
 /* ===== 컬러 변수 ===== */
 :root {
-  --pink: #ff6eb4;
+  --coral: #F97070;
   --orange: #ff7a4d;
   --sky: #29aaee;
   --green: #2eaa55;
@@ -39,29 +39,29 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 /* ===== 헤더 ===== */
 .header { background: #f0ede9; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--border); }
 .header-top { padding: 16px 18px 4px; }
-.title { font-size: 22px; font-weight: 800; color: #1f1a18; letter-spacing: -0.3px; }
+.title { font-family:'Paperlogy',sans-serif; font-size: 22px; font-weight: 800; color: #1f1a18; letter-spacing: -0.3px; }
 .sub { font-size: 12px; color: #8a827d; margin-top: 5px; }
 
 /* 월 네비게이션 + Today 버튼 */
 .month-nav { display: flex; align-items: center; gap: 16px; padding: 10px 18px 4px; }
 .month-nav .nav-arrow { background: transparent; border: none; padding: 2px 4px; font-size: 17px; color: #5a534e; }
-.month-nav span#month-lbl { font-size: 15px; font-weight: 700; color: #1f1a18; }
+.month-nav span#month-lbl { font-family:'Paperlogy',sans-serif; font-size: 15px; font-weight: 700; color: #1f1a18; }
 .month-nav-right { margin-left: auto; }
-.today-btn { background: linear-gradient(135deg,#ff8d4e,#ff6f91); border: none; padding: 7px 18px; font-size: 12px; font-weight: 700; color: #fff; border-radius: 20px; box-shadow: 0 2px 8px rgba(255,120,90,0.35); }
+.today-btn { background: var(--coral); border: none; padding: 7px 18px; font-size: 12px; font-weight: 700; color: #fff; border-radius: 20px; box-shadow: 0 2px 8px rgba(249,112,112,0.35); }
 
 /* ===== 날짜 스트립 ===== */
 .strip-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 8px 14px 14px; scrollbar-width: none; }
 .strip-wrap::-webkit-scrollbar { display: none; }
 .strip { display: flex; gap: 4px; width: max-content; }
 .day-item { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; transition: background 0.15s; }
-.day-item .dn { font-size: 15px; font-weight: 600; color: #9a938f; line-height: 1; }
+.day-item .dn { font-family:'Paperlogy',sans-serif; font-size: 15px; font-weight: 600; color: #9a938f; line-height: 1; }
 .day-item.done-day .dn { color: #cfc9c4; }
-.day-item.today { border: 1.5px solid var(--orange); }
-.day-item.today .dn { color: var(--orange); font-weight: 800; }
+.day-item.today { border: 1.5px solid var(--coral); }
+.day-item.today .dn { color: var(--coral); font-weight: 800; }
 .day-item.selected { background: #1f1a18; }
 .day-item.selected .dn { color: #fff; }
 .day-item.selected.done-day .dn { color: #fff; }
-.day-item.selected.today { background: linear-gradient(135deg,#ff8d4e,#ff6f91); border: none; }
+.day-item.selected.today { background: var(--coral); border: none; }
 .day-item.selected.today .dn { color: #fff; font-weight: 800; }
 
 /* ===== 뷰 전환 ===== */
@@ -70,13 +70,13 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 
 /* ===== 날짜 헤더 (D-day) ===== */
 .day-hd { padding: 20px 18px 6px; }
-.dday { font-size: 40px; font-weight: 800; line-height: 1; color: #1f1a18; letter-spacing: -1px; }
-.dday-sub { font-size: 15px; color: #6e6661; margin-top: 8px; font-weight: 500; }
+.dday { font-family:'Paperlogy',sans-serif; font-size: 40px; font-weight: 800; line-height: 1; color: #1f1a18; letter-spacing: -1px; }
+.dday-sub { font-family:'Paperlogy',sans-serif; font-size: 14px; color: #6e6661; margin-top: 8px; font-weight: 500; }
 .dday-mid { color:#764ba2; font-weight: 700; }
 
 /* 오늘 식단 / 지난 식단 타이틀 */
-.sec-title { padding: 14px 18px 6px; font-size: 19px; font-weight: 800; color:#1f1a18; }
-.sec-title .accent { color: var(--orange); }
+.sec-title { font-family:'Paperlogy',sans-serif; padding: 14px 18px 6px; font-size: 16px; font-weight: 600; color:#1f1a18; }
+.sec-title .accent { color: var(--coral); }
 
 /* ===== 중기 전환 배너 ===== */
 .mid-banner { margin: 6px 16px 0; background: linear-gradient(135deg,#667eea,#764ba2); padding: 14px 16px; border-radius: 16px; }
@@ -85,63 +85,79 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 
 /* ===== 식단 카드 (아침/저녁) ===== */
 .meal-card { margin: 8px 16px 0; background: var(--card); border-radius: 18px; padding: 18px 18px 16px; box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
-.meal-card.evening { background: #efece8; box-shadow: none; border: 1px solid #e6e1dc; }
+.meal-card.evening { background: var(--card); box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
 .meal-card.dimmed { opacity: 0.5; }
 .meal-card-head { display:flex; align-items:center; gap:8px; margin-bottom: 14px; flex-wrap: wrap; }
-.meal-lbl { font-size: 15px; font-weight: 800; color: #1f1a18; }
+.meal-lbl { font-size: 13px; font-weight: 700; color: #6e6661; }
 .day-badge { display:inline-block; font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; }
-.db-new   { background:#ff6eb4; color:#fff; }
+.db-new   { background:var(--coral); color:#fff; }
 .db-trans { background:#1f1a18; color:#fff; }
 .db-grain { background:#b6aea8; color:#fff; }
 
 .meal-rows { display:flex; flex-direction:column; gap: 14px; }
 .meal-row { display:flex; align-items:center; gap: 13px; }
 .ic-tile { width:38px; height:38px; border-radius:11px; background:#f4f1ed; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; }
-.ic-tile img { width:34px; height:34px; object-fit:contain; }
-.ic-tile .emoji { font-size:20px; }
+.ic-tile img { width:28px; height:28px; object-fit:contain; }
+.ic-tile .emoji { font-size:18px; }
 .mr-name { font-size:15px; font-weight:700; color:#1f1a18; flex:1; }
-.mr-name.repeat { color:var(--orange); }
-.mr-amt { font-size:14px; color:#9a938f; margin-right:14px; font-weight:500; }
+.mr-name.repeat { color:var(--coral); }
+.mr-amt { font-size:13px; color:#9a938f; margin-right:14px; font-weight:500; }
 .mr-cube { font-size:13px; font-weight:700; color:var(--orange); white-space:nowrap; min-width:42px; text-align:right; }
 .mr-cube .num { font-weight:800; }
 .meal-note { margin-top:14px; padding-top:12px; border-top:1px dashed #e6e1dc; font-size:12px; color:#b06a4a; line-height:1.5; }
 
 /* ===== 섭취 메모 / 완료 ===== */
-.memo-block { margin-top: 16px; padding-top:14px; border-top:1px solid #f0ece8; }
-.memo-input-lbl { font-size: 13px; font-weight: 700; color: #6e6661; margin-bottom: 8px; }
+.memo-block { margin-top: 16px; }
+.memo-input-lbl { font-size: 12px; font-weight: 700; color: #6e6661; margin-bottom: 8px; }
 .memo-input-lbl span { color:#b3aca7; font-weight:500; font-size:11px; }
 .memo-input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 13px; resize: none; outline: none; color: #2b2422; background:#faf8f6; }
-.memo-input:focus { border-color: var(--orange); }
-.check-btn { width: 100%; margin-top: 14px; padding: 15px; background: linear-gradient(135deg,#ff8d4e,#ff6f91); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 800; box-shadow:0 4px 14px rgba(255,120,90,0.3); }
+.memo-input:focus { border-color: var(--coral); }
+.check-btn { width: 100%; margin-top: 14px; padding: 15px; background: var(--coral); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 700; box-shadow:0 4px 14px rgba(249,112,112,0.3); }
 
-/* 완료 기록 카드 */
-.memo-done { margin-top:16px; padding-top:14px; border-top:1px solid #f0ece8; }
+/* 완료 기록 */
+.memo-done { margin-top:16px; }
 .memo-done-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-.memo-done-lbl { font-size:13px; font-weight:700; color:#6e6661; }
+.memo-done-lbl { font-size:12px; font-weight:700; color:#6e6661; }
 .memo-edit-btn { background:none; border:1px solid var(--border); border-radius:8px; padding:4px 10px; font-size:11px; color:#9a938f; }
-.memo-txt { font-size:13px; color:#3a3330; line-height:1.6; background:#f4f8f4; border-radius:10px; padding:10px 12px; }
+.memo-txt { font-size:12px; color:#3a3330; line-height:1.6; background:#f4f8f4; border-radius:10px; padding:10px 12px; }
 .memo-edit-wrap { margin-top:10px; display:none; }
-.memo-save-btn { margin-top:8px; width:100%; padding:11px; background:#9a938f; color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; }
+.memo-save-btn { margin-top:8px; width:100%; padding:11px; background:#9a938f; color:#fff; border:none; border-radius:10px; font-size:12px; font-weight:700; }
+
+/* ===== 아침 건너뜀 / 저녁 잠금 ===== */
+.skip-badge { background:#c4bfbb; color:#fff; font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; }
+/* 아침 카드 내 보조 버튼 (섭취완료 아래) */
+.skip-am-btn { margin-top:10px; width:100%; padding:10px; background:none; border:none; font-size:12px; font-weight:600; color:#6e6661; text-align:center; }
+.skip-am-btn:active { opacity:0.6; }
+.undo-skip-btn { margin-top:10px; width:100%; padding:10px; background:none; border:none; font-size:12px; font-weight:600; color:#6e6661; }
+.meal-card.am-skipped { opacity:0.5; }
+/* 저녁 잠금 래퍼 */
+.evening-wrap { margin: 8px 16px 0; }
+.pm-locked-card { background:var(--card); border-radius:18px; padding:18px 18px 16px; opacity:0.35; box-shadow:0 4px 18px rgba(60,45,40,0.06); pointer-events:none; }
+.pm-locked-card .meal-card-head { margin-bottom:10px; }
+/* 저녁 활성 카드 완료 버튼 — 아침과 동일 */
+.check-btn.pm-btn { background: var(--coral); box-shadow:0 4px 14px rgba(249,112,112,0.3); }
+/* 저녁 완료 배지 */
+.pm-done-badge { background:#fef1f1; color:var(--coral); font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
+.pm-done-lbl { font-size:12px; font-weight:700; color:var(--coral); }
 
 .empty-card { margin: 10px 16px; background:#fff; border-radius:16px; text-align: center; color: #bbb; padding: 32px 0; font-size: 13px; }
 
 /* ===== 새 식재료 카드 ===== */
-.new-card { margin: 16px 0 0; background: #fdeef4; padding: 18px 18px; border-top:1px solid #f7dde9; border-bottom:1px solid #f7dde9; }
-.new-lbl { font-size: 13px; font-weight: 800; color: #c23a78; margin-bottom: 10px; }
+.new-card { margin: 8px 16px 0; background: var(--card); border-radius: 18px; padding: 18px; box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
+.new-lbl { font-family:'Paperlogy',sans-serif; font-size: 13px; font-weight: 600; color: var(--coral); margin-bottom: 10px; }
 .new-chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.new-chip { background: #ff7ab3; color: #fff; font-size: 12px; font-weight: 700; padding: 5px 14px; border-radius: 20px; }
+.new-chip { background: var(--coral); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 14px; border-radius: 20px; }
 
-/* ===== 아코디언 ===== */
-.acc { background: #fff; border-bottom: 1px solid var(--border); }
-.acc:first-of-type { border-top: none; }
-.acc-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px; user-select: none; }
-.acc-title { font-size: 14px; font-weight: 700; color: #1f1a18; }
-.acc-arrow { font-size: 12px; color: #1f1a18; font-weight: 700; transition: transform 0.2s; }
+/* ===== 아코디언 (카드 형태) ===== */
+.acc { margin: 8px 16px 0; background: var(--card); border-radius: 18px; overflow: hidden; box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
+.acc-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px; user-select: none; cursor: pointer; }
+.acc-title { font-family:'Paperlogy',sans-serif; font-size: 14px; font-weight: 600; color: #1f1a18; }
+.acc-arrow { font-size: 12px; color: #9a938f; font-weight: 700; transition: transform 0.2s; }
 .acc.open .acc-arrow { transform: rotate(180deg); }
-.acc-body { display: none; padding: 0 18px 16px; }
+.acc-body { display: none; padding: 0 18px 16px; border-top: 1px solid var(--border); }
 .acc.open .acc-body { display: block; }
 
-/* ===== 재고/장보기 (기존 유지) ===== */
+/* ===== 재고/장보기 ===== */
 .stock-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: #2b2422; }
 .stock-row:last-of-type { border-bottom: none; }
 .stock-name { flex: 1; }
@@ -159,19 +175,34 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .add-stock-btn { width: 100%; padding: 10px; background: #f5f2ef; border: 1px dashed var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--gray); }
 .add-form { margin-top: 10px; padding: 12px; background: #faf8f6; border-radius: 8px; border: 1px solid var(--border); }
 .add-form input { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 12px; margin-bottom: 6px; outline: none; }
-.add-form input:focus { border-color: var(--pink); }
+.add-form input:focus { border-color: var(--coral); }
 .add-form-row { display: flex; gap: 6px; margin-bottom: 6px; }
 .add-form-row input { margin-bottom: 0; flex: 1; }
 .add-confirm-btn { width: 100%; padding: 10px; background: var(--green); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; }
 .shop-row { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
 .shop-row:last-of-type { border-bottom: none; }
-.shop-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }
+.shop-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--coral); flex-shrink: 0; }
 .notice-list li { font-size: 13px; color: #4a433f; line-height: 1.4; list-style: none; padding: 10px 0; border-bottom: 1px solid var(--border); }
 .notice-list li:last-child { border-bottom: none; }
 
+/* ===== 인라인 편집 ===== */
+.edit-row { display:flex; align-items:center; gap:10px; }
+.edit-amt-input { width:70px; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:13px; text-align:center; outline:none; font-family:'Pretendard',sans-serif; background:#faf8f6; flex-shrink:0; }
+.edit-amt-input:focus { border-color:var(--coral); }
+.edit-del-btn { background:none; border:none; font-size:16px; color:#cfc9c4; padding:0 2px; flex-shrink:0; }
+.edit-add-row { display:flex; gap:8px; align-items:center; margin-top:10px; }
+.edit-add-name { flex:1; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; outline:none; font-family:'Pretendard',sans-serif; background:#faf8f6; }
+.edit-add-amt { width:80px; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; outline:none; text-align:center; font-family:'Pretendard',sans-serif; background:#faf8f6; }
+.edit-add-name:focus, .edit-add-amt:focus { border-color:var(--coral); }
+.edit-actions { display:flex; gap:8px; margin-top:12px; }
+.edit-save-btn { flex:1; padding:10px; background:var(--coral); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; font-family:'Pretendard',sans-serif; }
+.edit-cancel-btn { flex:1; padding:10px; background:#f5f2ef; color:#6e6661; border:none; border-radius:10px; font-size:13px; font-weight:600; font-family:'Pretendard',sans-serif; }
+/* 카드 헤더 편집 버튼 */
+.card-edit-btn { margin-left:auto; background:none; border:none; font-size:12px; font-weight:600; color:#9a938f; padding:0; letter-spacing:0; }
+
 /* ===== 하단 탭 ===== */
 .bottom-tabs { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; display: flex; z-index: 300; border-top:1px solid var(--border); }
-.btab { flex: 1; background: none; border: none; color: #b3aca7; font-size: 12px; font-weight: 700; padding: 14px 4px 16px; transition: color 0.2s; border-top:2px solid transparent; }
+.btab { font-family:'Paperlogy',sans-serif; flex: 1; background: none; border: none; color: #b3aca7; font-size: 12px; font-weight: 700; padding: 14px 4px 16px; transition: color 0.2s; border-top:2px solid transparent; }
 .btab.active { color: #1f1a18; border-top: 2px solid #1f1a18; }
 
 /* =====================================================
@@ -547,7 +578,7 @@ function renderStrip() {
     let cls = "day-item";
     if (isToday(d)) cls += " today";
     if (d.toDateString() === sel.toDateString()) cls += " selected";
-    if (data && data.done) cls += " done-day";
+    if (data && isDayDone(data)) cls += " done-day";
     html += `<div class="${cls}" onclick="pick(${d.getFullYear()},${d.getMonth()},${d.getDate()})"><div class="dn">${day}</div></div>`;
   }
   document.getElementById('strip').innerHTML = html;
@@ -566,8 +597,43 @@ function renderStrip() {
 /* ================================================
    끼니 카드 렌더링
 ================================================ */
-function mealRowsHtml(items) {
-  return items.map(raw => {
+function mealRowsHtml(items, dateKey, slot) {
+  /* dateKey/slot 없으면(monthly 등) 순수 표시 */
+  const data = dateKey ? meals[dateKey] : null;
+  const editKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
+  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
+  const inEditMode = data && data[editKey];
+
+  if (inEditMode) {
+    const edited = data[editedKey] || [...items];
+    let h = '';
+    edited.forEach((raw, idx) => {
+      const { name, amount, cube, repeat } = parseItem(raw);
+      const icon = iconFor(name);
+      const tile = icon
+        ? `<div class="ic-tile"><img src="${icon}" alt=""></div>`
+        : `<div class="ic-tile"><span class="emoji">${emojiFor(name)}</span></div>`;
+      h += `<div class="edit-row">${tile}
+        <span class="mr-name" style="flex:1;">${esc(name)}</span>
+        <input class="edit-amt-input" value="${esc(amount)}" id="ea-${dateKey}-${slot}-${idx}" placeholder="30g">
+        <button class="edit-del-btn" onclick="deleteEditRow('${dateKey}','${slot}',${idx})">✕</button>
+      </div>`;
+    });
+    h += `<div class="edit-add-row">
+      <input class="edit-add-name" id="ean-${dateKey}-${slot}" placeholder="재료명">
+      <input class="edit-add-amt" id="eaa-${dateKey}-${slot}" placeholder="양 (예: 30g)">
+      <button onclick="addEditRow('${dateKey}','${slot}')" style="background:var(--coral);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;">+</button>
+    </div>`;
+    h += `<div class="edit-actions">
+      <button class="edit-save-btn" onclick="saveEdit('${dateKey}','${slot}')">확인</button>
+      <button class="edit-cancel-btn" onclick="cancelEdit('${dateKey}','${slot}')">취소</button>
+    </div>`;
+    return h;
+  }
+
+  /* 표시 모드 */
+  const displayItems = (data && data[editedKey]) ? data[editedKey] : items;
+  return displayItems.map((raw, idx) => {
     const { name, amount, cube, repeat } = parseItem(raw);
     const icon = iconFor(name);
     const tile = icon
@@ -575,6 +641,7 @@ function mealRowsHtml(items) {
       : `<div class="ic-tile"><span class="emoji">${emojiFor(name)}</span></div>`;
     const amtHtml = amount ? `<span class="mr-amt">${esc(amount)}</span>` : '';
     const cubeHtml = cube > 0 ? `<span class="mr-cube"><span class="num">${cube}</span> 큐브</span>` : `<span class="mr-cube"></span>`;
+    /* 완료 전이고 편집 가능한 슬롯이면 큐브 표시만 */
     return `<div class="meal-row">${tile}<span class="mr-name${repeat?' repeat':''}">${esc(name)}</span>${amtHtml}${cubeHtml}</div>`;
   }).join('');
 }
@@ -617,27 +684,46 @@ function renderContent() {
                      : isPast(sel) ? `지난 식단` : `예정 식단`;
     html += `<div class="sec-title">${sectionLbl}</div>`;
 
-    /* 아침(오전) 카드 — 섭취 메모/완료 포함 */
-    html += `<div class="meal-card${data.done ? ' dimmed' : ''}">
+    const isTwomeal = !!data.pm;
+    const amSkipped  = !!data.amSkipped;
+    const amDone     = !!data.done;
+    const pmDone     = !!data.pmDone;
+    const pmUnlocked = amDone || amSkipped; // 저녁 활성 조건
+
+    const amEditMode = !!(data.amEditMode);
+    const amEditBtn = (!amDone && !amSkipped && !amEditMode)
+      ? `<button class="card-edit-btn" onclick="startEdit('${key}','am')">편집</button>` : '';
+
+    /* ── 아침(오전) 카드 ── */
+    const amCardCls = amSkipped ? ' am-skipped' : (amDone ? ' dimmed' : '');
+    html += `<div class="meal-card${amCardCls}">
       <div class="meal-card-head">
-        <span class="meal-lbl">${data.pm ? '아침' : '이유식'}</span>
+        <span class="meal-lbl">${isTwomeal ? '아침' : '이유식'}</span>
+        ${amSkipped ? `<span class="skip-badge">건너뜀</span>` : ''}
         ${dayBadgesHtml(data)}
+        ${amEditBtn}
       </div>
-      <div class="meal-rows">${mealRowsHtml(data.am || [])}</div>
+      <div class="meal-rows">${mealRowsHtml(data.am || [], key, 'am')}</div>
       ${data.note ? `<div class="meal-note">💧 ${esc(data.note)}</div>` : ''}`;
 
-    if (!data.done) {
+    if (amSkipped) {
+      /* 건너뜀 상태 — 취소 버튼만 */
+      html += `<button class="undo-skip-btn" onclick="skipAm('${key}')">↩ 아침 건너뜀 취소</button>`;
+    } else if (!amDone) {
+      /* 미완료 — 섭취완료 + 아침 건너뜀 보조버튼 */
       html += `
         <div class="memo-block">
           <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
           <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
           <button class="check-btn" onclick="checkDone('${key}')">섭취 완료</button>
+          ${isTwomeal ? `<button class="skip-am-btn" onclick="skipAm('${key}')">아침 건너뜀</button>` : ''}
         </div>`;
     } else {
+      /* 아침 완료 — 기록 표시 */
       html += `
         <div class="memo-done">
           <div class="memo-done-head">
-            <div class="memo-done-lbl">📝 섭취 기록</div>
+            <div class="memo-done-lbl">📝 아침 기록</div>
             <div style="display:flex;gap:6px;">
               <button class="memo-edit-btn" onclick="showMemoEdit()">수정</button>
               <button class="memo-edit-btn" style="color:#e65100;border-color:#ffccbc;" onclick="cancelDone('${key}')">취소</button>
@@ -652,12 +738,53 @@ function renderContent() {
     }
     html += `</div>`; /* /meal-card 아침 */
 
-    /* 저녁(오후) 카드 — 2끼일 때만 */
-    if (data.pm) {
-      html += `<div class="meal-card evening${data.done ? ' dimmed' : ''}">
-        <div class="meal-card-head"><span class="meal-lbl">저녁</span></div>
-        <div class="meal-rows">${mealRowsHtml(data.pm)}</div>
-      </div>`;
+    /* ── 저녁(오후) 카드 — 2끼일 때만 ── */
+    if (isTwomeal) {
+      if (!pmUnlocked) {
+        /* 잠김: 아침 미완료 + 미건너뜀 */
+        html += `<div class="evening-wrap">
+          <div class="pm-locked-card">
+            <div class="meal-card-head"><span class="meal-lbl">저녁</span><span style="margin-left:auto;font-size:16px;opacity:0.5;">🔒</span></div>
+            <div class="meal-rows">${mealRowsHtml(data.pm)}</div>
+          </div>
+        </div>`;
+      } else if (pmDone) {
+        /* 저녁 완료 */
+        html += `<div class="meal-card dimmed">
+          <div class="meal-card-head">
+            <span class="meal-lbl">저녁</span>
+            <span class="pm-done-badge">✓ 완료</span>
+          </div>
+          <div class="meal-rows">${mealRowsHtml(data.pm, key, 'pm')}</div>
+          <div class="memo-done" style="margin-top:14px;">
+            <div class="memo-done-head">
+              <div class="pm-done-lbl">📝 섭취 기록</div>
+              <div style="display:flex;gap:6px;">
+                <button class="memo-edit-btn" onclick="showPmMemoEdit()">수정</button>
+                <button class="memo-edit-btn" style="color:#e65100;border-color:#ffccbc;" onclick="cancelPmDone('${key}')">취소</button>
+              </div>
+            </div>
+            <div class="memo-txt" id="pm-memo-display-txt">${esc(data.pmMemo || '섭취완료')}</div>
+            <div class="memo-edit-wrap" id="pm-memo-edit-wrap">
+              <textarea id="pm-memo-input" class="memo-input" rows="2">${esc(data.pmMemo || '')}</textarea>
+              <button class="memo-save-btn" onclick="updatePmMemo('${key}')">저장</button>
+            </div>
+          </div>
+        </div>`;
+      } else {
+        /* 저녁 활성(아침 완료 or 건너뜀) */
+        const pmEditMode = !!(data.pmEditMode);
+        const pmEditBtn = !pmEditMode ? `<button class="card-edit-btn" onclick="startEdit('${key}','pm')">편집</button>` : '';
+        html += `<div class="meal-card">
+          <div class="meal-card-head"><span class="meal-lbl">저녁</span>${pmEditBtn}</div>
+          <div class="meal-rows">${mealRowsHtml(data.pm, key, 'pm')}</div>
+          <div class="memo-block">
+            <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
+            <textarea id="pm-memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
+            <button class="check-btn pm-btn" onclick="checkPmDone('${key}')">섭취 완료</button>
+          </div>
+        </div>`;
+      }
     }
   }
 
@@ -675,14 +802,14 @@ function renderContent() {
   });
   if (newItems.length > 0) {
     html += `<div class="new-card">
-      <div class="new-lbl">✨ ${sel.getMonth()+1}월 ${weekNumber(sel)}주차 새 식재료</div>
+      <div class="new-lbl">${sel.getMonth()+1}월 ${weekNumber(sel)}주차 새 식재료</div>
       <div class="new-chips">${newItems.map(i => `<span class="new-chip">${esc(i)}</span>`).join('')}</div>
     </div>`;
   }
 
-  html += accHtml("a-s", "📦 재고 현황", stockHtml());
-  html += accHtml("a-h", "🛒 장볼 재료", shopHtml());
-  html += accHtml("a-n", "⚠️ 알러지 유의사항", noticeHtml());
+  html += accHtml("a-s", "재고 현황", stockHtml());
+  html += accHtml("a-h", "장볼 재료", shopHtml());
+  html += accHtml("a-n", "알러지 유의사항", noticeHtml());
   html += `<div style="height:80px;"></div>`;
   document.getElementById('content').innerHTML = html;
 }
@@ -704,22 +831,28 @@ function stockHtml() {
   if (!stockEditMode) {
     html += dbStocks.map(s => {
       const isLow = s.amount <= s.low_alert;
-      return `<div class="stock-row"><span class="stock-name">${esc(s.name)}</span><span class="stock-val${isLow ? ' stock-low' : ''}">${s.amount}${esc(s.unit)} ${isLow ? '❗️' : ''}</span></div>`;
+      const icon = iconFor(s.name);
+      const tile = icon
+        ? `<div class="ic-tile" style="width:32px;height:32px;border-radius:8px;flex-shrink:0;"><img src="${icon}" alt="" style="width:24px;height:24px;object-fit:contain;"></div>`
+        : `<div class="ic-tile" style="width:32px;height:32px;border-radius:8px;flex-shrink:0;"><span style="font-size:16px;">${emojiFor(s.name)}</span></div>`;
+      return `<div class="stock-row">${tile}<span class="stock-name">${esc(s.name)}</span><span class="stock-val${isLow ? ' stock-low' : ''}">${s.amount}${esc(s.unit)} ${isLow ? '❗' : ''}</span></div>`;
     }).join('');
-    html += `<button class="stock-edit-btn" onclick="startStockEdit()">✏️ 재고 수정하기</button>`;
+    html += `<button class="stock-edit-btn" onclick="startStockEdit()">재고 수정하기</button>`;
   } else {
     html += dbStocks.map((s, idx) => `
   <div class="stock-edit-row">
     <span class="stock-name">${esc(s.name)}</span>
     <div style="display:flex;align-items:center;gap:5px;">
-      <button onclick="moveStock(${idx}, -1)" style="background:#f5f2ef;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;color:#555;" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''}>◀</button>
-      <button onclick="moveStock(${idx}, 1)" style="background:#f5f2ef;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;color:#555;" ${idx === dbStocks.length-1 ? 'disabled style="opacity:0.3;"' : ''}>▶</button>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <button onclick="moveStock(${idx}, -1)" style="background:#f5f2ef;border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:11px;color:#555;line-height:1.4;" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''}>▲</button>
+        <button onclick="moveStock(${idx}, 1)" style="background:#f5f2ef;border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:11px;color:#555;line-height:1.4;" ${idx === dbStocks.length-1 ? 'disabled style="opacity:0.3;"' : ''}>▼</button>
+      </div>
       <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" />
       <span class="stock-unit">${esc(s.unit)}</span>
       <button onclick="deleteStock(${s.id})" style="background:none;border:1px solid #ddd;border-radius:6px;padding:4px 8px;font-size:11px;color:#aaa;">삭제</button>
     </div>
   </div>`).join('');
-    html += `<button class="stock-save-all-btn" onclick="saveAllStocks()">💾 전체 저장</button>`;
+    html += `<button class="stock-save-all-btn" onclick="saveAllStocks()">전체 저장</button>`;
     html += `<button class="stock-cancel-btn" onclick="cancelStockEdit()">취소</button>`;
   }
   html += `<div class="add-divider"><button class="add-stock-btn" onclick="toggleAddForm()">+ 새 재료 추가</button>`;
@@ -843,28 +976,23 @@ async function loadMealLog() {
 }
 
 /* ================================================
-   섭취완료 / 취소 (오전+오후 통합, 큐브 차감 보존)
+   섭취완료 / 취소
 ================================================ */
-const stockMap = {
-  '한우':'한우큐브', '쌀미음':'쌀미음큐브', '브로콜리미음':'브로콜리미음큐브',
-  '감자미음':'감자미음큐브', '고구마미음':'고구마미음큐브',
-};
 async function checkDone(dateKey) {
   const data = meals[dateKey]; if (!data) return;
-  if (!confirm('섭취 완료로 기록할까요? 매핑된 재고가 자동 차감됩니다.')) return;
+  if (!confirm('섭취 완료로 기록할까요? 재고가 자동 차감됩니다.')) return;
   const memoEl = document.getElementById('memo-input');
   const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
 
-  const allRaw = [...(data.am||[]), ...(data.pm||[])];
+  const allRaw = [...(data.amEdited || data.am || [])];
   const stockChanges = [];
   for (const raw of allRaw) {
     const { name, amount } = parseItem(raw);
-    const stockName = stockMap[name]; if (!stockName) continue;
     let useCount = 0;
     if (String(amount).includes('개')) useCount = parseInt(amount) || 0;
     else { const g = parseInt(amount); useCount = isNaN(g) ? 0 : Math.round(g/15); }
     if (useCount <= 0) continue;
-    const stock = dbStocks.find(s => s.name === stockName); if (!stock) continue;
+    const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
     const actualDeduct = Math.min(useCount, stock.amount);
     await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
     stock.amount -= actualDeduct;
@@ -887,6 +1015,9 @@ async function cancelDone(dateKey) {
   const { error: updateErr } = await sb.from('meal_log').update({ done: false, stock_changes: [] }).eq('date', dateKey);
   if (updateErr) { alert('취소 실패: ' + updateErr.message); return; }
   meals[dateKey].done = false; meals[dateKey].memo = '';
+  /* 아침 건너뜀 상태도 초기화 */
+  meals[dateKey].amSkipped = false;
+  localStorage.removeItem(`jjina_am_skip_${dateKey}`);
   await loadStocks(); renderStrip(); renderContent();
 }
 async function updateMemo(dateKey) {
@@ -899,6 +1030,173 @@ async function updateMemo(dateKey) {
   const displayTxt = document.getElementById('memo-display-txt');
   if (editWrap) editWrap.style.display = 'none';
   if (displayTxt) displayTxt.textContent = memo;
+}
+
+/* ================================================
+   아침 건너뜀 토글
+================================================ */
+function skipAm(dateKey) {
+  const data = meals[dateKey]; if (!data) return;
+  const cur = !!data.amSkipped;
+  data.amSkipped = !cur;
+  if (!cur) {
+    localStorage.setItem(`jjina_am_skip_${dateKey}`, '1');
+  } else {
+    localStorage.removeItem(`jjina_am_skip_${dateKey}`);
+    /* 저녁도 아직 미완이면 잠금 복원 */
+    data.pmDone = false;
+    localStorage.removeItem(`jjina_pm_done_${dateKey}`);
+    localStorage.removeItem(`jjina_pm_memo_${dateKey}`);
+  }
+  renderStrip(); renderContent();
+}
+
+/* ================================================
+   저녁 섭취완료 / 취소 / 메모수정 (localStorage)
+================================================ */
+async function checkPmDone(dateKey) {
+  const data = meals[dateKey]; if (!data || !data.pm) return;
+  const memoEl = document.getElementById('pm-memo-input');
+  const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
+
+  /* 저녁 항목 재고 차감 */
+  const stockChanges = [];
+  for (const raw of (data.pmEdited || data.pm || [])) {
+    const { name, amount } = parseItem(raw);
+    let useCount = 0;
+    if (String(amount).includes('개')) useCount = parseInt(amount) || 0;
+    else { const g = parseInt(amount); useCount = isNaN(g) ? 0 : Math.round(g/15); }
+    if (useCount <= 0) continue;
+    const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
+    const actualDeduct = Math.min(useCount, stock.amount);
+    await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
+    stock.amount -= actualDeduct;
+    stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
+  }
+
+  /* localStorage에 저장 */
+  data.pmDone = true;
+  data.pmMemo = memo;
+  localStorage.setItem(`jjina_pm_done_${dateKey}`, '1');
+  localStorage.setItem(`jjina_pm_memo_${dateKey}`, memo);
+
+  await loadStocks(); renderStrip(); renderContent();
+}
+
+function cancelPmDone(dateKey) {
+  if (!confirm('저녁 완료를 취소할까요?')) return;
+  const data = meals[dateKey]; if (!data) return;
+  data.pmDone = false; data.pmMemo = '';
+  localStorage.removeItem(`jjina_pm_done_${dateKey}`);
+  localStorage.removeItem(`jjina_pm_memo_${dateKey}`);
+  renderStrip(); renderContent();
+}
+
+function showPmMemoEdit() {
+  const w = document.getElementById('pm-memo-edit-wrap'); if (w) w.style.display = 'block';
+}
+
+function updatePmMemo(dateKey) {
+  const memoEl = document.getElementById('pm-memo-input'); if (!memoEl) return;
+  const memo = memoEl.value.trim() || '섭취완료';
+  meals[dateKey].pmMemo = memo;
+  localStorage.setItem(`jjina_pm_memo_${dateKey}`, memo);
+  const editWrap = document.getElementById('pm-memo-edit-wrap');
+  const displayTxt = document.getElementById('pm-memo-display-txt');
+  if (editWrap) editWrap.style.display = 'none';
+  if (displayTxt) displayTxt.textContent = memo;
+}
+
+/* ================================================
+   하루 완료 여부 (스트립 done-day 판정)
+================================================ */
+function isDayDone(data) {
+  if (!data.pm) return !!data.done;          /* 1끼: 아침 완료 */
+  return !!data.pmDone;                       /* 2끼: 저녁까지 완료 */
+}
+
+/* ================================================
+   인라인 재료 편집
+================================================ */
+function startEdit(dateKey, slot) {
+  const data = meals[dateKey]; if (!data) return;
+  const srcKey = slot === 'am' ? 'am' : 'pm';
+  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
+  const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
+  if (!data[editedKey]) data[editedKey] = [...(data[srcKey] || [])];
+  data[modeKey] = true;
+  renderContent();
+}
+function saveEdit(dateKey, slot) {
+  const data = meals[dateKey]; if (!data) return;
+  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
+  const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
+  const current = data[editedKey] || [];
+  /* 입력값 수집 */
+  const updated = current.map((raw, idx) => {
+    const { name } = parseItem(raw);
+    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${idx}`);
+    const newAmt = amtInput ? amtInput.value.trim() : '';
+    return newAmt ? `${name} ${newAmt}` : raw;
+  });
+  data[editedKey] = updated;
+  data[modeKey] = false;
+  renderContent();
+}
+function cancelEdit(dateKey, slot) {
+  const data = meals[dateKey]; if (!data) return;
+  const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
+  data[modeKey] = false;
+  renderContent();
+}
+function deleteEditRow(dateKey, slot, idx) {
+  const data = meals[dateKey]; if (!data) return;
+  const srcKey = slot === 'am' ? 'am' : 'pm';
+  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
+  /* 삭제 전 현재 입력값 저장 */
+  const current = data[editedKey] || [...(data[srcKey] || [])];
+  const updated = current.map((raw, i) => {
+    if (i === idx) return null;
+    const { name } = parseItem(raw);
+    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${i}`);
+    return amtInput ? `${name} ${amtInput.value.trim() || parseItem(raw).amount}` : raw;
+  }).filter(Boolean);
+  data[editedKey] = updated;
+  renderContent();
+}
+function addEditRow(dateKey, slot) {
+  const data = meals[dateKey]; if (!data) return;
+  const srcKey = slot === 'am' ? 'am' : 'pm';
+  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
+  /* 추가 전 현재 입력값 저장 */
+  const current = data[editedKey] || [...(data[srcKey] || [])];
+  const updated = current.map((raw, i) => {
+    const { name } = parseItem(raw);
+    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${i}`);
+    return amtInput ? `${name} ${amtInput.value.trim() || parseItem(raw).amount}` : raw;
+  });
+  const nameInput = document.getElementById(`ean-${dateKey}-${slot}`);
+  const amtInput2 = document.getElementById(`eaa-${dateKey}-${slot}`);
+  const newName = nameInput?.value.trim();
+  const newAmt = amtInput2?.value.trim();
+  if (newName) updated.push(newAmt ? `${newName} ${newAmt}` : newName);
+  data[editedKey] = updated;
+  renderContent();
+}
+
+/* ================================================
+   localStorage 상태 복원
+================================================ */
+function loadLocalState() {
+  Object.keys(meals).forEach(key => {
+    if (localStorage.getItem(`jjina_am_skip_${key}`) === '1') {
+      meals[key].amSkipped = true;
+    }
+    if (localStorage.getItem(`jjina_pm_done_${key}`) === '1') {
+      meals[key].pmDone = true;
+      meals[key].pmMemo = localStorage.getItem(`jjina_pm_memo_${key}`) || '섭취완료';
+    }
+  });
 }
 
 /* ================================================
@@ -989,6 +1287,40 @@ function buildCal() {
 }
 
 /* ================================================
+   NEW 식재료 2일 전 자동화
+   — 오늘~D+2 내 NEW 식재료를 장볼재료·재고(0)에 자동 추가
+================================================ */
+async function autoAddUpcoming() {
+  let stockAdded = false, shopAdded = false;
+  for (let offset = 0; offset <= 2; offset++) {
+    const d = new Date(TODAY);
+    d.setDate(TODAY.getDate() + offset);
+    const data = meals[dk(d)];
+    if (!data) continue;
+    const newBadges = [data.badge, data.newBadge].filter(b => b && b.t === 'new');
+    for (const badge of newBadges) {
+      const name = badge.x.replace(/^New\s*/, '').trim();
+      if (!name) continue;
+      /* 장볼 재료: 없으면 추가 */
+      const inShop = shops.some(s => s.name === name);
+      if (!inShop) {
+        const { error } = await sb.from('shop_list').insert([{ name }]);
+        if (!error) shopAdded = true;
+      }
+      /* 재고: 없으면 수량 0으로 추가 */
+      const inStock = dbStocks.some(s => s.name === name);
+      if (!inStock) {
+        const sort_order = dbStocks.length;
+        const { error } = await sb.from('inventory').insert([{ name, amount: 0, unit: '개', low_alert: 1, sort_order }]);
+        if (!error) stockAdded = true;
+      }
+    }
+  }
+  if (stockAdded) await loadStocks();
+  if (shopAdded) await loadShops();
+}
+
+/* ================================================
    탭 전환
 ================================================ */
 function switchTab(tab) {
@@ -1004,8 +1336,10 @@ function switchTab(tab) {
 ================================================ */
 async function init() {
   await loadMealLog();
+  loadLocalState();
   await loadStocks();
   await loadShops();
+  await autoAddUpcoming();  /* NEW 식재료 2일 전 자동 추가 */
   renderStrip();
   renderContent();
 }
