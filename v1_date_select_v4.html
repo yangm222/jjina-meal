@@ -145,6 +145,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 /* 저녁 완료 배지 */
 .pm-done-badge { background:#fef1f1; color:var(--coral); font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
 .pm-done-lbl { font-size:12px; font-weight:700; color:var(--coral); }
+.done-badge { background:#fef1f1; color:var(--coral); font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; margin-left:auto; }
 
 .empty-card { margin: 10px 16px; background:#fff; border-radius:16px; text-align: center; color: #bbb; padding: 32px 0; font-size: 13px; }
 
@@ -736,7 +737,7 @@ function renderContent() {
         <span class="meal-lbl">${isTwomeal ? '아침' : '이유식'}</span>
         ${amSkipped ? `<span class="skip-badge">건너뜀</span>` : ''}
         ${dayBadgesHtml(data)}
-        ${amEditBtn}
+        ${amDone ? `<span class="done-badge">✓ 완료</span>` : amEditBtn}
       </div>
       <div class="meal-rows">${mealRowsHtml(data.am || [], key, 'am')}</div>
       ${data.note ? `<div class="meal-note">💧 ${esc(data.note)}</div>` : ''}`;
@@ -1021,9 +1022,16 @@ async function loadMealLog() {
   } catch (e) { console.error('meal_log 연결 오류:', e); }
 }
 
-/* ================================================
-   섭취완료 / 취소
-================================================ */
+/* 재료 차감 수량 계산 */
+function calcUseCount(amount) {
+  const s = String(amount || '').trim();
+  if (!s || s === '반복노출' || s === '반복') return 0; /* 반복노출은 차감 없음 */
+  if (s === '소량') return 1;
+  if (s.includes('팩') || s.includes('개')) return Math.max(1, parseInt(s) || 1);
+  const g = parseInt(s);
+  if (isNaN(g) || g <= 0) return 0;
+  return Math.max(1, Math.round(g / 15)); /* 최소 1큐브 보장 */
+}
 async function checkDone(dateKey) {
   const data = meals[dateKey]; if (!data) return;
   if (!confirm('섭취 완료로 기록할까요? 재고가 자동 차감됩니다.')) return;
@@ -1034,9 +1042,7 @@ async function checkDone(dateKey) {
   const stockChanges = [];
   for (const raw of allRaw) {
     const { name, amount } = parseItem(raw);
-    let useCount = 0;
-    if (String(amount).includes('개')) useCount = parseInt(amount) || 0;
-    else { const g = parseInt(amount); useCount = isNaN(g) ? 0 : Math.round(g/15); }
+    const useCount = calcUseCount(amount);
     if (useCount <= 0) continue;
     const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
     const actualDeduct = Math.min(useCount, stock.amount);
@@ -1109,9 +1115,7 @@ async function checkPmDone(dateKey) {
   const stockChanges = [];
   for (const raw of (data.pmEdited || data.pm || [])) {
     const { name, amount } = parseItem(raw);
-    let useCount = 0;
-    if (String(amount).includes('개')) useCount = parseInt(amount) || 0;
-    else { const g = parseInt(amount); useCount = isNaN(g) ? 0 : Math.round(g/15); }
+    const useCount = calcUseCount(amount);
     if (useCount <= 0) continue;
     const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
     const actualDeduct = Math.min(useCount, stock.amount);
