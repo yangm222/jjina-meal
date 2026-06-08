@@ -230,6 +230,24 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 /* 카드 헤더 편집 버튼 */
 .card-edit-btn { margin-left:auto; background:none; border:none; font-size:12px; font-weight:600; color:#9a938f; padding:0; letter-spacing:0; }
 
+/* ===== 식단 날짜 교환 ===== */
+.card-actions { margin-left:auto; display:flex; align-items:center; gap:14px; }
+.card-swap-btn { background:none; border:none; font-size:12px; font-weight:600; color:var(--coral); padding:0; letter-spacing:0; }
+.swap-panel { margin-top:12px; background:#fbf7f4; border:1px solid var(--border); border-radius:14px; padding:14px; }
+.swap-panel-title { font-size:13px; font-weight:700; color:#1f1a18; margin-bottom:4px; }
+.swap-panel-sub { font-size:11.5px; color:#9a938f; margin-bottom:12px; line-height:1.45; }
+.swap-chips { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; }
+.swap-chip { flex-shrink:0; min-width:62px; max-width:96px; border:1px solid var(--border); border-radius:12px; padding:9px 10px; background:#fff; text-align:center; cursor:pointer; transition:border-color .12s, background .12s; }
+.swap-chip .sc-date { font-family:'Paperlogy',sans-serif; font-size:13px; font-weight:700; color:#1f1a18; }
+.swap-chip .sc-name { font-size:10.5px; color:#9a938f; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.swap-chip.sel { border-color:var(--coral); background:#fff1f1; }
+.swap-chip.sel .sc-name { color:var(--coral); }
+.swap-confirm-row { display:flex; gap:8px; align-items:center; margin-top:14px; }
+.swap-confirm-lbl { flex:1; font-size:13px; font-weight:700; color:#1f1a18; }
+.swap-do-btn { padding:9px 16px; background:var(--coral-grad); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; font-family:'Pretendard',sans-serif; }
+.swap-cancel-btn { padding:9px 14px; background:#f5f2ef; color:#6e6661; border:none; border-radius:10px; font-size:13px; font-weight:600; font-family:'Pretendard',sans-serif; }
+.swap-empty { font-size:12px; color:#9a938f; padding:4px 0; }
+
 /* ===== 하단 탭 ===== */
 .bottom-tabs { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; display: flex; z-index: 300; border-top:1px solid var(--border); }
 .btab { font-family:'Paperlogy',sans-serif; flex: 1; background: none; border: none; color: #b3aca7; font-size: 12px; font-weight: 700; padding: 14px 4px 16px; transition: color 0.2s; border-top:2px solid transparent; }
@@ -997,6 +1015,10 @@ function mealCardsHtml(d) {
   const amEditMode = !!data.amEditMode;
   const amEditBtn = (!amDone && !amSkipped && !amEditMode)
     ? `<button class="card-edit-btn" onclick="startEdit('${key}','am')">편집</button>` : '';
+  /* 교환 버튼: 오늘 이후 + 미완료 + 편집중 아님일 때만 노출 */
+  const swapEligible = !amDone && !amSkipped && !amEditMode && !isPast(d);
+  const swapBtn = swapEligible
+    ? `<button class="card-swap-btn" onclick="toggleSwapPicker('${key}')">↕ 교환</button>` : '';
 
   let html = '';
   const amCardCls = amSkipped ? ' am-skipped' : (amDone ? ' dimmed' : '');
@@ -1005,7 +1027,7 @@ function mealCardsHtml(d) {
       <span class="meal-lbl">${slotLabel.am || (isTwomeal ? '아침' : '이유식')}</span>
       ${amSkipped ? `<span class="skip-badge">건너뜀</span>` : ''}
       ${dayBadgesHtml(data)}
-      ${amDone ? `<span class="done-badge">✓ 완료</span>` : amEditBtn}
+      ${amDone ? `<span class="done-badge">✓ 완료</span>` : `<span class="card-actions">${swapBtn}${amEditBtn}</span>`}
     </div>
     <div class="meal-rows">${mealRowsHtml(data.am || [], key, 'am')}</div>
     ${data.note ? `<div class="meal-note">💧 ${esc(data.note)}</div>` : ''}`;
@@ -1087,6 +1109,7 @@ function mealCardsHtml(d) {
       </div>`;
     }
   }
+  if (swapOpenKey === key) html += swapPickerHtml(key);
   return html;
 }
 
@@ -1885,6 +1908,15 @@ function isDayDone(data) {
 /* ================================================
    인라인 재료 편집 (기존 로직 유지)
 ================================================ */
+/* 현재 편집행 input 값들을 "이름 양" 배열로 읽어옴 (3개 함수 공통) */
+function readEditInputs(dateKey, slot, current) {
+  return current.map((raw, i) => {
+    const { name } = parseItem(raw);
+    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${i}`);
+    const amt = amtInput ? amtInput.value.trim() : '';
+    return amt ? `${name} ${amt}` : raw;
+  });
+}
 function startEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
   const srcKey = slot === 'am' ? 'am' : 'pm';
@@ -1898,14 +1930,7 @@ function saveEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
   const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
   const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
-  const current = data[editedKey] || [];
-  const updated = current.map((raw, idx) => {
-    const { name } = parseItem(raw);
-    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${idx}`);
-    const newAmt = amtInput ? amtInput.value.trim() : '';
-    return newAmt ? `${name} ${newAmt}` : raw;
-  });
-  data[editedKey] = updated;
+  data[editedKey] = readEditInputs(dateKey, slot, data[editedKey] || []);
   data[modeKey] = false;
   rerender();
 }
@@ -1920,13 +1945,7 @@ function deleteEditRow(dateKey, slot, idx) {
   const srcKey = slot === 'am' ? 'am' : 'pm';
   const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
   const current = data[editedKey] || [...(data[srcKey] || [])];
-  const updated = current.map((raw, i) => {
-    if (i === idx) return null;
-    const { name } = parseItem(raw);
-    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${i}`);
-    return amtInput ? `${name} ${amtInput.value.trim() || parseItem(raw).amount}` : raw;
-  }).filter(Boolean);
-  data[editedKey] = updated;
+  data[editedKey] = readEditInputs(dateKey, slot, current).filter((_, i) => i !== idx);
   rerender();
 }
 function addEditRow(dateKey, slot) {
@@ -1934,11 +1953,7 @@ function addEditRow(dateKey, slot) {
   const srcKey = slot === 'am' ? 'am' : 'pm';
   const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
   const current = data[editedKey] || [...(data[srcKey] || [])];
-  const updated = current.map((raw, i) => {
-    const { name } = parseItem(raw);
-    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${i}`);
-    return amtInput ? `${name} ${amtInput.value.trim() || parseItem(raw).amount}` : raw;
-  });
+  const updated = readEditInputs(dateKey, slot, current);
   const nameInput = document.getElementById(`ean-${dateKey}-${slot}`);
   const amtInput2 = document.getElementById(`eaa-${dateKey}-${slot}`);
   const newName = nameInput?.value.trim();
@@ -1946,6 +1961,130 @@ function addEditRow(dateKey, slot) {
   if (newName) updated.push(newAmt ? `${newName} ${newAmt}` : newName);
   data[editedKey] = updated;
   rerender();
+}
+
+/* ================================================
+   식단 날짜 교환 (1:1) — v5 신규
+   - meals = 불변 원본 / 교환은 "식단 내용 필드"만 자리바꿈
+   - 완료기록(done/memo/pmDone/amSkipped)은 캘린더 날짜에 고정 → 과거 보존
+   - 교환 이력은 localStorage(jjina_swaps)에 저장, 로드 시 순서대로 재적용
+   - 같은 교환 재실행 = 원복(self-inverse) → 되돌리기 단순
+================================================ */
+const SWAP_FIELDS = ['am','pm','lunch','badge','newBadge','note','midStart','amEdited','pmEdited'];
+let swapLog = [];            // [[keyA, keyB], ...]
+let swapOpenKey = null;      // 현재 피커가 열린 날짜 키
+let pendingSwapTarget = null;// 선택했지만 아직 확정 전인 대상 키
+let swapUndoTimer = null;
+
+/* 식단 내용 필드만 두 날짜 간 교환 */
+function applySwap(a, b) {
+  const A = meals[a], B = meals[b];
+  if (!A || !B) return;
+  SWAP_FIELDS.forEach(f => {
+    const av = A[f], bv = B[f];
+    if (bv === undefined) delete A[f]; else A[f] = bv;
+    if (av === undefined) delete B[f]; else B[f] = av;
+  });
+}
+function persistSwaps() {
+  try { localStorage.setItem('jjina_swaps', JSON.stringify(swapLog)); }
+  catch (e) { console.error('교환 이력 저장 오류:', e); }
+}
+function loadSwaps() {
+  try {
+    const v = JSON.parse(localStorage.getItem('jjina_swaps') || '[]');
+    swapLog = Array.isArray(v) ? v : [];
+  } catch (e) { swapLog = []; }
+}
+function replaySwaps() { swapLog.forEach(p => { if (Array.isArray(p)) applySwap(p[0], p[1]); }); }
+
+/* 교환 대상이 될 수 있는 날인가: 식단 있음 + 오늘이후 + 미완료 */
+function swapEligibleKey(key) {
+  const m = meals[key];
+  if (!m || !(m.am && m.am.length)) return false;
+  if (m.done || m.pmDone || m.amSkipped) return false;
+  const [mm, dd] = key.split('/').map(Number);
+  return !isPast(new Date(2026, mm - 1, dd));
+}
+/* 칩에 표시할 짧은 이름(배지명 우선, 없으면 첫 재료명) */
+function swapChipLabel(key) {
+  const m = meals[key]; if (!m) return '식단';
+  const badge = (m.newBadge && m.newBadge.x) || (m.badge && m.badge.x);
+  if (badge) return badge.replace(/^New\s*/, '').trim();
+  const first = (m.am && m.am[0]) || (m.pm && m.pm[0]) || '';
+  return parseItem(first).name || '식단';
+}
+function toggleSwapPicker(key) {
+  swapOpenKey = (swapOpenKey === key) ? null : key;
+  pendingSwapTarget = null;
+  rerender();
+}
+function selectSwapTarget(key) { pendingSwapTarget = key; rerender(); }
+function confirmSwap(a, b) {
+  if (!swapEligibleKey(a) || !swapEligibleKey(b) || a === b) return;
+  applySwap(a, b);
+  swapLog.push([a, b]);
+  persistSwaps();
+  swapOpenKey = null;
+  pendingSwapTarget = null;
+  rerender();
+  showSwapUndoToast(a, b);
+  if (swapUndoTimer) clearTimeout(swapUndoTimer);
+  swapUndoTimer = setTimeout(hideSwapUndoToast, 5000);
+}
+function undoLastSwap() {
+  if (!swapLog.length) return;
+  if (swapUndoTimer) { clearTimeout(swapUndoTimer); swapUndoTimer = null; }
+  const [a, b] = swapLog.pop();
+  applySwap(a, b);          // self-inverse → 원복
+  persistSwaps();
+  hideSwapUndoToast();
+  rerender();
+}
+function showSwapUndoToast(a, b) {
+  const t = document.getElementById('undo-toast'); if (!t) return;
+  t.style.display = 'flex';
+  t.className = 'undo-toast';
+  t.innerHTML = `<span><span class="undo-toast-name">${esc(a)} ↔ ${esc(b)}</span> 식단 교환됨</span><button class="undo-btn" onclick="undoLastSwap()">되돌리기</button>`;
+}
+function hideSwapUndoToast() {
+  const t = document.getElementById('undo-toast'); if (t) t.style.display = 'none';
+}
+/* 교환 피커 패널 (식단 카드 하단) */
+function swapPickerHtml(srcKey) {
+  const targets = [];
+  const base = dateOnly(TODAY);
+  for (let off = 0; off <= 60; off++) {
+    const d = new Date(base); d.setDate(base.getDate() + off);
+    const k = dk(d);
+    if (k === srcKey) continue;
+    if (swapEligibleKey(k)) targets.push(k);
+  }
+  let h = `<div class="swap-panel">
+    <div class="swap-panel-title">${esc(srcKey)} 식단을 다른 날과 교환</div>
+    <div class="swap-panel-sub">바꿀 날짜를 고르면 두 날의 식단이 통째로 자리바꿈해요.<br>완료했거나 지난 날짜는 선택할 수 없어요.</div>`;
+  if (!targets.length) {
+    h += `<div class="swap-empty">교환할 수 있는 날짜가 없어요.</div>`;
+  } else {
+    h += `<div class="swap-chips">`;
+    targets.forEach(k => {
+      const sel = (pendingSwapTarget === k) ? ' sel' : '';
+      h += `<div class="swap-chip${sel}" onclick="selectSwapTarget('${k}')">
+        <div class="sc-date">${esc(k)}</div>
+        <div class="sc-name">${esc(swapChipLabel(k))}</div>
+      </div>`;
+    });
+    h += `</div>`;
+    if (pendingSwapTarget) {
+      h += `<div class="swap-confirm-row">
+        <span class="swap-confirm-lbl">${esc(srcKey)} ↔ ${esc(pendingSwapTarget)} 교환</span>
+        <button class="swap-do-btn" onclick="confirmSwap('${srcKey}','${pendingSwapTarget}')">교환하기</button>
+        <button class="swap-cancel-btn" onclick="toggleSwapPicker('${srcKey}')">취소</button>
+      </div>`;
+    }
+  }
+  h += `</div>`;
+  return h;
 }
 
 /* localStorage 상태 복원 (기존 로직 유지) */
@@ -2115,6 +2254,8 @@ function backFromMonthly() { switchTab(lastTab); }
 async function init() {
   curMonth = TODAY.getMonth();
   sel = new Date(TODAY);
+  loadSwaps();
+  replaySwaps();        /* 저장된 날짜 교환 이력을 식단에 재적용 (완료기록 로드 전) */
   await loadMealLog();
   loadLocalState();
   await loadStocks();
