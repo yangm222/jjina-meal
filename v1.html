@@ -445,6 +445,11 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .ec-field label { font-size:11px; color:var(--text-sub); white-space:nowrap; }
 .ec-field input { flex:1; border:none; outline:none; font-size:14px; font-weight:700; color:#2b2422; width:100%; text-align:right; background:transparent; }
 .ec-field .ec-unit { font-size:11px; color:var(--text-sub); }
+.base-g-select { flex:1; border:none; outline:none; font-size:14px; font-weight:700; color:#2b2422; background:transparent; text-align:right; cursor:pointer; }
+.add-form-select-wrap { flex:1; display:flex; flex-direction:column; gap:4px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+.add-form-label { font-size:11px; color:var(--text-sub); }
+.add-form-select-wrap .base-g-select { font-size:14px; font-weight:600; text-align:left; padding:0; }
+.ec-warn { margin-top:8px; font-size:11px; font-weight:600; color:var(--coral-deep); line-height:1.4; background:#fff4f2; border-radius:8px; padding:7px 10px; }
 .stock-x { background:none; border:none; color:#cfc9c4; font-size:15px; padding:2px 4px; }
 
 /* 장볼 재료 2단 카드 */
@@ -790,8 +795,11 @@ function parseItem(raw) {
   const m = s.match(/^(.*?)\s+(\d+\s*g|\d+\s*팩|\d+\s*개|소량|반복노출|반복)$/);
   let name, amount;
   if (m) { name=m[1]; amount=m[2]; } else { name=s; amount=''; }
+  // 해당 재료의 base_g를 dbStocks에서 조회 (없으면 기본값 15)
+  const stock = (typeof dbStocks !== 'undefined') ? dbStocks.find(s => s.name === name) : null;
+  const base_g = (stock && stock.base_g) ? stock.base_g : 15;
   let cube=0; const g=parseInt(amount);
-  if (/g$/.test(amount) && !isNaN(g)) cube=Math.round(g/15);
+  if (/g$/.test(amount) && !isNaN(g)) cube=Math.round(g/base_g);
   return { name, amount, cube, repeat };
 }
 
@@ -944,14 +952,13 @@ function mealRowsHtml(items, dateKey, slot) {
 
   const displayItems = (data && data[editedKey]) ? data[editedKey] : items;
   return displayItems.map((raw) => {
-    const { name, amount, cube, repeat } = parseItem(raw);
+    const { name, amount, repeat } = parseItem(raw);
     const icon = iconFor(name);
     const tile = icon
       ? `<div class="ic-tile"><img src="${icon}" alt=""></div>`
       : `<div class="ic-tile"><span class="emoji">${emojiFor(name)}</span></div>`;
     const amtHtml = amount ? `<span class="mr-amt">${esc(amount)}</span>` : '';
-    const cubeHtml = cube > 0 ? `<span class="mr-cube"><span class="num">${cube}</span> 큐브</span>` : `<span class="mr-cube"></span>`;
-    return `<div class="meal-row">${tile}<span class="mr-name${repeat?' repeat':''}">${esc(name)}</span>${amtHtml}${cubeHtml}</div>`;
+    return `<div class="meal-row">${tile}<span class="mr-name${repeat?' repeat':''}">${esc(name)}</span>${amtHtml}</div>`;
   }).join('');
 }
 
@@ -1500,11 +1507,16 @@ function stockHtml() {
       const badge = out ? `<span class="st-badge st-out">부족</span>`
                   : soon ? `<span class="st-badge st-soon">임박</span>`
                   : `<span class="st-badge st-full">충분</span>`;
+      const isCube = !s.unit || s.unit === '개' || s.unit === '큐브';
+      const totalG = isCube ? s.amount * base : null;
+      const subText = isCube
+        ? `기준 ${base}g · 총 ${totalG}g`
+        : `기준 ${base}g`;
       return `<div class="stock-card">
         <div class="stock-card-ic">${iconEl}</div>
         <div class="stock-card-mid">
           <div class="stock-card-name">${esc(s.name)}</div>
-          <div class="stock-card-sub">기준 ${base}g</div>
+          <div class="stock-card-sub">${subText}</div>
         </div>
         <div class="stock-card-right">
           <div class="stock-card-val${(out || soon) ? ' low' : ''}">${s.amount}${esc(s.unit)}${out ? ' ❗' : ''}</div>
@@ -1524,9 +1536,10 @@ function stockHtml() {
           <button class="stock-x" onclick="deleteStock(${s.id})">✕</button>
         </div>
         <div class="ec-bottom">
-          <div class="ec-field"><label>수량</label><input type="number" id="si-${s.id}" value="${s.amount}" min="0"><span class="ec-unit">${esc(s.unit)}</span></div>
-          <div class="ec-field"><label>기준</label><input type="number" id="sb-${s.id}" value="${s.base_g || 15}" min="1"><span class="ec-unit">g</span></div>
+          <div class="ec-field"><label>수량</label><input type="number" id="si-${s.id}" value="${s._tempAmount ?? s.amount}" min="0"><span class="ec-unit">${esc(s.unit)}</span></div>
+          <div class="ec-field"><label>큐브 기준</label><select id="sb-${s.id}" class="base-g-select" data-orig="${s.base_g ?? 15}" onchange="onBaseChange(${s.id})">${[5,10,15,20,25,30].map(v=>`<option value="${v}"${(s._tempBase ?? s.base_g ?? 15)===v?' selected':''}>${v}g</option>`).join('')}</select></div>
         </div>
+        <div class="ec-warn" id="warn-${s.id}" style="display:${(s._tempBase != null && s._tempBase !== (s.base_g ?? 15)) ? 'block' : 'none'};">⚠️ 큐브 기준이 바뀌면 실제 재고와 달라질 수 있어요. 수량을 직접 확인해주세요.</div>
       </div>`).join('');
     html += `<div style="display:flex;gap:8px;margin-top:4px;">
       <button class="stock-save-all-btn" style="margin-top:0;" onclick="saveAllStocks()">전체 저장</button>
@@ -1544,7 +1557,10 @@ function addStockFormHtml() {
       <input type="text" id="ns-unit" placeholder="단위 (개/큐브)" />
     </div>
     <div class="add-form-row">
-      <input type="number" id="ns-base" placeholder="기준 g (예: 15)" min="1" />
+      <div class="add-form-select-wrap">
+        <label class="add-form-label">큐브 기준 g</label>
+        <select id="ns-base" class="base-g-select">${[5,10,15,20,25,30].map(v=>`<option value="${v}"${v===15?' selected':''}>${v}g</option>`).join('')}</select>
+      </div>
       <input type="number" id="ns-alert" placeholder="알림 기준 수량" min="0" />
     </div>
     <button class="add-confirm-btn" onclick="addStock()">추가하기</button>
@@ -1603,10 +1619,24 @@ function toggleShopAddForm() {
 function noticeHtml() { return `<ul class="notice-list">${notices.map(n => `<li>${esc(n)}</li>`).join('')}</ul>`; }
 function showMemoEdit() { const w = document.getElementById('memo-edit-wrap'); if (w) w.style.display = 'block'; }
 
+function onBaseChange(id) {
+  const sel = document.getElementById(`sb-${id}`);
+  const warn = document.getElementById(`warn-${id}`);
+  if (!sel || !warn) return;
+  const orig = parseInt(sel.dataset.orig);
+  const cur = parseInt(sel.value);
+  warn.style.display = (cur !== orig) ? 'block' : 'none';
+}
 function moveStock(idx, dir) {
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= dbStocks.length) return;
-  dbStocks.forEach(s => { const i = document.getElementById(`si-${s.id}`); if (i) s._tempAmount = parseInt(i.value); });
+  // 순서 변경 전 현재 입력값 임시 보존 (수량 + base_g 모두)
+  dbStocks.forEach(s => {
+    const amtEl = document.getElementById(`si-${s.id}`);
+    const baseEl = document.getElementById(`sb-${s.id}`);
+    if (amtEl) s._tempAmount = parseInt(amtEl.value);
+    if (baseEl) s._tempBase = parseInt(baseEl.value);
+  });
   [dbStocks[idx], dbStocks[newIdx]] = [dbStocks[newIdx], dbStocks[idx]];
   refreshStockBody();
 }
@@ -1620,15 +1650,18 @@ async function saveAllStocks() {
     const input = document.getElementById(`si-${s.id}`);
     const baseEl = document.getElementById(`sb-${s.id}`);
     const newAmt = input ? parseInt(input.value) : (s._tempAmount ?? s.amount);
-    const newBase = baseEl ? parseInt(baseEl.value) : (s.base_g || 15);
+    const newBase = baseEl ? parseInt(baseEl.value) : (s._tempBase ?? s.base_g ?? 15);
     if (isNaN(newAmt) || newAmt < 0) continue;
+    const safeBase = isNaN(newBase) ? 15 : newBase;
     // base_g 컬럼이 없을 수도 있으므로 먼저 base_g 포함 시도 → 실패 시 기본 컬럼만
-    let { error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i, base_g: (isNaN(newBase) ? 15 : newBase) }).eq('id', s.id);
+    let { error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i, base_g: safeBase }).eq('id', s.id);
     if (error) {
       ({ error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i }).eq('id', s.id));
       if (error) { alert(`${s.name} 저장 실패: ${error.message}`); return; }
     } else {
-      s.base_g = isNaN(newBase) ? 15 : newBase;
+      s.base_g = safeBase;
+      delete s._tempBase;
+      delete s._tempAmount;
     }
   }
   stockEditMode = false; await loadStocks();
