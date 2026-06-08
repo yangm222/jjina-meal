@@ -378,6 +378,110 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 /* 강조 플래시 (장볼 재료로 이동 시) */
 .flash { animation:flashbg 1.2s ease; }
 @keyframes flashbg { 0%,100% { box-shadow:0 4px 18px rgba(60,45,40,0.06); } 30% { box-shadow:0 0 0 2px var(--coral); } }
+
+/* 되돌리기 토스트 */
+.undo-toast {
+  position:fixed; bottom:76px; left:50%; transform:translateX(-50%);
+  background:#2b2422; color:#fff; border-radius:14px;
+  padding:12px 16px; display:flex; align-items:center; gap:14px;
+  font-size:13px; white-space:nowrap; z-index:999;
+  box-shadow:0 6px 24px rgba(0,0,0,0.22);
+  animation:toastIn 0.22s ease;
+}
+@keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+.undo-toast-name { color:#ffc8a8; font-weight:700; }
+.undo-btn {
+  background:var(--coral); color:#fff; border:none;
+  border-radius:8px; padding:6px 13px; font-size:12px; font-weight:700;
+}
+
+/* =====================================================
+   ===== v4 추가 — 카드형 재고 / 반응 / 기록 달력 등 =====
+   ===================================================== */
+
+/* 인사 영역 — 위계 낮춤 (D+ 헤더가 주인공) */
+.greet-txt { font-size:15px !important; font-weight:600 !important; color:#6e6661 !important; }
+.home-dayhd { padding:2px 18px 2px; }
+
+/* 재고 요약 — 흰 카드 + 포인트 색 숫자 */
+.sum-badges { display:flex; gap:10px; }
+.sum-badge {
+  flex:1; background:var(--card) !important; border-radius:14px;
+  padding:14px 6px 12px !important; text-align:center;
+  box-shadow:0 3px 12px rgba(60,45,40,0.05); display:flex; flex-direction:column; gap:4px;
+}
+.sum-num { font-family:'Paperlogy',sans-serif; font-size:26px; font-weight:800; line-height:1; }
+.sum-lbl { font-size:11px; font-weight:600; color:var(--text-sub); }
+.sum-badge.out  .sum-num { color:var(--coral-deep); }   /* 부족 = 딥코랄 */
+.sum-badge.soon .sum-num { color:var(--coral); }        /* 임박 = 코랄 */
+.sum-badge.full .sum-num { color:var(--text); }          /* 충분 = 본문색 */
+
+/* 코랄 + 버튼 (재고/장보기 추가) */
+.add-fab { width:34px; height:34px; border-radius:50%; background:var(--coral-grad); color:#fff; border:none; font-size:20px; font-weight:600; line-height:1; box-shadow:0 4px 12px rgba(249,112,112,0.35); display:flex; align-items:center; justify-content:center; }
+.add-fab.small { width:26px; height:26px; font-size:16px; box-shadow:0 3px 9px rgba(249,112,112,0.3); }
+.tab-hd-row { display:flex; align-items:center; justify-content:space-between; }
+.panel-edit-btn { margin-left:auto; background:none; border:1px solid var(--border); color:var(--text-sub); border-radius:8px; padding:4px 12px; font-size:12px; font-weight:600; }
+.panel-edit-btn.on { color:var(--coral-deep); border-color:#f5c4b3; }
+
+/* 재고 카드형 */
+.stock-card { display:flex; align-items:center; gap:13px; background:var(--card); border-radius:16px; padding:13px 15px; margin-bottom:10px; box-shadow:0 3px 12px rgba(60,45,40,0.05); }
+.stock-card:last-child { margin-bottom:0; }
+.stock-card-ic { width:46px; height:46px; border-radius:13px; background:#f4f1ee; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.stock-card-ic img { width:30px; height:30px; object-fit:contain; }
+.stock-card-ic .emoji { font-size:22px; }
+.stock-card-mid { flex:1; min-width:0; }
+.stock-card-name { font-size:15px; font-weight:700; color:#2b2422; }
+.stock-card-sub { font-size:11px; color:var(--text-sub); margin-top:2px; }
+.stock-card-right { text-align:right; flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.stock-card-val { font-family:'Paperlogy',sans-serif; font-size:19px; font-weight:800; color:#4a8a4a; }
+.stock-card-val.low { color:var(--coral-deep); }
+
+/* 재고 편집 카드 */
+.stock-edit-card { background:#faf8f6; border:1px solid var(--border); border-radius:14px; padding:12px 13px; margin-bottom:10px; }
+.ec-top { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.ec-top .stock-edit-name { flex:1; font-size:14px; font-weight:700; color:#2b2422; }
+.ec-bottom { display:flex; gap:10px; }
+.ec-field { flex:1; display:flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:7px 10px; }
+.ec-field label { font-size:11px; color:var(--text-sub); white-space:nowrap; }
+.ec-field input { flex:1; border:none; outline:none; font-size:14px; font-weight:700; color:#2b2422; width:100%; text-align:right; background:transparent; }
+.ec-field .ec-unit { font-size:11px; color:var(--text-sub); }
+.stock-x { background:none; border:none; color:#cfc9c4; font-size:15px; padding:2px 4px; }
+
+/* 장볼 재료 2단 카드 */
+.shop-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.shop-card { position:relative; background:#fff5f5; border:1px solid #fde0e0; border-radius:14px; padding:13px 14px; }
+.shop-card-name { font-size:14px; font-weight:700; color:#2b2422; padding-right:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.shop-card .shop-dday { display:inline-block; margin-top:6px; font-size:11px; font-weight:700; }
+.shop-card-x { position:absolute; top:8px; right:8px; width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,0.06); border:none; color:#8a827d; font-size:11px; line-height:1; padding:0; }
+
+/* 반응 칩 */
+.reaction-lbl { font-size:12px; font-weight:700; color:#6e6661; margin:2px 0 8px; }
+.reaction-row { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+.reaction-chip { display:flex; align-items:center; gap:5px; background:#faf8f6; border:1.5px solid var(--border); border-radius:20px; padding:7px 12px; font-size:12px; font-weight:600; color:#6e6661; }
+.reaction-chip .re-e { font-size:14px; }
+.reaction-chip.selected { background:#fff1f1; border-color:var(--coral); color:var(--coral-deep); }
+
+/* 기록 탭 리스트/달력 토글 */
+.rec-toggle { display:flex; gap:6px; background:#efe9e4; border-radius:12px; padding:4px; margin:10px 16px 2px; }
+.rec-tg { flex:1; padding:9px; border:none; background:transparent; border-radius:9px; font-size:13px; font-weight:700; color:var(--text-sub); }
+.rec-tg.active { background:#fff; color:#2b2422; box-shadow:0 2px 6px rgba(60,45,40,0.08); }
+.rec-items .ri-amt { color:var(--text-sub); font-weight:600; }
+
+/* 기록 달력 */
+.rcal { margin:8px 16px 0; background:var(--card); border-radius:18px; padding:14px 12px; box-shadow:0 4px 18px rgba(60,45,40,0.06); }
+.rcal-wd { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+.rcal-wd div { text-align:center; font-size:11px; font-weight:700; color:var(--text-sub); padding:4px 0; }
+.rcal-wd div.sun { color:var(--coral-deep); }
+.rcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.rcal-cell { aspect-ratio:1; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; font-size:12px; color:#3a3330; }
+.rcal-cell.empty { background:transparent; }
+.rcal-cell.done { background:#fff1f1; }
+.rcal-cell.today { box-shadow:inset 0 0 0 1.5px var(--coral); }
+.rcal-dn { font-size:11px; font-weight:600; }
+.rcal-cell.done .rcal-dn { color:var(--coral-deep); font-weight:800; }
+.rcal-emoji { font-size:13px; line-height:1; }
+.rcal-legend { display:flex; flex-wrap:wrap; gap:8px 12px; margin:12px 16px 0; padding:0 2px; }
+.rcal-legend span { font-size:11px; color:var(--text-sub); }
 </style>
 </head>
 <body>
@@ -424,6 +528,9 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
   </div>
   <div id="cal-content"></div>
 </div>
+
+<!-- 되돌리기 토스트 -->
+<div id="undo-toast" style="display:none;"></div>
 
 <!-- ===== 하단 탭 ===== -->
 <div class="bottom-tabs">
@@ -729,6 +836,40 @@ function emojiFor(name) {
 let activeTab = 'home';
 let lastTab = 'home';
 let recordMonth = TODAY.getMonth();   // 0-index (4=5월 … 6=7월)
+let recordView = 'list';              // 'list' | 'cal'
+
+/* 아기 반응 선택지 (섭취완료 시) */
+const REACTIONS = [
+  { e:'😊', t:'잘 먹음' },
+  { e:'🥺', t:'부족함' },
+  { e:'😔', t:'조금 남김' },
+  { e:'😐', t:'보통' },
+  { e:'🙁', t:'거의 안먹음' },
+  { e:'⚠️', t:'주의' },
+];
+function reactionRowHtml(slot) {
+  return `<div class="reaction-lbl">아기 반응 <span style="color:#b3aca7;font-weight:500;">(선택)</span></div>
+    <div class="reaction-row" id="${slot}-reactions">
+      ${REACTIONS.map(r => `<button type="button" class="reaction-chip" data-r="${r.e} ${r.t}" onclick="selectReaction(this)"><span class="re-e">${r.e}</span>${r.t}</button>`).join('')}
+    </div>`;
+}
+function selectReaction(el) {
+  const cont = el.parentElement;
+  const was = el.classList.contains('selected');
+  cont.querySelectorAll('.reaction-chip').forEach(c => c.classList.remove('selected'));
+  if (!was) el.classList.add('selected');
+}
+/* 컨테이너에서 선택된 반응 + 메모를 합쳐 최종 memo 문자열 생성 */
+function composeMemo(reactionContainerId, noteInputId) {
+  const rEl = document.querySelector(`#${reactionContainerId} .reaction-chip.selected`);
+  const react = rEl ? rEl.dataset.r : '';
+  const noteEl = document.getElementById(noteInputId);
+  const note = noteEl ? noteEl.value.trim() : '';
+  if (react && note) return `${react} · ${note}`;
+  if (react) return react;
+  if (note) return note;
+  return '섭취완료';
+}
 
 /* ================================================
    날짜 스트립 (식단 탭 전용 — 요소 없으면 무시)
@@ -867,9 +1008,10 @@ function mealCardsHtml(d) {
   } else if (!amDone) {
     html += `
       <div class="memo-block">
+        ${reactionRowHtml('am')}
         <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
-        <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
-        <button class="check-btn" onclick="checkDone('${key}')">섭취 완료</button>
+        <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+        <button class="check-btn" onclick="checkDone('${key}')">✓ 섭취 완료</button>
         ${isTwomeal ? `<button class="skip-am-btn" onclick="skipAm('${key}')">아침 건너뜀</button>` : ''}
       </div>`;
   } else {
@@ -884,6 +1026,7 @@ function mealCardsHtml(d) {
         </div>
         <div class="memo-txt" id="memo-display-txt">${esc(data.memo || '섭취완료')}</div>
         <div class="memo-edit-wrap" id="memo-edit-wrap">
+          ${reactionRowHtml('am')}
           <textarea id="memo-input" class="memo-input" rows="2">${esc(data.memo || '')}</textarea>
           <button class="memo-save-btn" onclick="updateMemo('${key}')">저장</button>
         </div>
@@ -916,6 +1059,7 @@ function mealCardsHtml(d) {
           </div>
           <div class="memo-txt" id="pm-memo-display-txt">${esc(data.pmMemo || '섭취완료')}</div>
           <div class="memo-edit-wrap" id="pm-memo-edit-wrap">
+            ${reactionRowHtml('pm')}
             <textarea id="pm-memo-input" class="memo-input" rows="2">${esc(data.pmMemo || '')}</textarea>
             <button class="memo-save-btn" onclick="updatePmMemo('${key}')">저장</button>
           </div>
@@ -928,9 +1072,10 @@ function mealCardsHtml(d) {
         <div class="meal-card-head"><span class="meal-lbl">${slotLabel.pm || '저녁'}</span>${pmEditBtn}</div>
         <div class="meal-rows">${mealRowsHtml(data.pm, key, 'pm')}</div>
         <div class="memo-block">
+          ${reactionRowHtml('pm')}
           <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
-          <textarea id="pm-memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
-          <button class="check-btn pm-btn" onclick="checkPmDone('${key}')">섭취 완료</button>
+          <textarea id="pm-memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+          <button class="check-btn pm-btn" onclick="checkPmDone('${key}')">✓ 섭취 완료</button>
         </div>
       </div>`;
     }
@@ -998,9 +1143,9 @@ function stockSummaryHtml() {
     else full++;
   });
   return `<div class="sum-badges">
-    <span class="sum-badge full">충분 ${full}</span>
-    <span class="sum-badge soon">임박 ${soon}</span>
-    <span class="sum-badge out">부족 ${out}</span>
+    <div class="sum-badge out"><div class="sum-num">${out}</div><div class="sum-lbl">부족</div></div>
+    <div class="sum-badge soon"><div class="sum-num">${soon}</div><div class="sum-lbl">임박</div></div>
+    <div class="sum-badge full"><div class="sum-num">${full}</div><div class="sum-lbl">충분</div></div>
   </div>`;
 }
 
@@ -1014,16 +1159,22 @@ function allRecords() {
     const [m, d] = key.split('/').map(Number);
     const dateObj = new Date(2026, m - 1, d);
     if (data.done) {
-      const items = (data.amEdited || data.am || []).map(r => parseItem(r).name);
+      const items = (data.amEdited || data.am || []).map(parseItem);
       recs.push({ key, dateObj, slot: (data.pm ? '아침' : '이유식'), memo: data.memo || '섭취완료', items, which: 'am' });
     }
     if (data.pmDone) {
-      const items = (data.pmEdited || data.pm || []).map(r => parseItem(r).name);
+      const items = (data.pmEdited || data.pm || []).map(parseItem);
       recs.push({ key, dateObj, slot: '저녁', memo: data.pmMemo || '섭취완료', items, which: 'pm' });
     }
   });
   recs.sort((a, b) => (b.dateObj - a.dateObj) || (a.which < b.which ? 1 : -1));
   return recs;
+}
+/* memo 문자열에서 반응 이모지 추출 (달력용) */
+function reactionEmojiOf(memo) {
+  if (!memo) return '';
+  const r = REACTIONS.find(x => memo.includes(x.t) || memo.includes(x.e));
+  return r ? r.e : '';
 }
 
 /* ================================================
@@ -1037,6 +1188,14 @@ function renderHome() {
     <div class="greet-bell" title="알림">🔔</div>
   </div>`;
 
+  /* D+ 날짜 헤더 (홈 위계 최상위) */
+  html += `<div class="day-hd home-dayhd">
+    <div class="dday-row">
+      <span class="dday">${dds(TODAY)}</span>
+      <span class="dday-date">${TODAY.getMonth()+1}월 ${TODAY.getDate()}일 ${dows(TODAY)}요일${isMidPhase(TODAY) ? ' · <span class="dday-mid">중기</span>' : ''}</span>
+    </div>
+  </div>`;
+
   /* 오늘 식단 */
   html += `<div class="sec-title"><span class="accent">오늘</span> 식단${todayWarnHtml(data)}</div>`;
   if (data && data.midStart) html += midBannerHtml();
@@ -1045,9 +1204,9 @@ function renderHome() {
   /* 오늘 할 일 */
   html += todoCardHtml();
 
-  /* 재고 요약 */
+  /* 냉동실 현황 */
   html += `<div class="home-summary" onclick="switchTab('stock')">
-    <div class="home-sub-lbl">재고 요약 <span class="more-arrow">›</span></div>
+    <div class="home-sub-lbl">냉동실 현황 <span class="more-arrow" style="color:var(--coral);font-weight:700;">재고 관리 ›</span></div>
     <div id="home-summary-box">${stockSummaryHtml()}</div>
   </div>`;
 
@@ -1120,19 +1279,34 @@ function renderMeal() {
 }
 
 function renderStock() {
-  let html = `<div class="tab-hd"><div class="tab-title">재고</div></div>`;
+  const editBtn = stockEditMode
+    ? `<button class="panel-edit-btn on" onclick="cancelStockEdit()">완료</button>`
+    : `<button class="panel-edit-btn" onclick="startStockEdit()">편집</button>`;
+  let html = `<div class="tab-hd tab-hd-row">
+    <div class="tab-title">재고</div>
+    <button class="add-fab" onclick="toggleAddForm()" title="새 재료 추가">+</button>
+  </div>`;
   html += `<div class="stock-summary-wrap" id="stock-summary-box">${stockSummaryHtml()}</div>`;
-  html += `<div class="panel"><div class="panel-title">냉동 큐브 재고</div><div id="stock-box">${stockHtml()}</div></div>`;
+  html += `<div id="stock-addform-box">${showAddForm ? addStockFormHtml() : ''}</div>`;
+  html += `<div class="panel">
+    <div class="panel-title-row"><span class="panel-title">냉동 큐브 재고</span>${editBtn}</div>
+    <div id="stock-box">${stockHtml()}</div>
+  </div>`;
   html += `<div class="panel" id="shop-section">
     <div class="panel-title-row">
       <span class="panel-title">장볼 재료</span>
       <button class="tip-btn" onclick="toggleDeadlineTip()">ⓘ</button>
+      <button class="add-fab small" style="margin-left:auto;" onclick="toggleShopAddForm()" title="장볼 재료 추가">+</button>
     </div>
     <div class="tip-line" id="deadline-tip">구매 데드라인 = 사용 예정일 2일 전 (큐브 제조·냉동 시간 고려)</div>
+    <div id="shop-addform-box">${showShopAddForm ? shopAddFormHtml() : ''}</div>
     <div id="shop-box">${shopHtml()}</div>
   </div>`;
   html += `<div style="height:80px;"></div>`;
   document.getElementById('stock-view').innerHTML = html;
+}
+function shopAddFormHtml() {
+  return `<div class="add-form" style="margin-bottom:10px;"><input type="text" id="new-shop-item" placeholder="예) 한우 우둔살 350g" /><button class="add-confirm-btn" onclick="addShopItem()">추가하기</button></div>`;
 }
 function toggleDeadlineTip() {
   const t = document.getElementById('deadline-tip');
@@ -1141,33 +1315,90 @@ function toggleDeadlineTip() {
 
 function renderRecord() {
   let html = `<div class="tab-hd"><div class="tab-title">기록</div></div>`;
+  html += `<div class="rec-toggle">
+    <button class="rec-tg ${recordView==='list'?'active':''}" onclick="setRecordView('list')">리스트</button>
+    <button class="rec-tg ${recordView==='cal'?'active':''}" onclick="setRecordView('cal')">달력</button>
+  </div>`;
   html += `<div class="rec-monthnav">
     <button class="nav-arrow" onclick="changeRecordMonth(-1)">‹</button>
     <span>${recordMonth + 1}월</span>
     <button class="nav-arrow" onclick="changeRecordMonth(1)">›</button>
   </div>`;
-  const recs = allRecords().filter(r => r.dateObj.getMonth() === recordMonth);
-  if (!recs.length) {
-    html += `<div class="empty-card">${recordMonth + 1}월 기록이 없어요</div>`;
+
+  if (recordView === 'cal') {
+    html += recordCalHtml(recordMonth);
   } else {
-    html += recs.map(r => {
-      const cancelFn = r.which === 'am' ? `cancelDone('${r.key}')` : `cancelPmDone('${r.key}')`;
-      const itemsTxt = r.items.length ? r.items.map(esc).join(' · ') : '-';
-      const memoHtml = (r.memo && r.memo !== '섭취완료')
-        ? `<div class="rec-memo">📝 ${esc(r.memo)}</div>`
-        : `<div class="rec-memo plain">📝 섭취완료</div>`;
-      return `<div class="rec-card">
-        <div class="rec-head">
-          <span class="rec-date">${r.key}<span class="rec-slot-tag">${r.slot}</span></span>
-          <button class="rec-cancel" onclick="${cancelFn}">완료 취소</button>
-        </div>
-        <div class="rec-items">${itemsTxt}</div>
-        ${memoHtml}
-      </div>`;
-    }).join('');
+    const recs = allRecords().filter(r => r.dateObj.getMonth() === recordMonth);
+    if (!recs.length) {
+      html += `<div class="empty-card">${recordMonth + 1}월 기록이 없어요</div>`;
+    } else {
+      html += recs.map(r => {
+        const cancelFn = r.which === 'am' ? `cancelDone('${r.key}')` : `cancelPmDone('${r.key}')`;
+        const itemsTxt = r.items.length
+          ? r.items.map(it => `${esc(it.name)}${it.amount ? ` <span class="ri-amt">${esc(it.amount)}</span>` : ''}`).join(' · ')
+          : '-';
+        const memoHtml = (r.memo && r.memo !== '섭취완료')
+          ? `<div class="rec-memo">📝 ${esc(r.memo)}</div>`
+          : `<div class="rec-memo plain">📝 섭취완료</div>`;
+        return `<div class="rec-card">
+          <div class="rec-head">
+            <span class="rec-date">${r.key}<span class="rec-slot-tag">${r.slot}</span></span>
+            <button class="rec-cancel" onclick="${cancelFn}">완료 취소</button>
+          </div>
+          <div class="rec-items">${itemsTxt}</div>
+          ${memoHtml}
+        </div>`;
+      }).join('');
+    }
   }
   html += `<div style="height:80px;"></div>`;
   document.getElementById('record-view').innerHTML = html;
+}
+function setRecordView(v) { recordView = v; renderRecord(); }
+
+/* 기록 월간 달력 (완료 ✓ + 반응 이모지) */
+function recordCalHtml(month) {
+  const y = 2026, m = month;
+  const first = new Date(y, m, 1).getDay();   // 0=일
+  const last = new Date(y, m + 1, 0).getDate();
+  const recs = allRecords().filter(r => r.dateObj.getMonth() === m);
+  const byDay = {};
+  recs.forEach(r => {
+    const d = r.dateObj.getDate();
+    if (!byDay[d]) byDay[d] = { emoji: '' };
+    const e = reactionEmojiOf(r.memo);
+    if (e && !byDay[d].emoji) byDay[d].emoji = e;
+  });
+
+  const WD = ['일','월','화','수','목','금','토'];
+  let html = `<div class="rcal">
+    <div class="rcal-wd">${WD.map((w,i)=>`<div class="${i===0?'sun':''}">${w}</div>`).join('')}</div>
+    <div class="rcal-grid">`;
+  for (let i = 0; i < first; i++) html += `<div class="rcal-cell empty"></div>`;
+  for (let d = 1; d <= last; d++) {
+    const rec = byDay[d];
+    const dObj = new Date(y, m, d);
+    const isTod = dObj.toDateString() === TODAY.toDateString();
+    let cls = 'rcal-cell';
+    if (rec) cls += ' done';
+    if (isTod) cls += ' today';
+    const click = rec ? ` onclick="recordGoDate(${y},${m},${d})"` : '';
+    const mark = rec ? (rec.emoji || '✓') : '';
+    html += `<div class="${cls}"${click}>
+      <div class="rcal-dn">${d}</div>
+      ${mark ? `<div class="rcal-emoji">${mark}</div>` : ''}
+    </div>`;
+  }
+  const rem = (first + last) % 7;
+  if (rem) for (let i = 0; i < 7 - rem; i++) html += `<div class="rcal-cell empty"></div>`;
+  html += `</div></div>`;
+  html += `<div class="rcal-legend">${REACTIONS.map(r=>`<span>${r.e} ${r.t}</span>`).join('')}<span>✓ 기록 있음</span></div>`;
+  return html;
+}
+function recordGoDate(y, m, d) {
+  sel = new Date(y, m, d);
+  curMonth = m;
+  switchTab('meal');
 }
 function changeRecordMonth(dir) {
   recordMonth = Math.max(4, Math.min(6, recordMonth + dir));
@@ -1261,51 +1492,79 @@ function stockHtml() {
     const sorted = [...dbStocks].sort((a, b) => rank(a) - rank(b));
     html += sorted.map(s => {
       const out = s.amount <= 0, soon = !out && s.amount <= s.low_alert;
+      const base = s.base_g || 15;
       const icon = iconFor(s.name);
       const iconEl = icon
-        ? `<img src="${icon}" alt="" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;">`
-        : `<span style="font-size:16px;flex-shrink:0;">${emojiFor(s.name)}</span>`;
+        ? `<img src="${icon}" alt="">`
+        : `<span class="emoji">${emojiFor(s.name)}</span>`;
       const badge = out ? `<span class="st-badge st-out">부족</span>`
                   : soon ? `<span class="st-badge st-soon">임박</span>`
                   : `<span class="st-badge st-full">충분</span>`;
-      return `<div class="stock-row" style="gap:14px;">${iconEl}<span class="stock-name">${esc(s.name)}</span>${badge}<span class="stock-val${(out || soon) ? ' stock-low' : ''}">${s.amount}${esc(s.unit)} ${out ? '❗' : ''}</span></div>`;
+      return `<div class="stock-card">
+        <div class="stock-card-ic">${iconEl}</div>
+        <div class="stock-card-mid">
+          <div class="stock-card-name">${esc(s.name)}</div>
+          <div class="stock-card-sub">기준 ${base}g</div>
+        </div>
+        <div class="stock-card-right">
+          <div class="stock-card-val${(out || soon) ? ' low' : ''}">${s.amount}${esc(s.unit)}${out ? ' ❗' : ''}</div>
+          ${badge}
+        </div>
+      </div>`;
     }).join('');
-    html += `<button class="stock-edit-btn" onclick="startStockEdit()">재고 수정하기</button>`;
   } else {
     html += dbStocks.map((s, idx) => `
-  <div class="stock-edit-row">
-    <div class="stock-order-btns">
-      <button class="stock-order-btn" onclick="moveStock(${idx},-1)" ${idx===0?'disabled':''}>▲</button>
-      <button class="stock-order-btn" onclick="moveStock(${idx},1)" ${idx===dbStocks.length-1?'disabled':''}>▼</button>
-    </div>
-    <span class="stock-edit-name">${esc(s.name)}</span>
-    <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" style="margin-right:4px;" />
-    <span class="stock-unit">${esc(s.unit)}</span>
-    <button class="stock-edit-x" onclick="deleteStock(${s.id})">✕</button>
-  </div>`).join('');
-    html += `<button class="stock-save-all-btn" onclick="saveAllStocks()">전체 저장</button>`;
-    html += `<button class="stock-cancel-btn" onclick="cancelStockEdit()">취소</button>`;
+      <div class="stock-edit-card">
+        <div class="ec-top">
+          <div class="stock-order-btns">
+            <button class="stock-order-btn" onclick="moveStock(${idx},-1)" ${idx===0?'disabled':''}>▲</button>
+            <button class="stock-order-btn" onclick="moveStock(${idx},1)" ${idx===dbStocks.length-1?'disabled':''}>▼</button>
+          </div>
+          <span class="stock-edit-name">${esc(s.name)}</span>
+          <button class="stock-x" onclick="deleteStock(${s.id})">✕</button>
+        </div>
+        <div class="ec-bottom">
+          <div class="ec-field"><label>수량</label><input type="number" id="si-${s.id}" value="${s.amount}" min="0"><span class="ec-unit">${esc(s.unit)}</span></div>
+          <div class="ec-field"><label>기준</label><input type="number" id="sb-${s.id}" value="${s.base_g || 15}" min="1"><span class="ec-unit">g</span></div>
+        </div>
+      </div>`).join('');
+    html += `<div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="stock-save-all-btn" style="margin-top:0;" onclick="saveAllStocks()">전체 저장</button>
+      <button class="stock-cancel-btn" onclick="cancelStockEdit()">취소</button>
+    </div>`;
   }
-  html += `<div class="add-divider"><button class="add-stock-btn" onclick="toggleAddForm()">+ 새 재료 추가</button>`;
-  if (showAddForm) {
-    html += `<div class="add-form">
-        <input type="text" id="ns-name" placeholder="재료 이름 (예: 당근)" />
-        <div class="add-form-row"><input type="number" id="ns-amt" placeholder="수량" min="0" /><input type="text" id="ns-unit" placeholder="단위 (개/g/봉)" /></div>
-        <input type="number" id="ns-alert" placeholder="알림 기준 수량 (예: 2)" min="0" />
-        <button class="add-confirm-btn" onclick="addStock()">추가하기</button>
-      </div>`;
-  }
-  html += `</div>`;
   return html;
 }
-function startStockEdit() { stockEditMode = true; refreshStockBody(); }
-function cancelStockEdit() { stockEditMode = false; refreshStockBody(); }
-function refreshStockBody() {
-  const b = document.getElementById('stock-box'); if (b) b.innerHTML = stockHtml();
-  const sm = document.getElementById('stock-summary-box'); if (sm) sm.innerHTML = stockSummaryHtml();
+/* 새 재료 추가 폼 (섹션 상단 + 버튼으로 토글) */
+function addStockFormHtml() {
+  return `<div class="add-form" style="margin:0 16px 4px;">
+    <input type="text" id="ns-name" placeholder="재료 이름 (예: 당근)" />
+    <div class="add-form-row">
+      <input type="number" id="ns-amt" placeholder="수량" min="0" />
+      <input type="text" id="ns-unit" placeholder="단위 (개/큐브)" />
+    </div>
+    <div class="add-form-row">
+      <input type="number" id="ns-base" placeholder="기준 g (예: 15)" min="1" />
+      <input type="number" id="ns-alert" placeholder="알림 기준 수량" min="0" />
+    </div>
+    <button class="add-confirm-btn" onclick="addStock()">추가하기</button>
+  </div>`;
+}
+function startStockEdit() { stockEditMode = true; refreshStock(); }
+function cancelStockEdit() { stockEditMode = false; refreshStock(); }
+/* 재고 탭 전체 재렌더 (활성일 때) + 홈 요약 동기화 */
+function refreshStock() {
+  if (activeTab === 'stock') renderStock();
   const hsm = document.getElementById('home-summary-box'); if (hsm) hsm.innerHTML = stockSummaryHtml();
 }
-function toggleAddForm() { showAddForm = !showAddForm; refreshStockBody(); }
+function refreshStockBody() { refreshStock(); }
+function refreshShopBody() { refreshStock(); }
+function toggleAddForm() {
+  showAddForm = !showAddForm;
+  const b = document.getElementById('stock-addform-box');
+  if (b) b.innerHTML = showAddForm ? addStockFormHtml() : '';
+  else refreshStock();
+}
 
 /* ================================================
    장볼 재료 (기존 로직 유지 + D-day)
@@ -1317,26 +1576,29 @@ function shopHtml() {
     ...autoShopNames.map(n => ({ name: n, id: null })),
     ...manualShops.map(s => ({ name: s.name, id: s.id })),
   ];
-
-  let html = '';
   if (allItems.length === 0) {
-    html += `<div style="padding:8px 0;font-size:12px;color:#aaa;text-align:center;">장볼 재료가 없어요 👍</div>`;
-  } else {
-    html += `<div class="shop-list">`;
-    allItems.forEach(item => {
-      const xBtn = item.id !== null
-        ? `<button class="shop-chip-x" onclick="removeShopItem(${item.id})">✕</button>` : '';
-      html += `<div class="shop-line"><span class="shop-line-name">${esc(item.name)}</span>${ddayChipHtml(item.name, 'shop-dday')}${xBtn}</div>`;
-    });
-    html += `</div>`;
+    return `<div style="padding:14px 0;font-size:12px;color:#aaa;text-align:center;">장볼 재료가 없어요 👍</div>`;
   }
-  html += `<div style="padding-top:8px;"><button class="add-stock-btn" style="color:var(--coral);border-color:#fde0e0;background:#fff5f5;" onclick="toggleShopAddForm()">+ 장볼 재료 추가</button>`;
-  if (showShopAddForm) html += `<div class="add-form" style="margin-top:8px;"><input type="text" id="new-shop-item" placeholder="예) 한우 우둔살 350g" /><button class="add-confirm-btn" onclick="addShopItem()">추가하기</button></div>`;
+  let html = `<div class="shop-grid">`;
+  allItems.forEach(item => {
+    const xBtn = item.id !== null
+      ? `<button class="shop-card-x" onclick="removeShopItem(${item.id})">✕</button>` : '';
+    const dday = ddayChipHtml(item.name, 'shop-dday');
+    html += `<div class="shop-card">
+      ${xBtn}
+      <div class="shop-card-name">${esc(item.name)}</div>
+      ${dday || '<span class="shop-dday" style="color:#cfc9c4;">예정일 미정</span>'}
+    </div>`;
+  });
   html += `</div>`;
   return html;
 }
-function toggleShopAddForm() { showShopAddForm = !showShopAddForm; refreshShopBody(); }
-function refreshShopBody() { const b = document.getElementById('shop-box'); if (b) b.innerHTML = shopHtml(); }
+function toggleShopAddForm() {
+  showShopAddForm = !showShopAddForm;
+  const b = document.getElementById('shop-addform-box');
+  if (b) b.innerHTML = showShopAddForm ? shopAddFormHtml() : '';
+  else refreshStock();
+}
 
 function noticeHtml() { return `<ul class="notice-list">${notices.map(n => `<li>${esc(n)}</li>`).join('')}</ul>`; }
 function showMemoEdit() { const w = document.getElementById('memo-edit-wrap'); if (w) w.style.display = 'block'; }
@@ -1356,10 +1618,18 @@ async function saveAllStocks() {
   for (let i = 0; i < dbStocks.length; i++) {
     const s = dbStocks[i];
     const input = document.getElementById(`si-${s.id}`);
+    const baseEl = document.getElementById(`sb-${s.id}`);
     const newAmt = input ? parseInt(input.value) : (s._tempAmount ?? s.amount);
+    const newBase = baseEl ? parseInt(baseEl.value) : (s.base_g || 15);
     if (isNaN(newAmt) || newAmt < 0) continue;
-    const { error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i }).eq('id', s.id);
-    if (error) { alert(`${s.name} 저장 실패: ${error.message}`); return; }
+    // base_g 컬럼이 없을 수도 있으므로 먼저 base_g 포함 시도 → 실패 시 기본 컬럼만
+    let { error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i, base_g: (isNaN(newBase) ? 15 : newBase) }).eq('id', s.id);
+    if (error) {
+      ({ error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i }).eq('id', s.id));
+      if (error) { alert(`${s.name} 저장 실패: ${error.message}`); return; }
+    } else {
+      s.base_g = isNaN(newBase) ? 15 : newBase;
+    }
   }
   stockEditMode = false; await loadStocks();
 }
@@ -1375,10 +1645,16 @@ async function addStock() {
   const amount = parseInt(document.getElementById('ns-amt')?.value || 0);
   const unit = document.getElementById('ns-unit')?.value?.trim() || '개';
   const low_alert = parseInt(document.getElementById('ns-alert')?.value || 2);
+  const baseRaw = parseInt(document.getElementById('ns-base')?.value);
+  const base_g = isNaN(baseRaw) ? 15 : baseRaw;
   if (!name) { alert('재료 이름을 입력해주세요.'); return; }
   const sort_order = dbStocks.length;
-  const { error } = await sb.from('inventory').insert([{ name, amount, unit, low_alert, sort_order }]);
-  if (error) { alert('추가 실패: ' + error.message); return; }
+  // base_g 컬럼이 없을 수도 있으므로 포함 시도 → 실패 시 제외하고 재시도
+  let { error } = await sb.from('inventory').insert([{ name, amount, unit, low_alert, sort_order, base_g }]);
+  if (error) {
+    ({ error } = await sb.from('inventory').insert([{ name, amount, unit, low_alert, sort_order }]));
+    if (error) { alert('추가 실패: ' + error.message); return; }
+  }
   showAddForm = false; await loadStocks();
 }
 async function loadStocks() {
@@ -1396,10 +1672,44 @@ async function addShopItem() {
   if (error) { alert('추가 실패: ' + error.message); return; }
   showShopAddForm = false; await loadShops();
 }
+/* 되돌리기 상태 */
+let lastDeletedShop = null;
+let undoTimer = null;
+
+function showUndoToast(name) {
+  const t = document.getElementById('undo-toast');
+  if (!t) return;
+  t.style.display = 'flex';
+  t.className = 'undo-toast';
+  t.innerHTML = `<span><span class="undo-toast-name">'${esc(name)}'</span> 삭제됨</span><button class="undo-btn" onclick="undoShopDelete()">되돌리기</button>`;
+}
+function hideUndoToast() {
+  const t = document.getElementById('undo-toast');
+  if (t) t.style.display = 'none';
+  lastDeletedShop = null;
+}
+async function undoShopDelete() {
+  if (!lastDeletedShop) return;
+  if (undoTimer) { clearTimeout(undoTimer); undoTimer = null; }
+  const name = lastDeletedShop.name;
+  hideUndoToast();
+  const { error } = await sb.from('shop_list').insert([{ name }]);
+  if (error) { alert('복구 실패: ' + error.message); return; }
+  await loadShops();
+  if (activeTab === 'stock') renderStock();
+}
 async function removeShopItem(id) {
+  const shop = shops.find(s => s.id === id);
+  const name = shop ? shop.name : '이 항목';
+  if (!confirm(`'${name}'\n장보기 목록에서 삭제할까요?`)) return;
   const { error } = await sb.from('shop_list').delete().eq('id', id);
   if (error) { alert('삭제 실패: ' + error.message); return; }
+  lastDeletedShop = { name };
   await loadShops();
+  if (activeTab === 'stock') renderStock();
+  showUndoToast(name);
+  if (undoTimer) clearTimeout(undoTimer);
+  undoTimer = setTimeout(hideUndoToast, 5000);
 }
 async function loadShops() {
   try {
@@ -1419,28 +1729,28 @@ async function loadMealLog() {
 }
 
 /* 재료 차감 수량 계산 */
-function calcUseCount(amount) {
+function calcUseCount(amount, base) {
+  base = base || 15;
   const s = String(amount || '').trim();
   if (!s || s === '반복노출' || s === '반복') return 0;
   if (s === '소량') return 1;
   if (s.includes('팩') || s.includes('개')) return Math.max(1, parseInt(s) || 1);
   const g = parseInt(s);
   if (isNaN(g) || g <= 0) return 0;
-  return Math.max(1, Math.round(g / 15));
+  return Math.max(1, Math.round(g / base));
 }
 async function checkDone(dateKey) {
   const data = meals[dateKey]; if (!data) return;
   if (!confirm('섭취 완료로 기록할까요? 재고가 자동 차감됩니다.')) return;
-  const memoEl = document.getElementById('memo-input');
-  const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
+  const memo = composeMemo('am-reactions', 'memo-input');
 
   const allRaw = [...(data.amEdited || data.am || [])];
   const stockChanges = [];
   for (const raw of allRaw) {
     const { name, amount } = parseItem(raw);
-    const useCount = calcUseCount(amount);
-    if (useCount <= 0) continue;
     const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
+    const useCount = calcUseCount(amount, stock.base_g || 15);
+    if (useCount <= 0) continue;
     const actualDeduct = Math.min(useCount, stock.amount);
     await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
     stock.amount -= actualDeduct;
@@ -1468,15 +1778,11 @@ async function cancelDone(dateKey) {
   await loadStocks(); rerender();
 }
 async function updateMemo(dateKey) {
-  const memoEl = document.getElementById('memo-input'); if (!memoEl) return;
-  const memo = memoEl.value.trim() || '섭취완료';
+  const memo = composeMemo('am-reactions', 'memo-input');
   const { error } = await sb.from('meal_log').upsert({ date: dateKey, done: true, memo }, { onConflict: 'date' });
   if (error) { alert('저장 실패: ' + error.message); return; }
   meals[dateKey].memo = memo;
-  const editWrap = document.getElementById('memo-edit-wrap');
-  const displayTxt = document.getElementById('memo-display-txt');
-  if (editWrap) editWrap.style.display = 'none';
-  if (displayTxt) displayTxt.textContent = memo;
+  rerender();
 }
 
 /* 아침 건너뜀 토글 */
@@ -1498,15 +1804,14 @@ function skipAm(dateKey) {
 /* 저녁 섭취완료 / 취소 / 메모 (localStorage) */
 async function checkPmDone(dateKey) {
   const data = meals[dateKey]; if (!data || !data.pm) return;
-  const memoEl = document.getElementById('pm-memo-input');
-  const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
+  const memo = composeMemo('pm-reactions', 'pm-memo-input');
 
   const stockChanges = [];
   for (const raw of (data.pmEdited || data.pm || [])) {
     const { name, amount } = parseItem(raw);
-    const useCount = calcUseCount(amount);
-    if (useCount <= 0) continue;
     const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
+    const useCount = calcUseCount(amount, stock.base_g || 15);
+    if (useCount <= 0) continue;
     const actualDeduct = Math.min(useCount, stock.amount);
     await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
     stock.amount -= actualDeduct;
@@ -1532,14 +1837,10 @@ function showPmMemoEdit() {
   const w = document.getElementById('pm-memo-edit-wrap'); if (w) w.style.display = 'block';
 }
 function updatePmMemo(dateKey) {
-  const memoEl = document.getElementById('pm-memo-input'); if (!memoEl) return;
-  const memo = memoEl.value.trim() || '섭취완료';
+  const memo = composeMemo('pm-reactions', 'pm-memo-input');
   meals[dateKey].pmMemo = memo;
   localStorage.setItem(`jjina_pm_memo_${dateKey}`, memo);
-  const editWrap = document.getElementById('pm-memo-edit-wrap');
-  const displayTxt = document.getElementById('pm-memo-display-txt');
-  if (editWrap) editWrap.style.display = 'none';
-  if (displayTxt) displayTxt.textContent = memo;
+  rerender();
 }
 
 /* 하루 완료 여부 (스트립 done-day 판정) */
@@ -1713,7 +2014,7 @@ function buildCal() {
   return h;
 }
 
-/* NEW 식재료 2일 전 자동화 (기존 로직 보존) */
+/* NEW 식재료 2일 전 자동화 (기존 로직 유지 + 재고 충분 시 장볼 목록 자동 추가 스킵) */
 async function autoAddUpcoming() {
   let stockAdded = false, shopAdded = false;
   for (let offset = 0; offset <= 2; offset++) {
@@ -1725,12 +2026,15 @@ async function autoAddUpcoming() {
     for (const badge of newBadges) {
       const name = badge.x.replace(/^New\s*/, '').trim();
       if (!name) continue;
+      const stockItem = dbStocks.find(s => s.name === name);
+      const hasEnough = stockItem && stockItem.amount > stockItem.low_alert;
       const inShop = shops.some(s => s.name === name);
-      if (!inShop) {
+      // 재고가 충분하면(수량 > 알림기준) 장볼 목록에 자동 추가 안 함
+      if (!inShop && !hasEnough) {
         const { error } = await sb.from('shop_list').insert([{ name }]);
         if (!error) shopAdded = true;
       }
-      const inStock = dbStocks.some(s => s.name === name);
+      const inStock = !!stockItem;
       if (!inStock) {
         const sort_order = dbStocks.length;
         const { error } = await sb.from('inventory').insert([{ name, amount: 0, unit: '개', low_alert: 1, sort_order }]);
