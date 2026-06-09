@@ -1034,7 +1034,7 @@ function mealCardsHtml(d) {
   const amEditBtn = (!amDone && !amSkipped && !amEditMode)
     ? `<button class="card-edit-btn" onclick="startEdit('${key}','am')">편집</button>` : '';
   /* 교환 버튼: 오늘 이후 + 미완료 + 편집중 아님일 때만 노출 */
-  const swapEligible = !amDone && !amSkipped && !amEditMode && !isPast(d);
+  const swapEligible = !amDone && !amSkipped && !amEditMode;
   const swapBtn = swapEligible
     ? `<button class="card-swap-btn" onclick="toggleSwapPicker('${key}')">↕ 교환</button>` : '';
 
@@ -2142,13 +2142,11 @@ function applySwap(a, b) {
 }
 function replaySwaps() { appState.swaps.forEach(p => { if (Array.isArray(p)) applySwap(p[0], p[1]); }); }
 
-/* 교환 대상이 될 수 있는 날인가: 식단 있음 + 오늘이후 + 미완료 */
+/* 교환 대상이 될 수 있는 날인가: 식단 있음 + 미완료 (과거도 허용 — 미완료면 변경 가능) */
 function swapEligibleKey(key) {
   const m = meals[key];
   if (!m || !(m.am && m.am.length)) return false;
-  if (m.done || m.pmDone || m.amSkipped) return false;
-  const [mm, dd] = key.split('/').map(Number);
-  return !isPast(new Date(2026, mm - 1, dd));
+  return !m.done && !m.pmDone && !m.amSkipped;
 }
 /* 칩에 표시할 짧은 이름(배지명 우선, 없으면 첫 재료명) */
 function swapChipLabel(key) {
@@ -2222,14 +2220,12 @@ function hideSwapUndoToast() {
 }
 /* 교환 피커 패널 (식단 카드 하단) */
 function swapPickerHtml(srcKey) {
-  const targets = [];
-  const base = dateOnly(TODAY);
-  for (let off = 0; off <= 60; off++) {
-    const d = new Date(base); d.setDate(base.getDate() + off);
-    const k = dk(d);
-    if (k === srcKey) continue;
-    if (swapEligibleKey(k)) targets.push(k);
-  }
+  const targets = Object.keys(meals)
+    .filter(k => /^\d+\/\d+$/.test(k) && k !== srcKey && swapEligibleKey(k))
+    .sort((a, b) => {
+      const [am2, ad] = a.split('/').map(Number), [bm, bd] = b.split('/').map(Number);
+      return (am2 * 31 + ad) - (bm * 31 + bd);
+    });
   let h = `<div class="swap-panel">
     <div class="swap-panel-title">↕ 어느 날과 바꿀까요?</div>
     <div class="swap-panel-sub">고른 날과 식단을 통째로 맞바꿔요</div>`;
