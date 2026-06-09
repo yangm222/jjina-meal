@@ -82,7 +82,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 /* 오늘 식단 / 지난 식단 타이틀 */
 .sec-title { font-family:'Paperlogy',sans-serif; display:flex; align-items:center; gap:8px; padding: 14px 18px 6px; font-size: 16px; font-weight: 600; color:#1f1a18; }
 .sec-title .accent { color: var(--coral); }
-.stock-warn { font-size: 11px; font-weight: 600; color: var(--coral-deep); white-space: nowrap; }
+.stock-warn { margin-left:auto; font-size: 11px; font-weight: 600; color: var(--coral-deep); white-space: nowrap; }
 
 /* ===== 중기 전환 배너 ===== */
 .mid-banner { margin: 6px 16px 0; background: var(--coral-grad); padding: 14px 16px; border-radius: 16px; }
@@ -483,10 +483,10 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .shop-card-x { position:absolute; top:8px; right:8px; width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,0.06); border:none; color:#8a827d; font-size:11px; line-height:1; padding:0; }
 
 /* 반응 칩 */
-.reaction-lbl { font-size:12px; font-weight:700; color:#6e6661; margin:2px 0 8px; }
-.reaction-row { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
-.reaction-chip { display:flex; align-items:center; gap:5px; background:#faf8f6; border:1.5px solid var(--border); border-radius:20px; padding:7px 12px; font-size:12px; font-weight:600; color:#6e6661; }
-.reaction-chip .re-e { font-size:14px; }
+.reaction-lbl { font-size:12px; font-weight:700; color:#6e6661; margin:2px 0 6px; }
+.reaction-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.reaction-chip { display:flex; align-items:center; gap:4px; background:#faf8f6; border:1.5px solid var(--border); border-radius:18px; padding:5px 11px; font-size:12px; font-weight:600; color:#6e6661; }
+.reaction-chip .re-e { font-size:13px; }
 .reaction-chip.selected { background:#fff1f1; border-color:var(--coral); color:var(--coral-deep); }
 .reaction-chip.tone-warn { border-color:#f3c9c0; color:var(--coral-deep); }
 .reaction-chip.tone-warn.selected { background:#fdeae6; border-color:var(--coral-deep); color:var(--coral-deep); }
@@ -630,7 +630,7 @@ const TWO_MEAL_START = new Date(2026, 5, 8); // 2끼 전환 6/8 (참고용 — �
    - 끼니 수 전환을 날짜 하드코딩이 아닌 이 표가 결정한다.
    - 3끼 전환 시: 아래 3끼 항목의 from 날짜만 채우면 자동 적용.
      (해당 날짜의 식단 데이터에 lunch:[...] 배열만 추가하면 점심 카드가 켜짐)
-   - slot.key 는 저장소 키와 직결: am=Supabase meal_log / pm·lunch=localStorage
+   - 완료 저장: am=meal_log(날짜행) / pm·건너뜀·교환·편집=appState(meal_log _appstate 행) — 모두 Supabase 동기화
 ================================================ */
 const PHASES = [
   { id:'early1', from:new Date(2026,4,9), meals:1,
@@ -1217,7 +1217,7 @@ function stockSummaryHtml() {
 }
 
 /* ================================================
-   최근 완료 기록 (아침=Supabase / 저녁=localStorage)
+   최근 완료 기록 (아침=meal_log / 저녁=appState, 모두 Supabase)
 ================================================ */
 function allRecords() {
   const recs = [];
@@ -1904,7 +1904,8 @@ async function cancelDone(dateKey) {
   if (updateErr) { alert('취소 실패: ' + updateErr.message); return; }
   meals[dateKey].done = false; meals[dateKey].memo = '';
   meals[dateKey].amSkipped = false;
-  localStorage.removeItem(`jjina_am_skip_${dateKey}`);
+  delete appState.amSkip[dateKey];
+  saveAppState();
   await loadStocks(); rerender();
 }
 async function updateMemo(dateKey) {
@@ -1921,17 +1922,18 @@ function skipAm(dateKey) {
   const cur = !!data.amSkipped;
   data.amSkipped = !cur;
   if (!cur) {
-    localStorage.setItem(`jjina_am_skip_${dateKey}`, '1');
+    appState.amSkip[dateKey] = true;
   } else {
-    localStorage.removeItem(`jjina_am_skip_${dateKey}`);
+    delete appState.amSkip[dateKey];
     data.pmDone = false;
-    localStorage.removeItem(`jjina_pm_done_${dateKey}`);
-    localStorage.removeItem(`jjina_pm_memo_${dateKey}`);
+    delete appState.pmDone[dateKey];
+    delete appState.pmMemo[dateKey];
   }
+  saveAppState();
   rerender();
 }
 
-/* 저녁 섭취완료 / 취소 / 메모 (localStorage) */
+/* 저녁 섭취완료 / 취소 / 메모 (appState → Supabase 동기화) */
 async function checkPmDone(dateKey) {
   const data = meals[dateKey]; if (!data || !data.pm) return;
   const memo = composeMemo('pm-reactions', 'pm-memo-input');
@@ -1950,8 +1952,9 @@ async function checkPmDone(dateKey) {
 
   data.pmDone = true;
   data.pmMemo = memo;
-  localStorage.setItem(`jjina_pm_done_${dateKey}`, '1');
-  localStorage.setItem(`jjina_pm_memo_${dateKey}`, memo);
+  appState.pmDone[dateKey] = true;
+  appState.pmMemo[dateKey] = memo;
+  saveAppState();
 
   await loadStocks(); rerender();
 }
@@ -1959,8 +1962,9 @@ function cancelPmDone(dateKey) {
   if (!confirm('저녁 완료를 취소할까요?')) return;
   const data = meals[dateKey]; if (!data) return;
   data.pmDone = false; data.pmMemo = '';
-  localStorage.removeItem(`jjina_pm_done_${dateKey}`);
-  localStorage.removeItem(`jjina_pm_memo_${dateKey}`);
+  delete appState.pmDone[dateKey];
+  delete appState.pmMemo[dateKey];
+  saveAppState();
   rerender();
 }
 function showPmMemoEdit() {
@@ -1969,7 +1973,8 @@ function showPmMemoEdit() {
 function updatePmMemo(dateKey) {
   const memo = composeMemo('pm-reactions', 'pm-memo-input');
   meals[dateKey].pmMemo = memo;
-  localStorage.setItem(`jjina_pm_memo_${dateKey}`, memo);
+  appState.pmMemo[dateKey] = memo;
+  saveAppState();
   rerender();
 }
 
@@ -2006,28 +2011,25 @@ function saveEdit(dateKey, slot) {
   const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
   data[editedKey] = readEditInputs(dateKey, slot, data[editedKey] || []);
   data[modeKey] = false;
-  persistEdit(dateKey, slot);   /* 편집 내용 localStorage 저장 */
+  persistEdit(dateKey, slot);   /* 편집 내용 appState → Supabase 저장 */
   rerender();
 }
-/* 인라인 편집 영속화 (jjina_edit_{date}_{slot}) */
+/* 인라인 편집 영속화 → appState.edits (Supabase 동기화) */
 function persistEdit(dateKey, slot) {
   const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
   const arr = meals[dateKey] && meals[dateKey][editedKey];
-  try {
-    if (arr && arr.length) localStorage.setItem(`jjina_edit_${dateKey}_${slot}`, JSON.stringify(arr));
-    else localStorage.removeItem(`jjina_edit_${dateKey}_${slot}`);
-  } catch (e) { console.error('편집 저장 오류:', e); }
+  const k = `${dateKey}_${slot}`;
+  if (arr && arr.length) appState.edits[k] = arr;
+  else delete appState.edits[k];
+  saveAppState();
 }
 function loadEdits() {
-  Object.keys(meals).forEach(dateKey => {
-    ['am', 'pm'].forEach(slot => {
-      const raw = localStorage.getItem(`jjina_edit_${dateKey}_${slot}`);
-      if (!raw) return;
-      try {
-        const arr = JSON.parse(raw);
-        if (Array.isArray(arr) && arr.length) meals[dateKey][slot === 'am' ? 'amEdited' : 'pmEdited'] = arr;
-      } catch (e) { /* 무시 */ }
-    });
+  Object.keys(appState.edits).forEach(k => {
+    const arr = appState.edits[k];
+    if (!Array.isArray(arr) || !arr.length) return;
+    const idx = k.lastIndexOf('_');
+    const dateKey = k.slice(0, idx), slot = k.slice(idx + 1);
+    if (meals[dateKey]) meals[dateKey][slot === 'am' ? 'amEdited' : 'pmEdited'] = arr;
   });
 }
 function cancelEdit(dateKey, slot) {
@@ -2060,14 +2062,58 @@ function addEditRow(dateKey, slot) {
 }
 
 /* ================================================
-   식단 날짜 교환 (1:1) — v5 신규
+   기기 간 동기화 상태 (v5.1)
+   - 교환/편집/저녁완료/메모/아침건너뜀을 모두 Supabase로 동기화
+   - meal_log의 예약 행(date='_appstate')의 stock_changes(jsonb)에 통째 저장
+     → 별도 테이블/콘솔작업 없이 모든 기기에서 동일하게 보임
+   - 아침 완료/메모는 기존처럼 meal_log의 해당 날짜 행(이미 동기화됨)
+================================================ */
+const STATE_ROW = '_appstate';
+let appState = { swaps: [], edits: {}, pmDone: {}, pmMemo: {}, amSkip: {} };
+
+async function loadAppState() {
+  try {
+    const { data, error } = await sb.from('meal_log').select('stock_changes').eq('date', STATE_ROW);
+    if (error) { console.error('앱 상태 로드 오류:', error); return; }
+    const s = (data && data[0] && data[0].stock_changes) || null;
+    if (s && typeof s === 'object') {
+      appState = {
+        swaps:  Array.isArray(s.swaps) ? s.swaps : [],
+        edits:  (s.edits  && typeof s.edits  === 'object') ? s.edits  : {},
+        pmDone: (s.pmDone && typeof s.pmDone === 'object') ? s.pmDone : {},
+        pmMemo: (s.pmMemo && typeof s.pmMemo === 'object') ? s.pmMemo : {},
+        amSkip: (s.amSkip && typeof s.amSkip === 'object') ? s.amSkip : {},
+      };
+    }
+  } catch (e) { console.error('앱 상태 로드 연결 오류:', e); }
+}
+/* 전체 상태를 통째로 저장 (마지막 저장이 항상 최신 → 누락돼도 다음 저장이 복구) */
+async function saveAppState() {
+  try {
+    await sb.from('meal_log').upsert({ date: STATE_ROW, done: false, memo: '_appstate', stock_changes: appState }, { onConflict: 'date' });
+  } catch (e) { console.error('앱 상태 저장 오류:', e); }
+}
+/* 저녁완료/메모/아침건너뜀 상태를 meals에 반영 (로그인 후·재교환 후 호출) */
+function applySyncedState() {
+  Object.keys(meals).forEach(key => {
+    meals[key].amSkipped = !!appState.amSkip[key];
+    if (appState.pmDone[key]) {
+      meals[key].pmDone = true;
+      meals[key].pmMemo = appState.pmMemo[key] || '섭취완료';
+    } else {
+      meals[key].pmDone = false;
+    }
+  });
+}
+
+/* ================================================
+   식단 날짜 교환 (1:1)
    - meals = 불변 원본 / 교환은 "식단 내용 필드"만 자리바꿈
    - 완료기록(done/memo/pmDone/amSkipped)은 캘린더 날짜에 고정 → 과거 보존
-   - 교환 이력은 localStorage(jjina_swaps)에 저장, 로드 시 순서대로 재적용
+   - 교환 이력은 appState.swaps(Supabase 동기화), 로드 시 순서대로 재적용
    - 같은 교환 재실행 = 원복(self-inverse) → 되돌리기 단순
 ================================================ */
 const SWAP_FIELDS = ['am','pm','lunch','note','amEdited','pmEdited'];
-let swapLog = [];            // [[keyA, keyB], ...]
 let swapOpenKey = null;      // 현재 피커가 열린 날짜 키
 let pendingSwapTarget = null;// 선택했지만 아직 확정 전인 대상 키
 let swapUndoTimer = null;
@@ -2094,17 +2140,7 @@ function applySwap(a, b) {
   const na = pluckNewBadge(A), nb = pluckNewBadge(B);
   setNewBadge(A, nb); setNewBadge(B, na);
 }
-function persistSwaps() {
-  try { localStorage.setItem('jjina_swaps', JSON.stringify(swapLog)); }
-  catch (e) { console.error('교환 이력 저장 오류:', e); }
-}
-function loadSwaps() {
-  try {
-    const v = JSON.parse(localStorage.getItem('jjina_swaps') || '[]');
-    swapLog = Array.isArray(v) ? v : [];
-  } catch (e) { swapLog = []; }
-}
-function replaySwaps() { swapLog.forEach(p => { if (Array.isArray(p)) applySwap(p[0], p[1]); }); }
+function replaySwaps() { appState.swaps.forEach(p => { if (Array.isArray(p)) applySwap(p[0], p[1]); }); }
 
 /* 교환 대상이 될 수 있는 날인가: 식단 있음 + 오늘이후 + 미완료 */
 function swapEligibleKey(key) {
@@ -2135,15 +2171,15 @@ function dayHasLowStock(key) {
 }
 /* 교환 이력에 포함된 날짜인가 (스트립·달력 점 표시용) */
 function isSwappedDay(key) {
-  return swapLog.some(p => Array.isArray(p) && (p[0] === key || p[1] === key));
+  return appState.swaps.some(p => Array.isArray(p) && (p[0] === key || p[1] === key));
 }
-/* 교환/되돌리기 시 두 날짜의 편집 저장키도 함께 이동 (편집이 음식 따라가도록) */
+/* 교환/되돌리기 시 두 날짜의 편집 데이터도 함께 이동 (편집이 음식 따라가도록) */
 function swapEditStorage(a, b) {
   ['am', 'pm'].forEach(slot => {
-    const ka = `jjina_edit_${a}_${slot}`, kb = `jjina_edit_${b}_${slot}`;
-    const va = localStorage.getItem(ka), vb = localStorage.getItem(kb);
-    if (vb === null) localStorage.removeItem(ka); else localStorage.setItem(ka, vb);
-    if (va === null) localStorage.removeItem(kb); else localStorage.setItem(kb, va);
+    const ka = `${a}_${slot}`, kb = `${b}_${slot}`;
+    const va = appState.edits[ka], vb = appState.edits[kb];
+    if (vb === undefined) delete appState.edits[ka]; else appState.edits[ka] = vb;
+    if (va === undefined) delete appState.edits[kb]; else appState.edits[kb] = va;
   });
 }
 function toggleSwapPicker(key) {
@@ -2155,9 +2191,9 @@ function selectSwapTarget(key) { pendingSwapTarget = key; rerender(); }
 function confirmSwap(a, b) {
   if (!swapEligibleKey(a) || !swapEligibleKey(b) || a === b) return;
   applySwap(a, b);
-  swapEditStorage(a, b);     /* 편집 저장키도 음식 따라 이동 */
-  swapLog.push([a, b]);
-  persistSwaps();
+  swapEditStorage(a, b);     /* 편집 데이터도 음식 따라 이동 */
+  appState.swaps.push([a, b]);
+  saveAppState();            /* 모든 기기 동기화 */
   swapOpenKey = null;
   pendingSwapTarget = null;
   rerender();
@@ -2166,12 +2202,12 @@ function confirmSwap(a, b) {
   swapUndoTimer = setTimeout(hideSwapUndoToast, 5000);
 }
 function undoLastSwap() {
-  if (!swapLog.length) return;
+  if (!appState.swaps.length) return;
   if (swapUndoTimer) { clearTimeout(swapUndoTimer); swapUndoTimer = null; }
-  const [a, b] = swapLog.pop();
+  const [a, b] = appState.swaps.pop();
   applySwap(a, b);          // self-inverse → 원복
-  swapEditStorage(a, b);    // 편집 저장키도 원복
-  persistSwaps();
+  swapEditStorage(a, b);    // 편집 데이터도 원복
+  saveAppState();
   hideSwapUndoToast();
   rerender();
 }
@@ -2222,17 +2258,9 @@ function swapPickerHtml(srcKey) {
   return h;
 }
 
-/* localStorage 상태 복원 (기존 로직 유지) */
+/* 동기화 상태(저녁완료·메모·아침건너뜀) 복원 — Supabase appState 기반 */
 function loadLocalState() {
-  Object.keys(meals).forEach(key => {
-    if (localStorage.getItem(`jjina_am_skip_${key}`) === '1') {
-      meals[key].amSkipped = true;
-    }
-    if (localStorage.getItem(`jjina_pm_done_${key}`) === '1') {
-      meals[key].pmDone = true;
-      meals[key].pmMemo = localStorage.getItem(`jjina_pm_memo_${key}`) || '섭취완료';
-    }
-  });
+  applySyncedState();
 }
 
 /* ================================================
@@ -2391,11 +2419,11 @@ function backFromMonthly() { switchTab(lastTab); }
 async function init() {
   curMonth = TODAY.getMonth();
   sel = new Date(TODAY);
-  loadSwaps();
-  replaySwaps();        /* 저장된 날짜 교환 이력을 식단에 재적용 (완료기록 로드 전) */
-  loadEdits();          /* 저장된 인라인 편집 복원 (표시 날짜 기준) */
-  await loadMealLog();
-  loadLocalState();
+  await loadAppState();  /* 교환·편집·저녁완료·건너뜀 상태를 Supabase에서 로드 (모든 기기 동일) */
+  replaySwaps();         /* 날짜 교환 이력을 식단에 재적용 (완료기록 로드 전) */
+  loadEdits();           /* 인라인 편집 복원 (표시 날짜 기준) */
+  await loadMealLog();   /* 아침 완료/메모 (날짜별, 이미 동기화) */
+  loadLocalState();      /* 저녁완료·메모·아침건너뜀 반영 */
   await loadStocks();
   await loadShops();
   await autoAddUpcoming();   /* NEW 식재료 2일 전 자동 추가 */
