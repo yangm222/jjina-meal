@@ -83,6 +83,8 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .sec-title { font-family:'Paperlogy',sans-serif; display:flex; align-items:center; gap:8px; padding: 14px 18px 6px; font-size: 16px; font-weight: 600; color:#1f1a18; }
 .sec-title .accent { color: var(--coral); }
 .stock-warn { margin-left:auto; font-size: 11px; font-weight: 600; color: var(--coral-deep); white-space: nowrap; }
+.deadline-warn { margin-left:auto; display:inline-flex; align-items:center; gap:4px; font-size: 11px; font-weight: 700; color: #1f1a18; white-space: nowrap; }
+.deadline-warn .dw-icon { font-size: 12px; }
 
 /* ===== 중기 전환 배너 ===== */
 .mid-banner { margin: 6px 16px 0; background: var(--coral-grad); padding: 14px 16px; border-radius: 16px; }
@@ -165,6 +167,11 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .todo-name { flex:1; font-size:14px; font-weight:600; color:var(--coral-deep); }
 .todo-action { font-size:12px; font-weight:700; color:#9a938f; white-space:nowrap; }
 .todo-empty { font-size:13px; color:#9a938f; padding:4px 0 2px; }
+
+/* 마감 임박(D-2 이하) 행 — 배경 없음, 텍스트 블랙, D-day 칩만 코랄 강조 */
+.todo-row.imminent .todo-dot { background:#1f1a18; }
+.todo-row.imminent .todo-name { color:#1f1a18; }
+.todo-row.imminent .todo-dday { color:var(--coral-deep) !important; font-weight:700; }
 
 /* ===== 아코디언 (카드 형태) ===== */
 .acc { margin: 8px 16px 0; background: var(--card); border-radius: 18px; overflow: hidden; box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
@@ -488,10 +495,9 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .reaction-chip { display:flex; align-items:center; gap:4px; background:#faf8f6; border:1.5px solid var(--border); border-radius:18px; padding:5px 11px; font-size:12px; font-weight:600; color:#6e6661; }
 .reaction-chip .re-e { font-size:13px; }
 .reaction-chip.selected { background:#fff1f1; border-color:var(--coral); color:var(--coral-deep); }
-.reaction-chip.tone-warn { border-color:#f3c9c0; color:var(--coral-deep); }
-.reaction-chip.tone-warn.selected { background:#fdeae6; border-color:var(--coral-deep); color:var(--coral-deep); }
-.reaction-chip.tone-short { border-color:#dcd6d1; color:#8a837e; }
-.reaction-chip.tone-short.selected { background:#efebe8; border-color:#a89f99; color:#5f5853; }
+/* 주의·부족함: 별도 차원 플래그 → 기본부터 한 톤 낮은 그레이 배경, 선택 시 더 진하게 */
+.reaction-chip.tone-warn, .reaction-chip.tone-short { background:#eeeae6; border-color:#eeeae6; color:#7a736e; }
+.reaction-chip.tone-warn.selected, .reaction-chip.tone-short.selected { background:#ddd7d1; border-color:#ddd7d1; color:#3e3935; }
 .intro-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0; border-bottom:1px solid var(--border); }
 .intro-row:last-child { border-bottom:none; }
 .intro-name { font-size:13px; font-weight:700; color:#1f1a18; min-width:56px; }
@@ -933,7 +939,7 @@ function renderStrip() {
     if (isToday(d)) cls += " today";
     if (d.toDateString() === sel.toDateString()) cls += " selected";
     if (data && isDayDone(data)) cls += " done-day";
-    html += `<div class="${cls}" onclick="pick(${d.getFullYear()},${d.getMonth()},${d.getDate()})"><div class="dn">${day}</div>${isSwappedDay(dk(d)) ? '<span class="swap-dot"></span>' : ''}</div>`;
+    html += `<div class="${cls}" onclick="pick(${d.getFullYear()},${d.getMonth()},${d.getDate()})"><div class="dn">${day}</div></div>`;
   }
   stripEl.innerHTML = html;
   setTimeout(() => {
@@ -1152,6 +1158,11 @@ function mealCardsHtml(d) {
 
 /* 오늘 식단의 재고 부족 경고 텍스트 */
 function todayWarnHtml(data) {
+  // 마감 임박(D-2 이하) 재료가 있으면 최우선으로 헤더에 각인
+  const imminent = imminentDeadlineStocks();
+  if (imminent.length) {
+    return `<span class="deadline-warn"><span class="dw-icon">⚠️</span>마감 임박 재료가 있습니다</span>`;
+  }
   if (!data || dbStocks.length === 0) return '';
   const items = [...(data.amEdited || data.am || []), ...(data.pmEdited || data.pm || [])];
   const lowNames = [];
@@ -1184,6 +1195,15 @@ function deadlineInfo(name) {
   const deadline = new Date(use); deadline.setDate(use.getDate() - 2);
   const dday = Math.round((dateOnly(deadline) - dateOnly(TODAY)) / 86400000);
   return { use, deadline, dday };
+}
+/* 마감 임박(데드라인 D-2 이하) 이면서 재고 부족인 재료 목록 */
+function imminentDeadlineStocks() {
+  if (!dbStocks.length) return [];
+  return dbStocks.filter(s => {
+    if (s.amount > s.low_alert) return false;       // 재고 충분하면 제외
+    const info = deadlineInfo(s.name);
+    return info && info.dday <= 2;                    // 마감 2일 이내
+  });
 }
 /* D-day 칩 HTML (오늘 할 일 / 장볼 재료 공용) */
 function ddayChipHtml(name, cls) {
@@ -1455,7 +1475,6 @@ function recordCalHtml(month) {
     html += `<div class="${cls}"${click}>
       <div class="rcal-dn">${d}</div>
       ${mark ? `<div class="rcal-emoji">${mark}</div>` : ''}
-      ${isSwappedDay(dk(dObj)) ? '<span class="swap-dot"></span>' : ''}
     </div>`;
   }
   const rem = (first + last) % 7;
@@ -1560,9 +1579,16 @@ function todoCardHtml() {
   if (low.length === 0) {
     rows = `<div class="todo-empty">재고가 넉넉해요 · 오늘 장볼 건 없어요 ✓</div>`;
   } else {
-    rows = low.map(s => {
+    // 마감 임박(D-2 이하) 재료를 위로 정렬
+    const isImminent = s => {
+      const info = deadlineInfo(s.name);
+      return info && info.dday <= 2;
+    };
+    const sorted = [...low].sort((a, b) => (isImminent(b) - isImminent(a)));
+    rows = sorted.map(s => {
       const out = s.amount <= 0;
-      return `<div class="todo-row" onclick="goShop()">
+      const imminent = isImminent(s);
+      return `<div class="todo-row${imminent ? ' imminent' : ''}" onclick="goShop()">
         <span class="todo-dot"></span>
         <span class="todo-name">${esc(s.name)} ${out ? '소진' : '부족'}</span>
         ${ddayChipHtml(s.name, 'todo-dday')}
@@ -1954,18 +1980,26 @@ async function checkPmDone(dateKey) {
   data.pmMemo = memo;
   appState.pmDone[dateKey] = true;
   appState.pmMemo[dateKey] = memo;
+  appState.pmStock[dateKey] = stockChanges;
   saveAppState();
 
   await loadStocks(); rerender();
 }
-function cancelPmDone(dateKey) {
-  if (!confirm('저녁 완료를 취소할까요?')) return;
+async function cancelPmDone(dateKey) {
+  if (!confirm('저녁 완료를 취소할까요? 차감된 재고가 복구됩니다.')) return;
   const data = meals[dateKey]; if (!data) return;
+  // 차감했던 재고 복구
+  const changes = appState.pmStock[dateKey] || [];
+  for (const change of changes) {
+    const stock = dbStocks.find(s => s.id === change.id);
+    if (stock) await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
+  }
   data.pmDone = false; data.pmMemo = '';
   delete appState.pmDone[dateKey];
   delete appState.pmMemo[dateKey];
+  delete appState.pmStock[dateKey];
   saveAppState();
-  rerender();
+  await loadStocks(); rerender();
 }
 function showPmMemoEdit() {
   const w = document.getElementById('pm-memo-edit-wrap'); if (w) w.style.display = 'block';
@@ -2069,7 +2103,7 @@ function addEditRow(dateKey, slot) {
    - 아침 완료/메모는 기존처럼 meal_log의 해당 날짜 행(이미 동기화됨)
 ================================================ */
 const STATE_ROW = '_appstate';
-let appState = { swaps: [], edits: {}, pmDone: {}, pmMemo: {}, amSkip: {} };
+let appState = { swaps: [], edits: {}, pmDone: {}, pmMemo: {}, amSkip: {}, pmStock: {} };
 
 async function loadAppState() {
   try {
@@ -2083,6 +2117,7 @@ async function loadAppState() {
         pmDone: (s.pmDone && typeof s.pmDone === 'object') ? s.pmDone : {},
         pmMemo: (s.pmMemo && typeof s.pmMemo === 'object') ? s.pmMemo : {},
         amSkip: (s.amSkip && typeof s.amSkip === 'object') ? s.amSkip : {},
+        pmStock: (s.pmStock && typeof s.pmStock === 'object') ? s.pmStock : {},
       };
     }
   } catch (e) { console.error('앱 상태 로드 연결 오류:', e); }
