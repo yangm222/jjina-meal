@@ -525,8 +525,28 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .rcal-dn { font-size:11px; font-weight:600; }
 .rcal-cell.done .rcal-dn { color:var(--coral-deep); font-weight:800; }
 .rcal-emoji { font-size:13px; line-height:1; }
+/* 아침·저녁 2슬롯 아이콘 (작게 나란히) */
+.rcal-slots { display:flex; gap:2px; align-items:center; justify-content:center; line-height:1; }
+.rcal-slot { display:flex; flex-direction:column; align-items:center; gap:0; }
+.rcal-slot-ic { font-size:11px; line-height:1.1; }
+.rcal-slot-tag { font-size:7px; color:var(--text-sub); font-weight:700; line-height:1; }
+.rcal-cell.selected { box-shadow:inset 0 0 0 2px #1f1a18; }
+.rcal-cell.selected.today { box-shadow:inset 0 0 0 2px var(--coral); }
 .rcal-legend { display:flex; flex-wrap:wrap; gap:8px 12px; margin:12px 16px 0; padding:0 2px; }
 .rcal-legend span { font-size:11px; color:var(--text-sub); }
+/* 달력 하단 — 선택일 상세 (그날 아침/저녁 식단 + 메모) */
+.rcal-detail { margin:10px 16px 0; background:var(--card); border-radius:16px; padding:14px 16px; box-shadow:0 4px 18px rgba(60,45,40,0.06); }
+.rcal-detail-date { font-size:14px; font-weight:800; color:#1f1a18; margin-bottom:10px; font-family:'Paperlogy',sans-serif; }
+.rcal-detail-slot { padding:10px 0; border-bottom:1px solid var(--border); }
+.rcal-detail-slot:last-child { border-bottom:none; }
+.rcal-detail-slot-head { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+.rcal-detail-slot-lbl { font-size:12px; font-weight:700; color:var(--coral); }
+.rcal-detail-react { font-size:12px; font-weight:600; color:#6e6661; }
+.rcal-detail-items { font-size:13px; color:#3a3330; line-height:1.5; }
+.rcal-detail-items .ri-amt { color:var(--text-sub); font-weight:600; }
+.rcal-detail-memo { margin-top:6px; font-size:12px; color:#b06a4a; background:#faf6f4; border-radius:8px; padding:8px 10px; line-height:1.5; }
+.rcal-detail-empty { font-size:12px; color:#9a938f; padding:4px 0; }
+.rcal-detail-none { font-size:12px; color:#b3aca7; }
 </style>
 </head>
 <body>
@@ -716,71 +736,65 @@ const meals = {
   "6/24": { am:['조개 1팩','쌀 30g','한우 15g'], pm:['쌀 30g','두부 15g','단호박 15g'], note:'조개 관찰 2일차' },
   "6/25": { am:['조개 1팩','쌀 30g','한우 15g'], pm:['쌀 30g','한우 15g','양배추 15g'], note:'조개 관찰 3일차 · 신규 도입 완료' },
 
-  /* ── 6월 말 정리 (도입 없음, 쌀+단백질 로테이션) ── */
+  /* ── 6/26~27 정리 (도입 없음, 이미 섭취 완료) ── */
   "6/26": { am:['쌀 45g','두부 15g','단호박 15g'], pm:['쌀 30g','한우 15g','양배추 15g'] },
   "6/27": { am:['쌀 45g','한우 15g','애호박 15g'], pm:['쌀 30g','두부 15g','단호박 15g'] },
-  "6/28": { am:['쌀 45g','두부 15g','양배추 15g'], pm:['쌀 30g','한우 15g','애호박 15g'] },
-  "6/29": { am:['쌀 45g','한우 15g','단호박 15g'], pm:['쌀 30g','두부 15g','양배추 15g'] },
-  "6/30": { am:['쌀 45g','두부 15g','애호박 15g'], pm:['쌀 30g','한우 15g','단호박 15g'] },
 
-  /* ── 7월 (중기) ─────────────────────────────────────────────
-     · 쌀 매 끼 고정 + 단백질 로테이션
-     · 저위험(당근/닭고기) 2일 / 고위험(새우·흰살생선·대게·참깨·호두·메밀) 3일
-     · 입자전환(Lv.2/Lv.3)은 '도입 없는 정리일'로 분리 (도입 순서상 자연 배치)
-  ──────────────────────────────────────────────────────────── */
+  /* ── 6월 말: 당근 도입 시작 (6/28~, 저위험 2일) ── */
+  "6/28": { badge:{t:'new',x:'New 당근'}, am:['당근 15g','쌀 45g','한우 15g'], pm:['쌀 30g','두부 15g','단호박 15g'], note:'당근 관찰 1일차(저위험·2일)' },
+  "6/29": { am:['당근 20g','쌀 45g','한우 15g'], pm:['쌀 30g','두부 15g','양배추 15g'], note:'당근 관찰 2일차 · 도입완료' },
 
-  /* 중기 전환 + 당근 (저위험 2일) */
-  "7/1":  { badge:{t:'trans',x:'중기 이유식 시작'}, newBadge:{t:'new',x:'New 당근'}, midStart:true, am:['당근 15g','쌀 60g','한우 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'중기 전환 · 농도 쌀:물=1:5 · 당근 관찰 1일차(저위험·2일)' },
-  "7/2":  { am:['당근 20g','쌀 60g','한우 20g'], pm:['쌀 60g','한우 20g','단호박 20g'], note:'당근 관찰 2일차 · 도입완료' },
+  /* 닭고기 (저위험 2일) — 6/30~7/1, 7/1 중기전환 포함 */
+  "6/30": { badge:{t:'new',x:'New 닭고기'}, am:['닭고기 15g','쌀 45g','당근 15g'], pm:['쌀 30g','한우 15g','애호박 15g'], note:'닭고기 관찰 1일차(저위험·2일)' },
+  "7/1":  { badge:{t:'trans',x:'중기 이유식 시작'}, midStart:true, am:['닭고기 20g','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','단호박 20g'], note:'중기 전환 · 농도 쌀:물=1:5 · 닭고기 관찰 2일차 · 도입완료' },
 
-  /* 닭고기 (저위험 2일) */
-  "7/3":  { badge:{t:'new',x:'New 닭고기'}, am:['닭고기 15g','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'닭고기 관찰 1일차(저위험·2일)' },
-  "7/4":  { am:['닭고기 20g','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','단호박 20g'], note:'닭고기 관찰 2일차 · 도입완료' },
+  /* 새우 (고위험 3일) — 7/2~4 */
+  "7/2":  { badge:{t:'new',x:'New 새우'}, am:['새우 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'새우 관찰 1일차(고위험·3일)' },
+  "7/3":  { am:['새우 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'새우 관찰 2일차' },
+  "7/4":  { am:['새우 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'새우 관찰 3일차 · 도입완료' },
 
-  /* 새우 (고위험 3일) */
-  "7/5":  { badge:{t:'new',x:'New 새우'}, am:['새우 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'새우 관찰 1일차(고위험·3일)' },
-  "7/6":  { am:['새우 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'새우 관찰 2일차' },
-  "7/7":  { am:['새우 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'새우 관찰 3일차 · 도입완료' },
+  /* 흰살생선 (고위험 3일) — 7/5~7 */
+  "7/5":  { badge:{t:'new',x:'New 흰살생선'}, am:['흰살생선 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'흰살생선 관찰 1일차(고위험·3일)' },
+  "7/6":  { am:['흰살생선 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'흰살생선 관찰 2일차' },
+  "7/7":  { am:['흰살생선 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'흰살생선 관찰 3일차 · 도입완료' },
 
-  /* 흰살생선 (고위험 3일) */
-  "7/8":  { badge:{t:'new',x:'New 흰살생선'}, am:['흰살생선 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'흰살생선 관찰 1일차(고위험·3일)' },
-  "7/9":  { am:['흰살생선 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'흰살생선 관찰 2일차' },
-  "7/10": { am:['흰살생선 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'흰살생선 관찰 3일차 · 도입완료' },
+  /* 대게 (고위험 3일) — 7/8~10 */
+  "7/8":  { badge:{t:'new',x:'New 대게'}, am:['대게 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'대게 관찰 1일차(고위험·3일)' },
+  "7/9":  { am:['대게 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'대게 관찰 2일차' },
+  "7/10": { am:['대게 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'대게 관찰 3일차 · 도입완료' },
 
-  /* 대게 (고위험 3일) */
-  "7/11": { badge:{t:'new',x:'New 대게'}, am:['대게 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'대게 관찰 1일차(고위험·3일)' },
-  "7/12": { am:['대게 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'대게 관찰 2일차' },
-  "7/13": { am:['대게 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'대게 관찰 3일차 · 도입완료' },
+  /* 입자 Lv.2 전환 — 도입 없는 정리일 (7/11) */
+  "7/11": { badge:{t:'grain',x:'입자 Lv.2'}, am:['쌀 60g','한우 20g','당근 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'입자 Lv.2 전환 (신규 도입 없음)' },
 
-  /* 입자 Lv.2 전환 — 도입 없는 정리일 */
-  "7/14": { badge:{t:'grain',x:'입자 Lv.2'}, am:['쌀 60g','한우 20g','당근 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'입자 Lv.2 전환 (신규 도입 없음)' },
+  /* 참깨 (고위험 3일) — 7/12~14 */
+  "7/12": { badge:{t:'new',x:'New 참깨'}, am:['참깨 1팩','쌀 60g','닭고기 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'참깨 관찰 1일차(고위험·3일)' },
+  "7/13": { am:['참깨 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'참깨 관찰 2일차' },
+  "7/14": { am:['참깨 1팩','쌀 60g','한우 20g'], pm:['쌀 60g','닭고기 20g','양배추 20g'], note:'참깨 관찰 3일차 · 도입완료' },
 
-  /* 참깨 (고위험 3일) */
-  "7/15": { badge:{t:'new',x:'New 참깨'}, am:['참깨 1팩','쌀 60g','닭고기 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'참깨 관찰 1일차(고위험·3일)' },
-  "7/16": { am:['참깨 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'참깨 관찰 2일차' },
-  "7/17": { am:['참깨 1팩','쌀 60g','한우 20g'], pm:['쌀 60g','닭고기 20g','양배추 20g'], note:'참깨 관찰 3일차 · 도입완료' },
+  /* 호두 (고위험 3일) — 7/15~17 */
+  "7/15": { badge:{t:'new',x:'New 호두'}, am:['호두 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'호두 관찰 1일차(고위험·3일)' },
+  "7/16": { am:['호두 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'호두 관찰 2일차' },
+  "7/17": { am:['호두 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'호두 관찰 3일차 · 도입완료' },
 
-  /* 호두 (고위험 3일) */
-  "7/18": { badge:{t:'new',x:'New 호두'}, am:['호두 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'호두 관찰 1일차(고위험·3일)' },
-  "7/19": { am:['호두 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'호두 관찰 2일차' },
-  "7/20": { am:['호두 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'호두 관찰 3일차 · 도입완료' },
+  /* 입자 Lv.3 전환 — 도입 없는 정리일 (7/18) */
+  "7/18": { badge:{t:'grain',x:'입자 Lv.3'}, am:['쌀 60g','한우 20g','당근 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'입자 Lv.3 전환 (신규 도입 없음)' },
 
-  /* 입자 Lv.3 전환 — 도입 없는 정리일 */
-  "7/21": { badge:{t:'grain',x:'입자 Lv.3'}, am:['쌀 60g','한우 20g','당근 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'입자 Lv.3 전환 (신규 도입 없음)' },
+  /* 메밀 (고위험 3일) — 7/19~21, 신규 도입 마지막 */
+  "7/19": { badge:{t:'new',x:'New 메밀'}, am:['메밀 1팩','쌀 60g','닭고기 20g'], pm:['쌀 60g','한우 20g','단호박 20g'], note:'메밀 관찰 1일차(고위험·3일) · 알러지 반응 주의' },
+  "7/20": { am:['메밀 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'메밀 관찰 2일차' },
+  "7/21": { am:['메밀 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'메밀 관찰 3일차 · 신규 도입 전체 완료' },
 
-  /* 메밀 (고위험 3일) — 신규 도입 마지막 */
-  "7/22": { badge:{t:'new',x:'New 메밀'}, am:['메밀 1팩','쌀 60g','닭고기 20g'], pm:['쌀 60g','한우 20g','단호박 20g'], note:'메밀 관찰 1일차(고위험·3일) · 알러지 반응 주의' },
-  "7/23": { am:['메밀 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'메밀 관찰 2일차' },
-  "7/24": { am:['메밀 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'메밀 관찰 3일차 · 신규 도입 전체 완료' },
-
-  /* 7/25~31: 도입·전환 없음, 쌀+단백질 로테이션 */
-  "7/25": { am:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','한우 20g','당근 20g'] },
-  "7/26": { am:['쌀 60g','한우 20g','애호박 20g'], pm:['쌀 60g','닭고기 20g','양배추 20g'] },
-  "7/27": { am:['쌀 60g','흰살생선 20g','당근 20g'], pm:['쌀 60g','한우 20g','단호박 20g'] },
-  "7/28": { am:['쌀 60g','닭고기 20g','양배추 20g'], pm:['쌀 60g','한우 20g','애호박 20g'] },
-  "7/29": { am:['쌀 60g','새우 20g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'] },
-  "7/30": { am:['쌀 60g','한우 20g','당근 20g'], pm:['쌀 60g','대게 20g','애호박 20g'] },
-  "7/31": { am:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'] },
+  /* 7/22~31: 도입·전환 없음, 쌀+단백질 로테이션 */
+  "7/22": { am:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','한우 20g','당근 20g'] },
+  "7/23": { am:['쌀 60g','한우 20g','애호박 20g'], pm:['쌀 60g','닭고기 20g','양배추 20g'] },
+  "7/24": { am:['쌀 60g','흰살생선 20g','당근 20g'], pm:['쌀 60g','한우 20g','단호박 20g'] },
+  "7/25": { am:['쌀 60g','닭고기 20g','양배추 20g'], pm:['쌀 60g','한우 20g','애호박 20g'] },
+  "7/26": { am:['쌀 60g','새우 20g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'] },
+  "7/27": { am:['쌀 60g','한우 20g','당근 20g'], pm:['쌀 60g','대게 20g','애호박 20g'] },
+  "7/28": { am:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'] },
+  "7/29": { am:['쌀 60g','한우 20g','애호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'] },
+  "7/30": { am:['쌀 60g','메밀 20g','단호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'] },
+  "7/31": { am:['쌀 60g','닭고기 20g','당근 20g'], pm:['쌀 60g','한우 20g','애호박 20g'] },
 };
 
 /* 월별 재료 체크리스트 (월간 플래너) */
@@ -791,8 +805,13 @@ const CHECKLIST = {
 const REPEAT_MEMO = {
   6: [ {name:'땅콩', memo:'100% 땅콩버터 1~2g + 물/분유에 희석'} ],
   7: [
-    {name:'땅콩', memo:'100% 땅콩버터 1~2g + 쌀에 섞기 (주 2~3회 유지)'},
-    {name:'메밀', memo:'메밀가루 소량 쌀에 섞어 익히기 (가볍게 1~2회만)'},
+    {name:'땅콩', memo:'100% 땅콩버터 1~2g + 쌀죽에 섞기'},
+    {name:'새우', memo:'냉동새우 삶아 곱게 갈아 쌀죽에 섞기'},
+    {name:'흰살생선', memo:'대구·명태 삶아 으깨어 쌀죽에 섞기'},
+    {name:'대게', memo:'냉동게살 삶아 잘게 찢어 쌀죽에 섞기'},
+    {name:'참깨', memo:'참깨가루 or 참기름 소량 쌀죽에 섞기'},
+    {name:'호두', memo:'호두 삶아 곱게 갈아 쌀죽에 섞기'},
+    {name:'메밀', memo:'메밀가루 소량 쌀죽에 섞어 익히기'},
   ],
 };
 
@@ -907,6 +926,7 @@ let activeTab = 'home';
 let lastTab = 'home';
 let recordMonth = TODAY.getMonth();   // 0-index (4=5월 … 6=7월)
 let recordView = 'list';              // 'list' | 'cal'
+let recordSelDay = null;              // 달력에서 선택한 날짜 (1~31), 하단 상세 표시용
 
 /* 아기 반응 선택지 (섭취완료 시)
    순서: 먹은 양 스펙트럼(잘먹음→거의안먹음) → 별도 차원 플래그(주의·부족함, 다른 색) */
@@ -1390,7 +1410,7 @@ function renderMeal() {
 
 function renderStock() {
   const editBtn = stockEditMode
-    ? `<button class="panel-edit-btn on" onclick="cancelStockEdit()">완료</button>`
+    ? `<button class="panel-edit-btn on" onclick="cancelStockEdit()">취소</button>`
     : `<button class="panel-edit-btn" onclick="startStockEdit()">편집</button>`;
   let html = `<div class="tab-hd tab-hd-row">
     <div class="tab-title">재고</div>
@@ -1464,20 +1484,22 @@ function renderRecord() {
   html += `<div style="height:80px;"></div>`;
   document.getElementById('record-view').innerHTML = html;
 }
-function setRecordView(v) { recordView = v; renderRecord(); }
+function setRecordView(v) { recordView = v; recordSelDay = null; renderRecord(); }
 
-/* 기록 월간 달력 (완료 ✓ + 반응 이모지) */
+/* 기록 월간 달력 (아침·저녁 각각 반응 아이콘 + 선택일 하단 상세) */
 function recordCalHtml(month) {
   const y = 2026, m = month;
   const first = new Date(y, m, 1).getDay();   // 0=일
   const last = new Date(y, m + 1, 0).getDate();
   const recs = allRecords().filter(r => r.dateObj.getMonth() === m);
+  // 날짜별로 아침(am)·저녁(pm) 반응 이모지를 따로 보관
   const byDay = {};
   recs.forEach(r => {
     const d = r.dateObj.getDate();
-    if (!byDay[d]) byDay[d] = { emoji: '' };
-    const e = reactionEmojiOf(r.memo);
-    if (e && !byDay[d].emoji) byDay[d].emoji = e;
+    if (!byDay[d]) byDay[d] = { am: '', pm: '', amDone: false, pmDone: false };
+    const e = reactionEmojiOf(r.memo) || '✓';
+    if (r.which === 'am') { byDay[d].am = e; byDay[d].amDone = true; }
+    else { byDay[d].pm = e; byDay[d].pmDone = true; }
   });
 
   const WD = ['일','월','화','수','목','금','토'];
@@ -1492,18 +1514,102 @@ function recordCalHtml(month) {
     let cls = 'rcal-cell';
     if (rec) cls += ' done';
     if (isTod) cls += ' today';
-    const click = rec ? ` onclick="recordGoDate(${y},${m},${d})"` : '';
-    const mark = rec ? (rec.emoji || '✓') : '';
+    if (recordSelDay === d) cls += ' selected';
+    const click = rec ? ` onclick="recordPickDay(${d})"` : '';
+    // 아침·저녁 슬롯 아이콘 (각각 있으면 표시)
+    let slots = '';
+    if (rec) {
+      slots = `<div class="rcal-slots">`;
+      if (rec.amDone) slots += `<div class="rcal-slot"><span class="rcal-slot-ic">${rec.am}</span><span class="rcal-slot-tag">아</span></div>`;
+      if (rec.pmDone) slots += `<div class="rcal-slot"><span class="rcal-slot-ic">${rec.pm}</span><span class="rcal-slot-tag">저</span></div>`;
+      slots += `</div>`;
+    }
     html += `<div class="${cls}"${click}>
       <div class="rcal-dn">${d}</div>
-      ${mark ? `<div class="rcal-emoji">${mark}</div>` : ''}
+      ${slots}
     </div>`;
   }
   const rem = (first + last) % 7;
   if (rem) for (let i = 0; i < 7 - rem; i++) html += `<div class="rcal-cell empty"></div>`;
   html += `</div></div>`;
-  html += `<div class="rcal-legend">${REACTIONS.map(r=>`<span>${r.e} ${r.t}</span>`).join('')}<span>✓ 기록 있음</span></div>`;
+  html += `<div class="rcal-legend">${REACTIONS.map(r=>`<span>${r.e} ${r.t}</span>`).join('')}<span>✓ 기록 있음 · 아=아침 저=저녁</span></div>`;
+  // 선택일 상세 패널
+  html += recordDetailHtml(month);
   return html;
+}
+
+/* 달력 하단 — 선택한 날짜의 아침/저녁 식단 + 섭취 메모 */
+function recordDetailHtml(month) {
+  if (recordSelDay == null) return '';
+  const y = 2026, m = month, d = recordSelDay;
+  const key = `${m + 1}/${d}`;
+  const data = meals[key];
+  const dObj = new Date(y, m, d);
+  const dateLbl = `${m + 1}월 ${d}일 ${dows(dObj)}요일`;
+  let html = `<div class="rcal-detail"><div class="rcal-detail-date">${dateLbl}</div>`;
+  if (!data) {
+    html += `<div class="rcal-detail-empty">이 날은 식단 정보가 없어요</div></div>`;
+    return html;
+  }
+  // 슬롯별 렌더 (아침 → 저녁)
+  const slots = [
+    { key: 'am', lbl: data.pm ? '아침' : '이유식', items: data.amEdited || data.am, done: data.done, memo: data.memo },
+    ...(data.pm ? [{ key: 'pm', lbl: '저녁', items: data.pmEdited || data.pm, done: data.pmDone, memo: data.pmMemo }] : []),
+  ];
+  slots.forEach(s => {
+    if (!s.items) return;
+    const itemsTxt = s.items.map(raw => {
+      const it = parseItem(raw);
+      return `${esc(it.name)}${it.amount ? ` <span class="ri-amt">${esc(it.amount)}</span>` : ''}`;
+    }).join(' · ');
+    const react = s.done ? reactionTextOf(s.memo) : '';
+    const reactHtml = react ? `<span class="rcal-detail-react">${esc(react)}</span>` : (s.done ? '' : `<span class="rcal-detail-none">미기록</span>`);
+    let memoHtml = '';
+    if (s.done && s.memo && s.memo !== '섭취완료') {
+      // 메모에서 반응 텍스트 부분을 빼고 순수 메모만 (있으면)
+      const pureMemo = pureMemoOf(s.memo);
+      if (pureMemo) memoHtml = `<div class="rcal-detail-memo">📝 ${esc(pureMemo)}</div>`;
+    }
+    html += `<div class="rcal-detail-slot">
+      <div class="rcal-detail-slot-head">
+        <span class="rcal-detail-slot-lbl">${esc(s.lbl)}</span>
+        ${reactHtml}
+      </div>
+      <div class="rcal-detail-items">${itemsTxt}</div>
+      ${memoHtml}
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+/* memo 문자열에서 반응(이모지+텍스트) 부분만 추출 */
+function reactionTextOf(memo) {
+  if (!memo) return '';
+  const r = REACTIONS.find(x => memo.includes(x.t));
+  return r ? `${r.e} ${r.t}` : '';
+}
+/* memo에서 반응 부분을 제거한 순수 메모만 추출 (형식: "😊 잘 먹음 · 실제메모") */
+function pureMemoOf(memo) {
+  if (!memo) return '';
+  const r = REACTIONS.find(x => memo.includes(x.t));
+  if (!r) return (memo === '섭취완료') ? '' : memo;
+  // "이모지 텍스트 · 메모" 에서 뒷부분만
+  const idx = memo.indexOf('·');
+  return idx >= 0 ? memo.slice(idx + 1).trim() : '';
+}
+
+function recordPickDay(d) {
+  // 같은 날 다시 누르면 닫기 (토글)
+  recordSelDay = (recordSelDay === d) ? null : d;
+  renderRecord();
+  // 상세가 열렸으면 살짝 스크롤해서 보이게
+  if (recordSelDay != null) {
+    setTimeout(() => {
+      const el = document.querySelector('.rcal-detail');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 80);
+  }
 }
 function recordGoDate(y, m, d) {
   sel = new Date(y, m, d);
@@ -1512,6 +1618,7 @@ function recordGoDate(y, m, d) {
 }
 function changeRecordMonth(dir) {
   recordMonth = Math.max(4, Math.min(6, recordMonth + dir));
+  recordSelDay = null;
   renderRecord();
 }
 
@@ -1568,7 +1675,7 @@ function renderMore() {
   html += accHtml('a-intro-more', '재료 도입 이력', introHistoryHtml());
   html += `<div class="panel">
     <div class="panel-title">앱 정보</div>
-    <div class="more-row"><span class="more-k">앱</span><span class="more-v">찐아 이유식 v5</span></div>
+    <div class="more-row"><span class="more-k">앱</span><span class="more-v">찐아 이유식 v6</span></div>
     <div class="more-row"><span class="more-k">사용자</span><span class="more-v">지나맘</span></div>
   </div>`;
   html += `<div style="height:80px;"></div>`;
@@ -1686,9 +1793,8 @@ function stockHtml() {
         </div>
         <div class="ec-warn" id="warn-${s.id}" style="display:${(s._tempBase != null && s._tempBase !== (s.base_g ?? 15)) ? 'block' : 'none'};">⚠️ 큐브 기준이 바뀌면 실제 재고와 달라질 수 있어요. 수량을 직접 확인해주세요.</div>
       </div>`).join('');
-    html += `<div style="display:flex;gap:8px;margin-top:4px;">
-      <button class="stock-save-all-btn" style="margin-top:0;" onclick="saveAllStocks()">전체 저장</button>
-      <button class="stock-cancel-btn" onclick="cancelStockEdit()">취소</button>
+    html += `<div style="margin-top:4px;">
+      <button class="stock-save-all-btn" style="margin-top:0;" onclick="saveAllStocks()">저장</button>
     </div>`;
   }
   return html;
