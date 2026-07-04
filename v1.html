@@ -137,6 +137,8 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .skip-am-btn { margin-top:10px; width:100%; padding:10px; background:none; border:none; font-size:12px; font-weight:600; color:#6e6661; text-align:center; }
 .skip-am-btn:active { opacity:0.6; }
 .undo-skip-btn { margin-top:10px; width:100%; padding:10px; background:none; border:none; font-size:12px; font-weight:600; color:#6e6661; }
+.shift-day-btn { margin:10px 0 2px; width:100%; padding:11px; background:#fbf6f4; border:1px dashed #e8b9a8; border-radius:10px; font-size:12px; font-weight:700; color:#c0613f; }
+.shift-day-btn:active { background:#f6ebe7; }
 .meal-card.am-skipped { opacity:0.5; }
 /* 저녁 잠금 래퍼 */
 .evening-wrap { margin: 8px 16px 0; }
@@ -648,7 +650,7 @@ let showShopAddForm = false;
 const START = new Date(2026, 4, 9);    // 이유식 시작 2026-05-09
 const TODAY = new Date();
 const BIRTH = new Date(2025, 10, 14);  // 2025-11-14
-const MID_START = new Date(2026, 6, 1);// 중기 전환 7/1
+const MID_START = new Date(2026, 6, 2);// 중기 전환 7/2 (7/1 소화 쉬어가기로 1일 연기)
 const TWO_MEAL_START = new Date(2026, 5, 8); // 2끼 전환 6/8 (참고용 — 실제 전환은 아래 PHASES가 결정)
 
 /* ================================================
@@ -663,10 +665,8 @@ const PHASES = [
     slots:[{key:'am', label:'이유식'}] },
   { id:'early2', from:new Date(2026,5,8), meals:2,
     slots:[{key:'am', label:'아침'}, {key:'pm', label:'저녁'}] },
-  /* 3끼 전환 — 날짜 확정되면 from 채우고 주석 해제 (lunch 완료 핸들러 연결 필요)
-  { id:'mid3', from:new Date(2026,?,?), meals:3,
+  { id:'mid3', from:new Date(2026,7,18), meals:3,
     slots:[{key:'am', label:'아침'}, {key:'lunch', label:'점심'}, {key:'pm', label:'저녁'}] },
-  */
 ];
 /* 해당 날짜에 적용되는 단계 반환 (가장 마지막으로 from을 지난 단계) */
 function phaseFor(d) {
@@ -746,79 +746,131 @@ const meals = {
 
   /* 닭고기 (저위험 2일) — 6/30~7/1, 7/1 중기전환 포함 */
   "6/30": { badge:{t:'new',x:'New 닭고기'}, am:['닭고기 15g','쌀 45g','당근 15g'], pm:['쌀 30g','한우 15g','애호박 15g'], note:'닭고기 관찰 1일차(저위험·2일)' },
-  "7/1":  { badge:{t:'trans',x:'중기 이유식 시작'}, midStart:true, am:['닭고기 20g','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','단호박 20g'], note:'중기 전환 · 농도 쌀:물=1:5 · 닭고기 관찰 2일차 · 도입완료' },
+  "7/1":  { am:['쌀미음 60g'], pm:['쌀미음 60g'], note:'🩺 소화 쉬어가기 — 묽은 변으로 쌀미음만. 오전 경과 보고 필요시 오후 소아과' },
 
-  /* 새우 (고위험 3일) — 7/2~4 */
-  "7/2":  { badge:{t:'new',x:'New 새우'}, am:['새우 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'새우 관찰 1일차(고위험·3일)' },
-  "7/3":  { am:['새우 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'새우 관찰 2일차' },
-  "7/4":  { am:['새우 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'새우 관찰 3일차 · 도입완료' },
+  /* ═══════════ 🩺 장염 회복기 (7/2~7/28): 신규 재료 중단, 통과 재료만 로테이션 ═══════════ */
+  /* 7/2·7/3: 실제 먹인 회복식으로 기록 고정 (새우 미도입 → New 배지·midStart 제거, 중기 마커만 유지) */
+  "7/2":  { badge:{t:'trans',x:'중기 이유식 시작'}, midStart:true, done:true, pmDone:true, am:['쌀 60g'], pm:['쌀 60g','단호박 15g'], note:'🩺 장염 회복 후 중기 입자 전환 · 쌀죽 위주 · 중기 농도 유지(쌀:물=1:5) · 신규 재료 중단' },
+  "7/3":  { done:true, pmDone:true, am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'🩺 장염 회복 · 통과 재료만' },
 
-  /* 흰살생선 (고위험 3일) — 7/5~7 */
-  "7/5":  { badge:{t:'new',x:'New 흰살생선'}, am:['흰살생선 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'흰살생선 관찰 1일차(고위험·3일)' },
-  "7/6":  { am:['흰살생선 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'흰살생선 관찰 2일차' },
-  "7/7":  { am:['흰살생선 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'흰살생선 관찰 3일차 · 도입완료' },
+  /* 7/4~7/28 회복기 로테이션 (신규 없음, 2끼, 오트밀 화·금 아침) */
+  "7/4":  { am:['쌀 60g','한우 20g','애호박 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'] },
+  "7/5":  { am:['쌀 60g','두부 20g','땅콩 1팩'], pm:['쌀 60g','한우 20g','양배추 20g'] },
+  "7/6":  { am:['쌀 60g','닭고기 20g','감자 20g'], pm:['쌀 60g','조개 20g','고구마 20g'] },
+  "7/7":  { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 20g','애호박 20g'] },
+  "7/8":  { am:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','두부 20g','당근 20g'] },
+  "7/9":  { am:['쌀 60g','한우 20g','양배추 20g'], pm:['쌀 60g','닭고기 20g','감자 20g'] },
+  "7/10": { am:['쌀 45g','조개 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 20g','브로콜리 20g'] },
+  "7/11": { am:['쌀 60g','한우 20g','애호박 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'] },
+  "7/12": { am:['쌀 60g','두부 20g','땅콩 1팩'], pm:['쌀 60g','한우 20g','양배추 20g'] },
+  "7/13": { am:['쌀 60g','닭고기 20g','감자 20g'], pm:['쌀 60g','조개 20g','고구마 20g'] },
+  "7/14": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 20g','애호박 20g'] },
+  "7/15": { am:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','두부 20g','당근 20g'] },
+  "7/16": { am:['쌀 60g','한우 20g','양배추 20g'], pm:['쌀 60g','닭고기 20g','감자 20g'] },
+  "7/17": { am:['쌀 45g','조개 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 20g','브로콜리 20g'] },
+  "7/18": { am:['쌀 60g','한우 20g','애호박 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'] },
+  "7/19": { am:['쌀 60g','두부 20g','땅콩 1팩'], pm:['쌀 60g','한우 20g','양배추 20g'] },
+  "7/20": { am:['쌀 60g','닭고기 20g','감자 20g'], pm:['쌀 60g','조개 20g','고구마 20g'] },
+  "7/21": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 20g','애호박 20g'] },
+  "7/22": { am:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','두부 20g','당근 20g'] },
+  "7/23": { am:['쌀 60g','한우 20g','양배추 20g'], pm:['쌀 60g','닭고기 20g','감자 20g'] },
+  "7/24": { am:['쌀 45g','조개 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 20g','브로콜리 20g'] },
+  "7/25": { am:['쌀 60g','한우 20g','애호박 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'] },
+  "7/26": { am:['쌀 60g','두부 20g','땅콩 1팩'], pm:['쌀 60g','한우 20g','양배추 20g'] },
+  "7/27": { am:['쌀 60g','닭고기 20g','감자 20g'], pm:['쌀 60g','조개 20g','고구마 20g'] },
+  "7/28": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 20g','애호박 20g'] },
 
-  /* 대게 (고위험 3일) — 7/8~10 */
-  "7/8":  { badge:{t:'new',x:'New 대게'}, am:['대게 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'대게 관찰 1일차(고위험·3일)' },
-  "7/9":  { am:['대게 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'대게 관찰 2일차' },
-  "7/10": { am:['대게 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'대게 관찰 3일차 · 도입완료' },
+  /* ═══════════ 알러지 테스트 재개 (7/29~8/17, 2끼) — 회복 후 신규 도입 ═══════════ */
+  /* 새우 (고위험·3일) — 7/29~31 */
+  "7/29": { badge:{t:'new',x:'New 새우'}, am:['새우 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'🍤 회복 후 신규 도입 재개 · 새우 관찰 1일차(고위험·3일)' },
+  "7/30": { am:['새우 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'새우 관찰 2일차' },
+  "7/31": { am:['새우 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'새우 관찰 3일차 · 도입완료' },
 
-  /* 입자 Lv.2 전환 — 도입 없는 정리일 (7/11) */
-  "7/11": { badge:{t:'grain',x:'입자 Lv.2'}, am:['쌀 60g','한우 20g','당근 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'입자 Lv.2 전환 (신규 도입 없음)' },
+  /* ═══════════ 8월 (생후 9개월, 중기 후반) ═══════════ */
+  /* 흰살생선 (고위험·3일) — 8/1~3 */
+  "8/1":  { badge:{t:'new',x:'New 흰살생선'}, am:['흰살생선 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'흰살생선 관찰 1일차(고위험·3일)' },
+  "8/2":  { am:['흰살생선 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'흰살생선 관찰 2일차' },
+  "8/3":  { am:['흰살생선 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'흰살생선 관찰 3일차 · 도입완료' },
 
-  /* 참깨 (고위험 3일) — 7/12~14 */
-  "7/12": { badge:{t:'new',x:'New 참깨'}, am:['참깨 1팩','쌀 60g','닭고기 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'참깨 관찰 1일차(고위험·3일)' },
-  "7/13": { am:['참깨 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'참깨 관찰 2일차' },
-  "7/14": { am:['참깨 1팩','쌀 60g','한우 20g'], pm:['쌀 60g','닭고기 20g','양배추 20g'], note:'참깨 관찰 3일차 · 도입완료' },
+  /* 대게 (고위험·3일) — 8/4~6 */
+  "8/4":  { badge:{t:'new',x:'New 대게'}, am:['대게 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'대게 관찰 1일차(고위험·3일)' },
+  "8/5":  { am:['대게 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'대게 관찰 2일차' },
+  "8/6":  { am:['대게 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'대게 관찰 3일차 · 도입완료' },
 
-  /* 호두 (고위험 3일) — 7/15~17 */
-  "7/15": { badge:{t:'new',x:'New 호두'}, am:['호두 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'호두 관찰 1일차(고위험·3일)' },
-  "7/16": { am:['호두 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'호두 관찰 2일차' },
-  "7/17": { am:['호두 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'호두 관찰 3일차 · 도입완료' },
+  /* 입자 Lv.2 전환 — 도입 없는 정리일 (8/7) */
+  "8/7":  { badge:{t:'grain',x:'입자 Lv.2'}, am:['쌀 45g','한우 20g','당근 20g','오트밀 15g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'입자 Lv.2 전환 (신규 도입 없음)' },
 
-  /* 입자 Lv.3 전환 — 도입 없는 정리일 (7/18) */
-  "7/18": { badge:{t:'grain',x:'입자 Lv.3'}, am:['쌀 60g','한우 20g','당근 20g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'입자 Lv.3 전환 (신규 도입 없음)' },
+  /* 참깨 (고위험·3일) — 8/8~10 */
+  "8/8":  { badge:{t:'new',x:'New 참깨'}, am:['참깨 1팩','쌀 60g','닭고기 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'참깨 관찰 1일차(고위험·3일)' },
+  "8/9":  { am:['참깨 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'참깨 관찰 2일차' },
+  "8/10": { am:['참깨 1팩','쌀 60g','한우 20g'], pm:['쌀 60g','닭고기 20g','양배추 20g'], note:'참깨 관찰 3일차 · 도입완료' },
 
-  /* 메밀 (고위험 3일) — 7/19~21, 신규 도입 마지막 */
-  "7/19": { badge:{t:'new',x:'New 메밀'}, am:['메밀 1팩','쌀 60g','닭고기 20g'], pm:['쌀 60g','한우 20g','단호박 20g'], note:'메밀 관찰 1일차(고위험·3일) · 알러지 반응 주의' },
-  "7/20": { am:['메밀 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'메밀 관찰 2일차' },
-  "7/21": { am:['메밀 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'메밀 관찰 3일차 · 신규 도입 전체 완료' },
+  /* 호두 (고위험·3일) — 8/11~13 */
+  "8/11": { badge:{t:'new',x:'New 호두'}, am:['호두 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'호두 관찰 1일차(고위험·3일)' },
+  "8/12": { am:['호두 1팩','쌀 60g','애호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'호두 관찰 2일차' },
+  "8/13": { am:['호두 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'호두 관찰 3일차 · 도입완료' },
 
-  /* 7/22~31: 도입·전환 없음, 쌀+단백질 로테이션 */
-  "7/22": { am:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','한우 20g','당근 20g'] },
-  "7/23": { am:['쌀 60g','한우 20g','애호박 20g'], pm:['쌀 60g','닭고기 20g','양배추 20g'] },
-  "7/24": { am:['쌀 60g','흰살생선 20g','당근 20g'], pm:['쌀 60g','한우 20g','단호박 20g'] },
-  "7/25": { am:['쌀 60g','닭고기 20g','양배추 20g'], pm:['쌀 60g','한우 20g','애호박 20g'] },
-  "7/26": { am:['쌀 60g','새우 20g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'] },
-  "7/27": { am:['쌀 60g','한우 20g','당근 20g'], pm:['쌀 60g','대게 20g','애호박 20g'] },
-  "7/28": { am:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'] },
-  "7/29": { am:['쌀 60g','한우 20g','애호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'] },
-  "7/30": { am:['쌀 60g','메밀 20g','단호박 20g'], pm:['쌀 60g','한우 20g','양배추 20g'] },
-  "7/31": { am:['쌀 60g','닭고기 20g','당근 20g'], pm:['쌀 60g','한우 20g','애호박 20g'] },
+  /* 입자 Lv.3 전환 — 도입 없는 정리일 (8/14) */
+  "8/14": { badge:{t:'grain',x:'입자 Lv.3'}, am:['쌀 45g','한우 20g','당근 20g','오트밀 15g'], pm:['쌀 60g','닭고기 20g','애호박 20g'], note:'입자 Lv.3 전환 (신규 도입 없음)' },
+
+  /* 메밀 (고위험·3일) — 8/15~17, 신규 도입 마지막 */
+  "8/15": { badge:{t:'new',x:'New 메밀'}, am:['메밀 1팩','쌀 60g','닭고기 20g'], pm:['쌀 60g','한우 20g','단호박 20g'], note:'메밀 관찰 1일차(고위험·3일) · 알러지 반응 주의' },
+  "8/16": { am:['메밀 1팩','쌀 60g','단호박 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'메밀 관찰 2일차' },
+  "8/17": { am:['메밀 1팩','쌀 60g','당근 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'메밀 관찰 3일차 · 신규 도입 전체 완료' },
+
+  /* ── 8/18 3끼 전환 (점심 추가, 새 재료 없이 적응) ── */
+  "8/18": { badge:{t:'trans',x:'3끼 시작'}, mealStart3:true, am:['쌀 60g','닭고기 20g','당근 20g'], lunch:['쌀 60g','한우 20g','단호박 20g'], pm:['쌀 60g','흰살생선 20g','애호박 20g'], note:'3끼 전환 · 점심 추가 · 새 재료 없이 끼니 수 적응' },
+  "8/19": { am:['쌀 60g','한우 20g','애호박 20g'], lunch:['쌀 45g','닭고기 20g','당근 20g','오트밀 15g'], pm:['쌀 60g','새우 20g','단호박 20g'] },
+  "8/20": { am:['쌀 60g','닭고기 20g','양배추 20g'], lunch:['쌀 60g','한우 20g','단호박 20g'], pm:['쌀 60g','대게 20g','당근 20g'] },
+
+  /* 계란흰자 (고위험·3일) — 8/21~23, 오전 시작 */
+  "8/21": { badge:{t:'new',x:'New 계란흰자'}, am:['계란흰자 소량','쌀 60g','당근 20g'], lunch:['쌀 60g','닭고기 20g','애호박 20g'], pm:['쌀 60g','한우 20g','단호박 20g'], note:'흰자 관찰 1일차(고위험·3일) · 완숙 후 으깨어 소량부터 · 오전 시작' },
+  "8/22": { am:['계란흰자 1/4개','쌀 60g','애호박 20g'], lunch:['쌀 60g','한우 20g','양배추 20g'], pm:['쌀 60g','닭고기 20g','당근 20g'], note:'흰자 관찰 2일차' },
+  "8/23": { am:['계란흰자 1/3개','쌀 60g','당근 20g'], lunch:['쌀 45g','닭고기 20g','단호박 20g','오트밀 15g'], pm:['쌀 60g','한우 20g','양배추 20g'], note:'흰자 관찰 3일차 · 도입완료' },
+
+  /* 완충 (흰자 경과 관찰) — 8/24~25 */
+  "8/24": { am:['쌀 60g','닭고기 20g','양배추 20g'], lunch:['쌀 60g','한우 20g','단호박 20g'], pm:['쌀 60g','새우 20g','당근 20g'] },
+  "8/25": { am:['쌀 45g','한우 20g','애호박 20g','오트밀 15g'], lunch:['쌀 60g','닭고기 20g','당근 20g'], pm:['쌀 60g','대게 20g','단호박 20g'] },
+
+  /* 치즈 (중위험·3일) — 8/26~28, 무염 아기치즈 */
+  "8/26": { badge:{t:'new',x:'New 치즈'}, am:['아기치즈 1/3장','쌀 60g','당근 20g'], lunch:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','한우 20g','애호박 20g'], note:'치즈 관찰 1일차(중위험·3일) · 무염/저염 아기치즈 · 우유단백 첫 노출' },
+  "8/27": { am:['아기치즈 1/2장','쌀 60g','애호박 20g'], lunch:['쌀 60g','한우 20g','양배추 20g'], pm:['쌀 60g','닭고기 20g','단호박 20g'], note:'치즈 관찰 2일차' },
+  "8/28": { am:['아기치즈 1/2장','쌀 60g','당근 20g'], lunch:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','흰살생선 20g','양배추 20g'], note:'치즈 관찰 3일차 · 도입완료' },
+
+  /* 로테이션 (3끼) — 8/29~31 · 요거트는 9월 초로 이월 */
+  "8/29": { am:['쌀 60g','한우 20g','애호박 20g'], lunch:['쌀 60g','닭고기 20g','단호박 20g'], pm:['쌀 60g','메밀 20g','당근 20g'] },
+  "8/30": { am:['쌀 60g','닭고기 20g','단호박 20g'], lunch:['쌀 60g','한우 20g','양배추 20g'], pm:['쌀 60g','대게 20g','애호박 20g'] },
+  "8/31": { am:['쌀 60g','한우 20g','당근 20g'], lunch:['쌀 60g','닭고기 20g','애호박 20g'], pm:['쌀 60g','참깨 20g','단호박 20g'] },
 };
 
 /* 월별 재료 체크리스트 (월간 플래너) */
 const CHECKLIST = {
   6: ['쌀가루 (아이보리 1단계)','오트밀 파우더 (아이보리)','한우 우둔살 350g','달걀 (노른자용)','땅콩버터 100%','양배추','단호박','두부 (스푼타임 키트)','밀 (스푼타임 키트)','조개 (스푼타임 키트)','감자','애호박'],
-  7: ['쌀 (중기용)','한우 우둔살 350g','닭고기','당근','새우 (스푼타임 키트)','흰살생선 (스푼타임 키트)','대게 (스푼타임 키트)','참깨 (스푼타임 키트)','호두 (스푼타임 키트)','메밀 (스푼타임 키트)','애호박','단호박','양배추'],
+  7: ['쌀 (중기용)','한우 우둔살 350g','닭고기','두부','조개 (잔여분)','감자','고구마','브로콜리','당근','애호박','단호박','양배추','오트밀 파우더 (잔여분)','새우 (스푼타임 키트) — 7/29 재개'],
+  8: ['쌀 (중기용)','한우 우둔살 350g','닭고기','흰살생선 (스푼타임 키트)','대게 (스푼타임 키트)','참깨 (스푼타임 키트)','호두 (스푼타임 키트)','메밀 (스푼타임 키트)','달걀 (흰자용)','아기치즈 (무염)','당근','애호박','단호박','양배추','오트밀 파우더 (잔여분)'],
 };
 const REPEAT_MEMO = {
   6: [ {name:'땅콩', memo:'100% 땅콩버터 1~2g + 물/분유에 희석'} ],
   7: [
-    {name:'땅콩', memo:'100% 땅콩버터 1~2g + 쌀죽에 섞기'},
-    {name:'새우', memo:'냉동새우 삶아 곱게 갈아 쌀죽에 섞기'},
+    {name:'땅콩', memo:'100% 땅콩버터 1~2g + 쌀죽에 섞기 (주 2~3회 반복 노출 유지)'},
+    {name:'새우', memo:'냉동새우 삶아 곱게 갈아 쌀죽에 섞기 (7/29 도입 재개)'},
+  ],
+  8: [
     {name:'흰살생선', memo:'대구·명태 삶아 으깨어 쌀죽에 섞기'},
     {name:'대게', memo:'냉동게살 삶아 잘게 찢어 쌀죽에 섞기'},
     {name:'참깨', memo:'참깨가루 or 참기름 소량 쌀죽에 섞기'},
     {name:'호두', memo:'호두 삶아 곱게 갈아 쌀죽에 섞기'},
     {name:'메밀', memo:'메밀가루 소량 쌀죽에 섞어 익히기'},
+    {name:'계란흰자', memo:'완숙 흰자 으깨어 소량부터 (노른자 통과 후 단계적)'},
+    {name:'치즈', memo:'무염/저염 아기치즈 1/3장부터 쌀죽에 녹여 섞기'},
   ],
 };
 
 /* 알러지 유의사항 */
 const notices = [
   "오트밀: 글루텐 프리 인증 제품 사용",
-  "노른자: 완숙 후 으깨어 사용 / 흰자는 돌 이후",
+  "노른자: 완숙 후 으깨어 사용",
+  "계란흰자: 만 9개월경 완숙 흰자 소량부터 (노른자 통과 후, 고위험 3일 관찰 · 8/21~)",
   "땅콩: 첫날 반드시 오전 + 병원 진료 가능 시간",
   "땅콩: 주 2~3회 반복 노출 필수",
   "새 식재료: 3일 이상 단독 관찰",
@@ -830,7 +882,12 @@ const notices = [
   "새우/대게: 껍질·내장 완전 제거 후 사용",
   "흰살생선: 가시 완전 제거, 대구·명태 등 담백한 종류 추천",
   "메밀: 알러지 반응 강할 수 있음 — 반드시 오전 소량부터",
-  "중기 전환(7/1~): 농도 쌀:물=1:5, 1회 목표량 60~120g",
+  "치즈: 무염·무가당 제품 / 돌 전 생우유는 음료로 금지 (8/26~)",
+  "🩺 장염 회복기(7/2~7/28): 신규 재료 전면 중단, 통과한 재료로만 로테이션 · 농도·양은 평소대로 유지",
+  "🍤 신규 도입 재개: 7/29 새우부터 순차 재개 (재진 결과에 따라 하루 밀기로 조정)",
+  "요거트: 8월 자리 부족으로 9월 초 이월 예정 (무가당 플레인, 치즈 통과 후)",
+  "중기 전환(7/2~): 농도 쌀:물=1:5, 1회 목표량 60~120g",
+  "3끼 전환(8/18~): 점심 추가, 새 재료 없이 끼니 수 적응",
 ];
 
 /* ================================================
@@ -1073,10 +1130,16 @@ function mealCardsHtml(d) {
   phase.slots.forEach(s => { slotLabel[s.key] = s.label; });
 
   const isTwomeal = phase.meals >= 2 && !!data.pm;
+  const hasLunch  = phase.meals >= 3 && !!data.lunch;
   const amSkipped = !!data.amSkipped;
   const amDone    = !!data.done;
+  const lunchDone = !!data.lunchDone;
+  const lunchSkipped = !!data.lunchSkipped;
   const pmDone    = !!data.pmDone;
-  const pmUnlocked = amDone || amSkipped;
+  const amCleared = amDone || amSkipped;
+  const lunchCleared = lunchDone || lunchSkipped;
+  const lunchUnlocked = amCleared;
+  const pmUnlocked = hasLunch ? lunchCleared : amCleared;
   const swapping  = (swapOpenKey === key);  /* 교환 모드: 섭취 입력 섹션 접고 피커 노출 */
   const amEditMode = !!data.amEditMode;
   const amEditBtn = (!amDone && !amSkipped && !amEditMode)
@@ -1149,6 +1212,64 @@ function mealCardsHtml(d) {
   }
   html += `</div>`; /* /아침 카드 */
 
+  /* ── 점심 카드 (3끼일 때만) ── */
+  if (hasLunch) {
+    if (!lunchUnlocked) {
+      html += `<div class="evening-wrap">
+        <div class="pm-locked-card">
+          <div class="meal-card-head"><span class="meal-lbl">${slotLabel.lunch || '점심'}</span><span style="margin-left:auto;font-size:16px;opacity:0.5;">🔒</span></div>
+          <div class="meal-rows">${mealRowsHtml(data.lunch)}</div>
+        </div>
+      </div>`;
+    } else if (lunchSkipped) {
+      html += `<div class="meal-card am-skipped">
+        <div class="meal-card-head">
+          <span class="meal-lbl">${slotLabel.lunch || '점심'}</span>
+          <span class="skip-badge">건너뜀</span>
+        </div>
+        <div class="meal-rows">${mealRowsHtml(data.lunch, key, 'lunch')}</div>
+        <button class="undo-skip-btn" onclick="skipLunch('${key}')">↩ 점심 건너뜀 취소</button>
+      </div>`;
+    } else if (lunchDone) {
+      html += `<div class="meal-card dimmed">
+        <div class="meal-card-head">
+          <span class="meal-lbl">${slotLabel.lunch || '점심'}</span>
+          <span class="pm-done-badge">✓ 완료</span>
+        </div>
+        <div class="meal-rows">${mealRowsHtml(data.lunch, key, 'lunch')}</div>
+        <div class="memo-done" style="margin-top:14px;">
+          <div class="memo-done-head">
+            <div class="pm-done-lbl">📝 섭취 기록</div>
+            <div style="display:flex;gap:6px;">
+              <button class="memo-edit-btn" onclick="showLunchMemoEdit()">수정</button>
+              <button class="memo-edit-btn" style="color:var(--coral-deep);border-color:#f5c4b3;" onclick="cancelLunchDone('${key}')">취소</button>
+            </div>
+          </div>
+          <div class="memo-txt" id="lunch-memo-display-txt">${esc(data.lunchMemo || '섭취완료')}</div>
+          <div class="memo-edit-wrap" id="lunch-memo-edit-wrap">
+            ${reactionRowHtml('lunch')}
+            <textarea id="lunch-memo-input" class="memo-input" rows="2">${esc(data.lunchMemo || '')}</textarea>
+            <button class="memo-save-btn" onclick="updateLunchMemo('${key}')">저장</button>
+          </div>
+        </div>
+      </div>`;
+    } else {
+      const lunchEditMode = !!data.lunchEditMode;
+      const lunchEditBtn = !lunchEditMode ? `<button class="card-edit-btn" onclick="startEdit('${key}','lunch')">편집</button>` : '';
+      html += `<div class="meal-card">
+        <div class="meal-card-head"><span class="meal-lbl">${slotLabel.lunch || '점심'}</span>${lunchEditBtn}</div>
+        <div class="meal-rows">${mealRowsHtml(data.lunch, key, 'lunch')}</div>
+        <div class="memo-block">
+          ${reactionRowHtml('lunch')}
+          <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
+          <textarea id="lunch-memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+          <button class="check-btn pm-btn" onclick="checkLunchDone('${key}')">✓ 섭취 완료</button>
+          <button class="skip-am-btn" onclick="skipLunch('${key}')">점심 건너뜀</button>
+        </div>
+      </div>`;
+    }
+  }
+
   if (isTwomeal) {
     if (!pmUnlocked) {
       html += `<div class="evening-wrap">
@@ -1193,6 +1314,14 @@ function mealCardsHtml(d) {
           <button class="check-btn pm-btn" onclick="checkPmDone('${key}')">✓ 섭취 완료</button>
         </div>
       </div>`;
+    }
+  }
+
+  /* 하루 미루기 (아침 미완료 + 오늘 이후일 때만) */
+  if (!amDone && !amSkipped && !swapping) {
+    const isPastDay = d < new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+    if (!isPastDay) {
+      html += `<button class="shift-day-btn" onclick="shiftFromDay('${key}')">↻ 오늘 쉬어가고 일정 하루 미루기</button>`;
     }
   }
   return html;
@@ -1290,6 +1419,10 @@ function allRecords() {
     if (data.done) {
       const items = (data.amEdited || data.am || []).map(parseItem);
       recs.push({ key, dateObj, slot: (data.pm ? '아침' : '이유식'), memo: data.memo || '섭취완료', items, which: 'am' });
+    }
+    if (data.lunchDone) {
+      const items = (data.lunchEdited || data.lunch || []).map(parseItem);
+      recs.push({ key, dateObj, slot: '점심', memo: data.lunchMemo || '섭취완료', items, which: 'lunch' });
     }
     if (data.pmDone) {
       const items = (data.pmEdited || data.pm || []).map(parseItem);
@@ -1463,7 +1596,7 @@ function renderRecord() {
       html += `<div class="empty-card">${recordMonth + 1}월 기록이 없어요</div>`;
     } else {
       html += recs.map(r => {
-        const cancelFn = r.which === 'am' ? `cancelDone('${r.key}')` : `cancelPmDone('${r.key}')`;
+        const cancelFn = r.which === 'am' ? `cancelDone('${r.key}')` : (r.which === 'lunch' ? `cancelLunchDone('${r.key}')` : `cancelPmDone('${r.key}')`);
         const itemsTxt = r.items.length
           ? r.items.map(it => `${esc(it.name)}${it.amount ? ` <span class="ri-amt">${esc(it.amount)}</span>` : ''}`).join(' · ')
           : '-';
@@ -1551,9 +1684,10 @@ function recordDetailHtml(month) {
     html += `<div class="rcal-detail-empty">이 날은 식단 정보가 없어요</div></div>`;
     return html;
   }
-  // 슬롯별 렌더 (아침 → 저녁)
+  // 슬롯별 렌더 (아침 → 점심 → 저녁)
   const slots = [
-    { key: 'am', lbl: data.pm ? '아침' : '이유식', items: data.amEdited || data.am, done: data.done, memo: data.memo },
+    { key: 'am', lbl: (data.pm || data.lunch) ? '아침' : '이유식', items: data.amEdited || data.am, done: data.done, memo: data.memo },
+    ...(data.lunch ? [{ key: 'lunch', lbl: '점심', items: data.lunchEdited || data.lunch, done: data.lunchDone, memo: data.lunchMemo }] : []),
     ...(data.pm ? [{ key: 'pm', lbl: '저녁', items: data.pmEdited || data.pm, done: data.pmDone, memo: data.pmMemo }] : []),
   ];
   slots.forEach(s => {
@@ -1617,7 +1751,7 @@ function recordGoDate(y, m, d) {
   switchTab('meal');
 }
 function changeRecordMonth(dir) {
-  recordMonth = Math.max(4, Math.min(6, recordMonth + dir));
+  recordMonth = Math.max(4, Math.min(7, recordMonth + dir));
   recordSelDay = null;
   renderRecord();
 }
@@ -1675,7 +1809,7 @@ function renderMore() {
   html += accHtml('a-intro-more', '재료 도입 이력', introHistoryHtml());
   html += `<div class="panel">
     <div class="panel-title">앱 정보</div>
-    <div class="more-row"><span class="more-k">앱</span><span class="more-v">찐아 이유식 v6</span></div>
+    <div class="more-row"><span class="more-k">앱</span><span class="more-v">찐아 이유식 v7</span></div>
     <div class="more-row"><span class="more-k">사용자</span><span class="more-v">지나맘</span></div>
   </div>`;
   html += `<div style="height:80px;"></div>`;
@@ -2140,10 +2274,74 @@ function updatePmMemo(dateKey) {
   rerender();
 }
 
+/* 점심 섭취완료 / 취소 / 메모 / 건너뛰기 (3끼일 때만 사용) */
+async function checkLunchDone(dateKey) {
+  const data = meals[dateKey]; if (!data || !data.lunch) return;
+  const memo = composeMemo('lunch-reactions', 'lunch-memo-input');
+
+  const stockChanges = [];
+  for (const raw of (data.lunchEdited || data.lunch || [])) {
+    const { name, amount } = parseItem(raw);
+    const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
+    const useCount = calcUseCount(amount, stock.base_g || 15);
+    if (useCount <= 0) continue;
+    const actualDeduct = Math.min(useCount, stock.amount);
+    await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
+    stock.amount -= actualDeduct;
+    stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
+  }
+
+  data.lunchDone = true;
+  data.lunchMemo = memo;
+  appState.lunchDone[dateKey] = true;
+  appState.lunchMemo[dateKey] = memo;
+  appState.lunchStock[dateKey] = stockChanges;
+  saveAppState();
+
+  await loadStocks(); rerender();
+}
+async function cancelLunchDone(dateKey) {
+  if (!confirm('점심 완료를 취소할까요? 차감된 재고가 복구됩니다.')) return;
+  const data = meals[dateKey]; if (!data) return;
+  const changes = appState.lunchStock[dateKey] || [];
+  for (const change of changes) {
+    const stock = dbStocks.find(s => s.id === change.id);
+    if (stock) await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
+  }
+  data.lunchDone = false; data.lunchMemo = '';
+  delete appState.lunchDone[dateKey];
+  delete appState.lunchMemo[dateKey];
+  delete appState.lunchStock[dateKey];
+  saveAppState();
+  await loadStocks(); rerender();
+}
+function showLunchMemoEdit() {
+  const w = document.getElementById('lunch-memo-edit-wrap'); if (w) w.style.display = 'block';
+}
+function updateLunchMemo(dateKey) {
+  const memo = composeMemo('lunch-reactions', 'lunch-memo-input');
+  meals[dateKey].lunchMemo = memo;
+  appState.lunchMemo[dateKey] = memo;
+  saveAppState();
+  rerender();
+}
+function skipLunch(dateKey) {
+  const data = meals[dateKey]; if (!data) return;
+  if (data.lunchSkipped) {
+    data.lunchSkipped = false;
+    delete appState.lunchSkip[dateKey];
+  } else {
+    data.lunchSkipped = true;
+    appState.lunchSkip[dateKey] = true;
+  }
+  saveAppState();
+  rerender();
+}
+
 /* 하루 완료 여부 (스트립 done-day 판정) */
 function isDayDone(data) {
-  if (!data.pm) return !!data.done;
-  return !!data.pmDone;
+  if (data.pm) return !!data.pmDone;   // 점심 유무와 무관하게 마지막 끼니는 저녁
+  return !!data.done;
 }
 
 /* ================================================
@@ -2160,17 +2358,16 @@ function readEditInputs(dateKey, slot, current) {
 }
 function startEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
-  const srcKey = slot === 'am' ? 'am' : 'pm';
-  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
-  const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
-  if (!data[editedKey]) data[editedKey] = [...(data[srcKey] || [])];
+  const editedKey = slot + 'Edited';
+  const modeKey = slot + 'EditMode';
+  if (!data[editedKey]) data[editedKey] = [...(data[slot] || [])];
   data[modeKey] = true;
   rerender();
 }
 function saveEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
-  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
-  const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
+  const editedKey = slot + 'Edited';
+  const modeKey = slot + 'EditMode';
   data[editedKey] = readEditInputs(dateKey, slot, data[editedKey] || []);
   data[modeKey] = false;
   persistEdit(dateKey, slot);   /* 편집 내용 appState → Supabase 저장 */
@@ -2178,7 +2375,7 @@ function saveEdit(dateKey, slot) {
 }
 /* 인라인 편집 영속화 → appState.edits (Supabase 동기화) */
 function persistEdit(dateKey, slot) {
-  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
+  const editedKey = slot + 'Edited';
   const arr = meals[dateKey] && meals[dateKey][editedKey];
   const k = `${dateKey}_${slot}`;
   if (arr && arr.length) appState.edits[k] = arr;
@@ -2191,12 +2388,12 @@ function loadEdits() {
     if (!Array.isArray(arr) || !arr.length) return;
     const idx = k.lastIndexOf('_');
     const dateKey = k.slice(0, idx), slot = k.slice(idx + 1);
-    if (meals[dateKey]) meals[dateKey][slot === 'am' ? 'amEdited' : 'pmEdited'] = arr;
+    if (meals[dateKey]) meals[dateKey][slot + 'Edited'] = arr;
   });
 }
 function cancelEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
-  const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
+  const modeKey = slot + 'EditMode';
   data[modeKey] = false;
   rerender();
 }
@@ -2231,7 +2428,7 @@ function addEditRow(dateKey, slot) {
    - 아침 완료/메모는 기존처럼 meal_log의 해당 날짜 행(이미 동기화됨)
 ================================================ */
 const STATE_ROW = '_appstate';
-let appState = { swaps: [], edits: {}, pmDone: {}, pmMemo: {}, amSkip: {}, pmStock: {} };
+let appState = { swaps: [], edits: {}, pmDone: {}, pmMemo: {}, amSkip: {}, pmStock: {}, lunchDone: {}, lunchMemo: {}, lunchSkip: {}, lunchStock: {}, shifts: [] };
 
 async function loadAppState() {
   try {
@@ -2246,6 +2443,11 @@ async function loadAppState() {
         pmMemo: (s.pmMemo && typeof s.pmMemo === 'object') ? s.pmMemo : {},
         amSkip: (s.amSkip && typeof s.amSkip === 'object') ? s.amSkip : {},
         pmStock: (s.pmStock && typeof s.pmStock === 'object') ? s.pmStock : {},
+        lunchDone: (s.lunchDone && typeof s.lunchDone === 'object') ? s.lunchDone : {},
+        lunchMemo: (s.lunchMemo && typeof s.lunchMemo === 'object') ? s.lunchMemo : {},
+        lunchSkip: (s.lunchSkip && typeof s.lunchSkip === 'object') ? s.lunchSkip : {},
+        lunchStock: (s.lunchStock && typeof s.lunchStock === 'object') ? s.lunchStock : {},
+        shifts: Array.isArray(s.shifts) ? s.shifts : [],
       };
     }
   } catch (e) { console.error('앱 상태 로드 연결 오류:', e); }
@@ -2266,6 +2468,14 @@ function applySyncedState() {
     } else {
       meals[key].pmDone = false;
     }
+    // 점심(3끼)
+    meals[key].lunchSkipped = !!appState.lunchSkip[key];
+    if (appState.lunchDone[key]) {
+      meals[key].lunchDone = true;
+      meals[key].lunchMemo = appState.lunchMemo[key] || '섭취완료';
+    } else {
+      meals[key].lunchDone = false;
+    }
   });
 }
 
@@ -2276,7 +2486,7 @@ function applySyncedState() {
    - 교환 이력은 appState.swaps(Supabase 동기화), 로드 시 순서대로 재적용
    - 같은 교환 재실행 = 원복(self-inverse) → 되돌리기 단순
 ================================================ */
-const SWAP_FIELDS = ['am','pm','lunch','note','amEdited','pmEdited'];
+const SWAP_FIELDS = ['am','pm','lunch','note','amEdited','pmEdited','lunchEdited'];
 let swapOpenKey = null;      // 현재 피커가 열린 날짜 키
 let pendingSwapTarget = null;// 선택했지만 아직 확정 전인 대상 키
 let swapUndoTimer = null;
@@ -2417,17 +2627,115 @@ function swapPickerHtml(srcKey) {
   return h;
 }
 
-/* 동기화 상태(저녁완료·메모·아침건너뜀) 복원 — Supabase appState 기반 */
-function loadLocalState() {
-  applySyncedState();
+/* ================================================
+   하루 밀기 (데이터 재배치 — swap과 같은 계열)
+   - fromKey부터 마지막 식단일까지 식단 내용 필드를 한 칸씩 뒤로 이동
+   - fromKey에는 쌀미음(쉬어가기) 삽입
+   - 완료기록(done/pmDone/memo 등)은 날짜에 고정 (과거·기록 보존)
+   - appState.shifts에 from 기록 → 모든 기기 동기화 / 되돌리기 지원
+================================================ */
+const SHIFT_REST = { am:['쌀미음 60g'], pm:['쌀미음 60g'], note:'🩺 소화 쉬어가기 — 일정이 하루 미뤄졌어요' };
+
+/* 식단이 있는 날짜 키들을 날짜 오름차순으로 반환 (M/D 형식만) */
+function sortedMealKeys() {
+  return Object.keys(meals)
+    .filter(k => /^\d+\/\d+$/.test(k))
+    .sort((a, b) => {
+      const [am, ad] = a.split('/').map(Number), [bm, bd] = b.split('/').map(Number);
+      return (am * 31 + ad) - (bm * 31 + bd);
+    });
 }
+/* fromKey 이상인 날짜 키들 (오름차순) */
+function keysFrom(fromKey) {
+  const [fm, fd] = fromKey.split('/').map(Number);
+  const fOrd = fm * 31 + fd;
+  return sortedMealKeys().filter(k => {
+    const [m, d] = k.split('/').map(Number);
+    return (m * 31 + d) >= fOrd;
+  });
+}
+/* 한 칸 뒤로 밀기: 뒤에서부터 앞 식단을 끌어옴 */
+function applyShift(fromKey) {
+  const keys = keysFrom(fromKey);
+  if (keys.length < 2) return false;
+  // 뒤에서부터: keys[i] <- keys[i-1]
+  for (let i = keys.length - 1; i >= 1; i--) {
+    copyMealContent(keys[i - 1], keys[i]);
+  }
+  // fromKey에 쉬어가기 삽입
+  setMealContent(keys[0], SHIFT_REST);
+  return true;
+}
+/* 한 칸 앞으로 당기기 (되돌리기): 앞에서부터 뒤 식단을 끌어옴 */
+function unapplyShift(fromKey) {
+  const keys = keysFrom(fromKey);
+  if (keys.length < 2) return false;
+  for (let i = 0; i < keys.length - 1; i++) {
+    copyMealContent(keys[i + 1], keys[i]);
+  }
+  return true;
+}
+/* 식단 "내용 필드"만 복사 (완료기록·날짜고정 항목은 건드리지 않음) */
+function copyMealContent(srcKey, dstKey) {
+  const S = meals[srcKey], D = meals[dstKey];
+  if (!S || !D) return;
+  SWAP_FIELDS.forEach(f => {
+    if (S[f] === undefined) delete D[f]; else D[f] = JSON.parse(JSON.stringify(S[f]));
+  });
+  // New 배지만 음식 따라 이동 (trans/grain 등 발달단계 배지는 날짜 고정)
+  // 먼저 목적지의 기존 New 배지 제거
+  if (D.newBadge && D.newBadge.t === 'new') delete D.newBadge;
+  if (D.badge && D.badge.t === 'new') delete D.badge;
+  // 출발지의 New 배지를 읽어 목적지에 부여 (출발지 원본은 보존 — replay 무결성)
+  const sNew = (S.newBadge && S.newBadge.t === 'new') ? S.newBadge
+             : (S.badge && S.badge.t === 'new') ? S.badge : undefined;
+  if (sNew) D.newBadge = JSON.parse(JSON.stringify(sNew));
+}
+function setMealContent(key, content) {
+  const D = meals[key]; if (!D) return;
+  SWAP_FIELDS.forEach(f => {
+    if (content[f] === undefined) delete D[f]; else D[f] = JSON.parse(JSON.stringify(content[f]));
+  });
+  // 쉬어가기 날: New 배지 제거 (badge가 New였던 경우도 포함). trans/grain은 보존
+  if (D.newBadge && D.newBadge.t === 'new') delete D.newBadge;
+  if (D.badge && D.badge.t === 'new') delete D.badge;
+  if (content.note !== undefined) D.note = content.note;
+}
+function replayShifts() { appState.shifts.forEach(s => { if (s && s.from) applyShift(s.from); }); }
+
+/* 사용자 액션: 오늘(또는 지정일)부터 하루 밀기 */
+function shiftFromDay(fromKey) {
+  if (!confirm(`${fromKey}부터 이후 일정을 하루씩 미룰까요?\n오늘은 쌀미음(쉬어가기)으로 바뀌고, 이후 식단이 하루씩 뒤로 이동해요.\n(완료한 기록은 그대로 유지됩니다)`)) return;
+  if (!applyShift(fromKey)) { alert('미룰 수 있는 식단이 없어요.'); return; }
+  appState.shifts.push({ from: fromKey, ts: Date.now() });
+  saveAppState();
+  rerender();
+  showShiftUndoToast(fromKey);
+}
+function undoLastShift() {
+  if (!appState.shifts.length) return;
+  const last = appState.shifts.pop();
+  unapplyShift(last.from);
+  saveAppState();
+  hideSwapUndoToast();
+  rerender();
+}
+function showShiftUndoToast(fromKey) {
+  const t = document.getElementById('undo-toast'); if (!t) return;
+  t.style.display = 'flex';
+  t.className = 'undo-toast';
+  t.innerHTML = `<span><span class="undo-toast-name">${esc(fromKey)}</span>부터 하루 미뤄짐</span><button class="undo-btn" onclick="undoLastShift()">되돌리기</button>`;
+  if (swapUndoTimer) clearTimeout(swapUndoTimer);
+  swapUndoTimer = setTimeout(hideSwapUndoToast, 5000);
+}
+
 
 /* ================================================
    날짜 이동 (식단 탭)
 ================================================ */
 function goToday() { sel = new Date(TODAY); curMonth = TODAY.getMonth(); renderMeal(); }
 function changeMonth(dir) {
-  curMonth = Math.max(4, Math.min(6, curMonth + dir));
+  curMonth = Math.max(4, Math.min(7, curMonth + dir));
   for (let i = 1; i <= 31; i++) { const d = new Date(2026, curMonth, i); if (d.getMonth() !== curMonth) break; if (meals[dk(d)]) { sel = d; break; } }
   renderMeal();
 }
@@ -2480,6 +2788,11 @@ function buildMonthCal(y, m) {
       ev.am.forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
       h += `</div></div>`;
     }
+    if (ev.lunch) {
+      h += `<hr class="meal-sep"><div class="meal-block"><div class="meal-header"><span class="time-badge">점심</span></div><div class="meal-items">`;
+      ev.lunch.forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
+      h += `</div></div>`;
+    }
     if (ev.pm) {
       h += `<hr class="meal-sep"><div class="meal-block"><div class="meal-header"><span class="time-badge">오후</span></div><div class="meal-items">`;
       ev.pm.forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
@@ -2503,6 +2816,7 @@ function buildCal() {
   let h = `<div class="mcal">`;
   h += buildMonthCal(2026, 6);
   h += buildMonthCal(2026, 7);
+  h += buildMonthCal(2026, 8);
   h += `<div class="print-btn-wrap"><button class="print-btn" onclick="window.print()">📥 인쇄 / PDF 저장</button></div>`;
   h += `</div>`;
   return h;
@@ -2579,6 +2893,7 @@ async function init() {
   curMonth = TODAY.getMonth();
   sel = new Date(TODAY);
   await loadAppState();  /* 교환·편집·저녁완료·건너뜀 상태를 Supabase에서 로드 (모든 기기 동일) */
+  replayShifts();        /* 하루 밀기 이력 재적용 (교환보다 먼저) */
   replaySwaps();         /* 날짜 교환 이력을 식단에 재적용 (완료기록 로드 전) */
   loadEdits();           /* 인라인 편집 복원 (표시 날짜 기준) */
   await loadMealLog();   /* 아침 완료/메모 (날짜별, 이미 동기화) */
