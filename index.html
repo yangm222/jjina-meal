@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Security-Policy" content="default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data:;">
-<title>아기 이유식</title>
+<title>Cubit</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 /* ===== 폰트 ===== */
@@ -19,6 +19,7 @@
 @font-face { font-family:'Paperlogy'; src:url('https://cdn.jsdelivr.net/gh/Freesentation/paperlogy@main/woff2/Paperlogy-6SemiBold.woff2') format('woff2'); font-weight:600; font-display:swap; }
 @font-face { font-family:'Paperlogy'; src:url('https://cdn.jsdelivr.net/gh/Freesentation/paperlogy@main/woff2/Paperlogy-7Bold.woff2') format('woff2'); font-weight:700; font-display:swap; }
 @font-face { font-family:'Paperlogy'; src:url('https://cdn.jsdelivr.net/gh/Freesentation/paperlogy@main/woff2/Paperlogy-8ExtraBold.woff2') format('woff2'); font-weight:800; font-display:swap; }
+@font-face { font-family:'Paperlogy'; src:url('https://cdn.jsdelivr.net/gh/Freesentation/paperlogy@main/woff2/Paperlogy-9Black.woff2') format('woff2'); font-weight:900; font-display:swap; }
 
 /* ===== 컬러 변수 ===== */
 :root {
@@ -565,7 +566,38 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .gate-input:focus { outline:none; border-color:var(--coral); background:#fff; }
 .gate-btn { width:100%; padding:14px; border:none; border-radius:12px; background:var(--coral-grad); color:#fff; font-size:15px; font-weight:800; margin-top:8px; cursor:pointer; font-family:inherit; }
 .gate-btn:disabled { opacity:.55; }
-.gate-msg { font-size:12.5px; line-height:1.5; margin-top:10px; text-align:center; color:var(--coral-deep); display:none; }
+.gate-msg { font-size:12.5px; line-height:1.6; margin-top:10px; text-align:center; color:var(--coral-deep); display:none; white-space:pre-line; }
+/* ── Cubit 워드마크 ── */
+.wordmark { font-family:'Paperlogy',sans-serif; font-weight:900; letter-spacing:-0.5px;
+  background:var(--coral-grad); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.gate-wordmark { text-align:center; font-size:34px; line-height:1.1; }
+.greet-cubit { margin-left:auto; font-size:15px; opacity:0.9; }
+/* ── 회원가입 보조 ── */
+.gate-hint { font-size:11.5px; color:var(--text-sub); margin-top:5px; line-height:1.4; }
+.pw-wrap { position:relative; }
+.pw-inline-err { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:11px; font-weight:600; color:var(--coral-deep); display:none; pointer-events:none; }
+.gate-check { display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:var(--text); line-height:1.45; margin-top:10px; }
+.gate-check input { width:17px; height:17px; margin-top:1px; accent-color:var(--coral); flex:none; }
+.gate-check b { color:var(--coral-deep); font-weight:600; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+/* ── 날짜 셀렉트 ── */
+.ob-date-row { display:flex; gap:8px; }
+.gate-select { flex:1; -webkit-appearance:none; appearance:none; border:1.5px solid #f0e8e4; background:#fdfbfa url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22><path d=%22M1 1l4 4 4-4%22 stroke=%22%23b9b0ab%22 stroke-width=%221.6%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 12px center; border-radius:14px; padding:13px 14px; font-size:15px; font-family:'Pretendard',sans-serif; color:var(--text); }
+.gate-select:focus { outline:none; border-color:var(--coral); }
+/* ── 약관 모달 ── */
+.legal-ovl { position:fixed; inset:0; background:rgba(30,22,18,0.45); z-index:9999; display:flex; align-items:flex-end; justify-content:center; }
+.legal-card { background:#fff; width:100%; max-width:560px; max-height:82vh; border-radius:22px 22px 0 0; padding:20px 20px 28px; display:flex; flex-direction:column; }
+.legal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.legal-title { font-family:'Paperlogy',sans-serif; font-size:17px; font-weight:700; color:var(--text); }
+.legal-x { border:none; background:#f5efec; border-radius:50%; width:30px; height:30px; font-size:14px; color:var(--text-sub); }
+.legal-body { overflow-y:auto; font-size:12.5px; line-height:1.7; color:#4c443f; white-space:pre-line; -webkit-overflow-scrolling:touch; }
+/* ── 계정 수정 ── */
+.acct-input { width:100%; border:1.5px solid #f0e8e4; background:#fdfbfa; border-radius:14px; padding:12px 14px; font-size:15px; font-family:'Pretendard',sans-serif; color:var(--text); margin-top:6px; }
+.acct-input:focus { outline:none; border-color:var(--coral); }
+.acct-lbl { font-size:12px; font-weight:600; color:var(--text-sub); margin-top:12px; }
+.acct-btns { display:flex; gap:8px; margin-top:14px; }
+.acct-save { flex:1; border:none; border-radius:14px; padding:13px; font-size:14px; font-weight:700; color:#fff; background:var(--coral-grad); }
+.acct-cancel { flex:1; border:none; border-radius:14px; padding:13px; font-size:14px; font-weight:600; color:var(--text-sub); background:#f5efec; }
+.acct-edit-link { border:none; background:none; font-size:12.5px; font-weight:600; color:var(--coral-deep); padding:8px 0 0; text-decoration:underline; text-underline-offset:2px; }
 .gate-switch { text-align:center; margin-top:14px; font-size:13px; color:var(--text-sub); line-height:1.6; }
 .gate-switch b { color:var(--coral); cursor:pointer; }
 body.gated .bottom-tabs { display:none; }
@@ -1521,6 +1553,7 @@ function renderHome() {
   const greetMsg = hh < 11 ? '좋은 아침이에요! ☀️' : hh < 17 ? '좋은 오후예요! 🌤️' : '편안한 저녁이에요! 🌙';
   let html = `<div class="greet">
     <div class="greet-txt">${esc(BABY_NAME)}맘, ${greetMsg}</div>
+    <div class="wordmark greet-cubit">Cubit</div>
   </div>`;
 
   /* D+ 날짜 헤더 (홈 위계 최상위) */
@@ -1877,18 +1910,38 @@ function renderMore() {
     <div class="panel-title">식단표 인쇄</div>
     <button class="more-print-btn" onclick="openMonthly()">📅 월간 식단표 보기 / 인쇄</button>
   </div>`;
-  html += accHtml('a-n-more', '알러지 유의사항', noticeHtml());
-  html += accHtml('a-intro-more', '재료 도입 이력', introHistoryHtml());
+  if (acctEditMode) {
+    html += `<div class="panel">
+      <div class="panel-title">계정 정보 수정</div>
+      <div class="acct-lbl">아기 이름</div>
+      <input class="acct-input" id="acct-name" maxlength="10" value="${esc(BABY_NAME)}">
+      ${IS_OWNER ? `<div class="gate-hint" style="margin-top:12px;">기본 식단 계정은 이유식 시작일을 바꿀 수 없어요.</div>`
+        : `<div class="acct-lbl">이유식 시작일</div>${dateSelHtml('ac-start', START)}
+           <div class="gate-hint">시작일을 바꾸면 식단 전체가 새 날짜 기준으로 다시 만들어져요. 섭취 기록은 유지돼요.</div>`}
+      <div class="acct-btns">
+        <button class="acct-cancel" onclick="acctEditMode=false; renderMore();">취소</button>
+        <button class="acct-save" onclick="saveAccount()">저장</button>
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="panel">
+      <div class="panel-title">계정</div>
+      <div class="more-row"><span class="more-k">아기</span><span class="more-v">${esc(BABY_NAME)}</span></div>
+      <div class="more-row"><span class="more-k">생년월일</span><span class="more-v">${BIRTH.getFullYear()}.${BIRTH.getMonth()+1}.${BIRTH.getDate()}</span></div>
+      <div class="more-row"><span class="more-k">이유식 시작일</span><span class="more-v">${START.getFullYear()}.${START.getMonth()+1}.${START.getDate()}</span></div>
+      <div class="more-row"><span class="more-k">로그인</span><span class="more-v">${esc(AUTH_EMAIL)}</span></div>
+      <button class="acct-edit-link" onclick="acctEditMode=true; renderMore();">계정 정보 수정</button>
+      <button class="more-logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>`;
+  }
   html += `<div class="panel">
-    <div class="panel-title">계정</div>
-    <div class="more-row"><span class="more-k">아기</span><span class="more-v">${esc(BABY_NAME)}</span></div>
-    <div class="more-row"><span class="more-k">생년월일</span><span class="more-v">${BIRTH.getFullYear()}.${BIRTH.getMonth()+1}.${BIRTH.getDate()}</span></div>
-    <div class="more-row"><span class="more-k">로그인</span><span class="more-v">${esc(AUTH_EMAIL)}</span></div>
-    <button class="more-logout-btn" onclick="doLogout()">로그아웃</button>
+    <div class="panel-title">약관 및 정책</div>
+    <div class="more-row" onclick="openLegal('terms')"><span class="more-k">이용약관</span><span class="more-v">보기 ›</span></div>
+    <div class="more-row" onclick="openLegal('privacy')"><span class="more-k">개인정보처리방침</span><span class="more-v">보기 ›</span></div>
   </div>`;
   html += `<div class="panel">
     <div class="panel-title">앱 정보</div>
-    <div class="more-row"><span class="more-k">앱</span><span class="more-v">아기 이유식 v8</span></div>
+    <div class="more-row"><span class="more-k">앱</span><span class="more-v">Cubit v9</span></div>
     <div class="more-row"><span class="more-k">식단</span><span class="more-v">${usesDbPlan ? '내 식단 (자동 생성)' : '기본 식단'}</span></div>
   </div>`;
   html += `<div style="height:80px;"></div>`;
@@ -2848,23 +2901,6 @@ function buildMonthCal(y, m) {
   const last  = new Date(y, m, 0).getDate();
   let h = `<div class="month-section">`;
   h += `<div class="month-top"><div class="month-title">${y}년 ${m}월</div>`;
-  const items = CHECKLIST[m] || [], memos = REPEAT_MEMO[m] || [];
-  const chkMap = appState.checklist[m] || {};
-  const chkAt = appState.checklistAt[m] || '';
-  if (items.length) {
-  h += `<div class="checklist-box"><div class="checklist-head"><div class="checklist-title">필요 재료</div><span class="checklist-at" id="chk-at-${m}">${chkAt ? '업데이트 ' + esc(chkAt) : ''}</span></div><div class="checklist-grid">`;
-  items.forEach((item, i) => {
-    const on = !!chkMap[item];
-    h += `<div class="checklist-item${on ? ' checked' : ''}" id="cli-${m}-${i}"><input type="checkbox" id="chk-${m}-${i}"${on ? ' checked' : ''} onchange="toggleCheck(${m},${i},this.checked)"><label for="chk-${m}-${i}">${esc(item)}</label></div>`;
-  });
-  h += `</div>`;
-  if (memos.length) {
-    h += `<div class="repeat-memo"><div class="repeat-memo-title">반복노출 재료 제조법</div><div class="repeat-memo-grid">`;
-    memos.forEach(({name, memo}) => { h += `<div class="repeat-memo-item"><strong>${esc(name)}</strong> — ${esc(memo)}</div>`; });
-    h += `</div></div>`;
-  }
-  h += `</div>`;
-  }
   h += `</div>`;
 
   h += `<div class="weekdays">${M_WD.map(w=>`<div class="wd">${w}</div>`).join('')}</div><div class="days-grid">`;
@@ -3040,17 +3076,29 @@ function showAuth(mode, preMsg) {
   showGate();
   const signup = mode === 'signup';
   gateEl().innerHTML = `
-    <div class="gate-logo">🍚</div>
-    <div class="gate-title">아기 이유식</div>
-    <div class="gate-sub">${signup ? '계정을 만들면 우리 아기 맞춤 식단이<br>자동으로 준비돼요' : '오늘의 이유식 준비를<br>가장 빠르게'}</div>
+    <div class="wordmark gate-wordmark">Cubit</div>
+    <div class="gate-sub" style="margin-top:8px;">${signup ? '계정을 만들면 우리 아기 맞춤 식단이<br>자동으로 준비돼요' : '오늘의 이유식 준비를<br>가장 빠르게'}</div>
     <div class="gate-field"><label class="gate-label">이메일</label><input class="gate-input" id="gate-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
-    <div class="gate-field"><label class="gate-label">비밀번호</label><input class="gate-input" id="gate-pw" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" placeholder="6자 이상"></div>
-    ${signup ? `<div class="gate-field"><label class="gate-label">비밀번호 확인</label><input class="gate-input" id="gate-pw2" type="password" autocomplete="new-password" placeholder="한 번 더 입력"></div>` : ''}
+    <div class="gate-field"><label class="gate-label">비밀번호</label><input class="gate-input" id="gate-pw" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" placeholder="${signup ? '영문·숫자·특수문자 포함 6자 이상' : '비밀번호'}"${signup ? ' oninput="checkPwMatch()"' : ''}>${signup ? '<div class="gate-hint">영문, 숫자, 특수문자를 모두 포함해 6자 이상으로 정해주세요.</div>' : ''}</div>
+    ${signup ? `<div class="gate-field"><label class="gate-label">비밀번호 확인</label><div class="pw-wrap"><input class="gate-input" id="gate-pw2" type="password" autocomplete="new-password" placeholder="한 번 더 입력" oninput="checkPwMatch()"><span class="pw-inline-err" id="pw2-err">비밀번호가 서로 달라요</span></div></div>
+    <label class="gate-check"><input type="checkbox" id="gate-age"><span>(필수) 만 14세 이상 보호자입니다.</span></label>
+    <label class="gate-check"><input type="checkbox" id="gate-terms"><span>(필수) <b onclick="event.preventDefault();openLegal('terms')">이용약관</b> 및 <b onclick="event.preventDefault();openLegal('privacy')">개인정보처리방침</b>에 동의합니다.</span></label>` : ''}
     <button class="gate-btn" id="gate-submit" onclick="${signup ? 'doSignup()' : 'doLogin()'}">${signup ? '가입하고 시작하기' : '로그인'}</button>
     <div class="gate-msg" id="gate-msg"></div>
     <div class="gate-switch">${signup ? `이미 계정이 있나요? <b onclick="showAuth('login')">로그인</b>` : `처음이신가요? <b onclick="showAuth('signup')">회원가입</b>`}</div>`;
   bindEnter(signup ? 'gate-pw2' : 'gate-pw', signup ? doSignup : doLogin);
   if (preMsg) gateMsg(preMsg, true);
+}
+
+/* 비밀번호 확인 실시간 검사: 불일치 문구를 확인칸 안(오른쪽)에 표시 */
+function checkPwMatch() {
+  const pw = document.getElementById('gate-pw')?.value || '';
+  const pw2El = document.getElementById('gate-pw2');
+  const err = document.getElementById('pw2-err');
+  if (!pw2El || !err) return true;
+  const bad = pw2El.value.length > 0 && pw2El.value !== pw;
+  err.style.display = bad ? 'block' : 'none';
+  return !bad && pw2El.value.length > 0;
 }
 
 async function doLogin() {
@@ -3076,18 +3124,23 @@ async function doSignup() {
   const pw = document.getElementById('gate-pw')?.value || '';
   const pw2 = document.getElementById('gate-pw2')?.value || '';
   if (!email || !pw) { gateMsg('이메일과 비밀번호를 입력해주세요.'); return; }
-  if (pw.length < 6) { gateMsg('비밀번호는 6자 이상으로 정해주세요.'); return; }
-  if (pw !== pw2) { gateMsg('비밀번호가 서로 달라요.'); return; }
+  if (pw.length < 6 || !/[A-Za-z]/.test(pw) || !/[0-9]/.test(pw) || !/[^A-Za-z0-9]/.test(pw)) {
+    gateMsg('비밀번호는 영문, 숫자, 특수문자를 모두 포함해\n6자 이상으로 정해주세요.'); return;
+  }
+  if (pw !== pw2) { checkPwMatch(); document.getElementById('gate-pw2')?.focus(); return; }
+  if (!document.getElementById('gate-age')?.checked) { gateMsg('만 14세 이상 보호자 확인에 체크해주세요.'); return; }
+  if (!document.getElementById('gate-terms')?.checked) { gateMsg('이용약관과 개인정보처리방침 동의에 체크해주세요.'); return; }
   const btn = document.getElementById('gate-submit'); if (btn) btn.disabled = true;
   try {
-    const { data, error } = await sb.auth.signUp({ email, password: pw });
+    const { data, error } = await sb.auth.signUp({ email, password: pw,
+      options: { emailRedirectTo: location.origin + location.pathname } });
     if (error) {
       gateMsg(/already/i.test(error.message) ? '이미 가입된 이메일이에요. 로그인해주세요.' : '가입 실패: ' + error.message);
       return;
     }
     if (data.session) { await enterApp(data.session); return; }
     /* 프로젝트에 이메일 확인이 켜져 있는 경우 */
-    showAuth('login', '가입 확인 메일을 보냈어요. 메일의 링크를 누른 뒤 로그인해주세요.');
+    showAuth('login', '가입 확인 메일을 보냈어요.\n메일의 링크를 누른 뒤 로그인해주세요.');
   } catch (e) { console.error('가입 오류:', e); gateMsg('연결에 실패했어요. 잠시 후 다시 시도해주세요.'); }
   finally { const b = document.getElementById('gate-submit'); if (b) b.disabled = false; }
 }
@@ -3099,15 +3152,41 @@ async function doLogout() {
 }
 
 /* ── 온보딩: 아기 정보 → 템플릿 식단 생성 ── */
+/* ── 날짜 셀렉트(년/월/일) 컴포넌트 ── */
+function dateSelHtml(prefix, defDate) {
+  const yNow = TODAY.getFullYear();
+  const dy = defDate.getFullYear(), dm = defDate.getMonth() + 1, dd = defDate.getDate();
+  let ys = ''; for (let y = yNow; y >= yNow - 3; y--) ys += `<option value="${y}"${y === dy ? ' selected' : ''}>${y}년</option>`;
+  let ms = ''; for (let m = 1; m <= 12; m++) ms += `<option value="${m}"${m === dm ? ' selected' : ''}>${m}월</option>`;
+  let ds = ''; for (let d = 1; d <= 31; d++) ds += `<option value="${d}"${d === dd ? ' selected' : ''}>${d}일</option>`;
+  return `<div class="ob-date-row">
+    <select class="gate-select" id="${prefix}-y" onchange="syncDays('${prefix}')">${ys}</select>
+    <select class="gate-select" id="${prefix}-m" onchange="syncDays('${prefix}')">${ms}</select>
+    <select class="gate-select" id="${prefix}-d">${ds}</select></div>`;
+}
+function syncDays(prefix) {
+  const y = +document.getElementById(prefix + '-y').value, m = +document.getElementById(prefix + '-m').value;
+  const sel = document.getElementById(prefix + '-d'); const cur = +sel.value;
+  const last = new Date(y, m, 0).getDate();
+  let ds = ''; for (let d = 1; d <= last; d++) ds += `<option value="${d}">${d}일</option>`;
+  sel.innerHTML = ds; sel.value = Math.min(cur, last);
+}
+function readDateSel(prefix) {
+  const y = document.getElementById(prefix + '-y')?.value, m = document.getElementById(prefix + '-m')?.value, d = document.getElementById(prefix + '-d')?.value;
+  if (!y || !m || !d) return null;
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
 function showOnboard() {
   showGate();
+  const defBirth = new Date(TODAY); defBirth.setDate(defBirth.getDate() - 180); /* 생후 약 6개월 기본값 */
   gateEl().innerHTML = `
-    <div class="gate-logo">👶</div>
-    <div class="gate-title">아기 정보를 알려주세요</div>
+    <div class="wordmark gate-wordmark" style="font-size:24px;">Cubit</div>
+    <div class="gate-title" style="margin-top:14px;">아기 정보를 알려주세요</div>
     <div class="gate-sub">이유식 시작일만 정하면<br>단계별 식단이 자동으로 만들어져요</div>
     <div class="gate-field"><label class="gate-label">아기 이름 (태명도 좋아요)</label><input class="gate-input" id="ob-name" maxlength="10" placeholder="예) 튼튼이"></div>
-    <div class="gate-field"><label class="gate-label">생년월일</label><input class="gate-input" id="ob-birth" type="date"></div>
-    <div class="gate-field"><label class="gate-label">이유식 시작일 (시작 예정일)</label><input class="gate-input" id="ob-start" type="date"></div>
+    <div class="gate-field"><label class="gate-label">생년월일</label>${dateSelHtml('ob-birth', defBirth)}</div>
+    <div class="gate-field"><label class="gate-label">이유식 시작일 (시작 예정일)</label>${dateSelHtml('ob-start', TODAY)}</div>
     <button class="gate-btn" id="gate-submit" onclick="submitOnboard()">식단 만들고 시작하기</button>
     <div class="gate-msg" id="gate-msg"></div>
     <div class="gate-switch">실제 운영 스케줄 기반의 샘플 식단이 생성돼요.<br>모든 식단은 앱에서 수정·하루 밀기로 조정할 수 있어요.</div>`;
@@ -3115,8 +3194,8 @@ function showOnboard() {
 
 async function submitOnboard() {
   const name = document.getElementById('ob-name')?.value?.trim();
-  const birth = document.getElementById('ob-birth')?.value;
-  const start = document.getElementById('ob-start')?.value;
+  const birth = readDateSel('ob-birth');
+  const start = readDateSel('ob-start');
   if (!name || !birth || !start) { gateMsg('모든 항목을 입력해주세요.'); return; }
   const startDate = parseDbDateFull(start);
   const birthDate = parseDbDateFull(birth);
@@ -3128,6 +3207,7 @@ async function submitOnboard() {
       .insert([{ user_id: USER_ID, name, birth_date: birth, solid_start_date: start }]).select();
     if (bErr) throw bErr;
     await generateTemplatePlan(USER_ID, babyRows[0].id, startDate);
+    await generateDefaultInventory(USER_ID, babyRows[0].id, startDate);
     await enterApp(null);
   } catch (e) {
     console.error('온보딩 오류:', e);
@@ -3175,6 +3255,158 @@ async function generateTemplatePlan(userId, babyId, startDate) {
   return rows.length;
 }
 
+/* ── 오너(찐아) 계정 판정: 내장 식단을 그대로 쓰는 유일한 계정 ── */
+let IS_OWNER = false;
+let acctEditMode = false;
+function isOwnerBaby(b) { return !!b && b.solid_start_date === '2026-05-09' && b.birth_date === '2025-11-14'; }
+
+/* ── 템플릿 식단에서 재료명 유니크 추출 (기본 재고 생성용) ── */
+function templateIngredientNames(rows) {
+  const set = new Set();
+  rows.forEach(r => {
+    ['am', 'pm', 'lunch'].forEach(f => (r.plan[f] || []).forEach(raw => {
+      let s = String(raw); if (s.startsWith('반복:')) s = s.slice(3);
+      const m = s.match(/^(.*?)\s+(\d+\s*g|\d+\s*팩|\d+\s*개|소량|반복노출|반복)$/);
+      const nm = (m ? m[1] : s).trim();
+      if (nm) set.add(nm);
+    }));
+  });
+  return [...set];
+}
+
+/* ── 신규 계정 기본 재고 생성: 식단 재료 전체를 0개로 등록 (차감·소진예고 연동) ── */
+async function generateDefaultInventory(userId, babyId, startDate) {
+  const names = templateIngredientNames(templateRows(userId, babyId, startDate));
+  if (!names.length) return 0;
+  const rows = names.map((name, i) => ({ user_id: userId, baby_id: babyId, name, amount: 0, unit: '개', low_alert: 1, sort_order: i, base_g: 15 }));
+  for (let i = 0; i < rows.length; i += 50) {
+    const { error } = await sb.from('inventory').insert(rows.slice(i, i + 50));
+    if (error) { console.error('기본 재고 생성 오류:', error); return 0; }
+  }
+  return rows.length;
+}
+
+/* ── 자가치유: 신규 계정인데 식단/재고가 비어 있으면 다시 생성 ── */
+async function selfHealNewAccount(b) {
+  if (IS_OWNER) return;
+  try {
+    if (!usesDbPlan) {
+      await generateTemplatePlan(USER_ID, BABY_ID, parseDbDateFull(b.solid_start_date));
+      await loadMealPlan();
+    }
+    const { data } = await sb.from('inventory').select('id').eq('baby_id', BABY_ID).limit(1);
+    if (!data || data.length === 0) await generateDefaultInventory(USER_ID, BABY_ID, parseDbDateFull(b.solid_start_date));
+  } catch (e) { console.error('자가치유 오류:', e); }
+}
+
+/* ── 계정 정보 저장 (더보기 > 계정 정보 수정) ── */
+async function saveAccount() {
+  const name = document.getElementById('acct-name')?.value?.trim();
+  if (!name) { alert('아기 이름을 입력해주세요.'); return; }
+  const newStart = IS_OWNER ? null : readDateSel('ac-start');
+  const curStart = toDbDateFull(START);
+  try {
+    const upd = { name };
+    const startChanged = newStart && newStart !== curStart;
+    if (startChanged) {
+      if (!(parseDbDateFull(newStart) > BIRTH)) { alert('이유식 시작일이 생년월일보다 빨라요.'); return; }
+      if (!confirm('식단 전체를 새 시작일 기준으로 다시 만들까요?\n섭취 기록은 유지되지만, 직접 수정한 식단 내용은 초기화돼요.')) return;
+      upd.solid_start_date = newStart;
+    }
+    const { error } = await sb.from('babies').update(upd).eq('id', BABY_ID);
+    if (error) throw error;
+    if (startChanged) {
+      const { error: dErr } = await sb.from('meal_plan').delete().eq('baby_id', BABY_ID);
+      if (dErr) throw dErr;
+      await generateTemplatePlan(USER_ID, BABY_ID, parseDbDateFull(newStart));
+      location.reload();
+      return;
+    }
+    BABY_NAME = name;
+    acctEditMode = false;
+    renderMore();
+  } catch (e) { console.error('계정 저장 오류:', e); alert('저장에 실패했어요: ' + (e.message || e)); }
+}
+function toDbDateFull(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+/* ── 이용약관 / 개인정보처리방침 모달 ── */
+function openLegal(kind) {
+  const t = kind === 'terms' ? LEGAL_TERMS : LEGAL_PRIVACY;
+  const ovl = document.createElement('div');
+  ovl.className = 'legal-ovl';
+  ovl.onclick = (e) => { if (e.target === ovl) ovl.remove(); };
+  ovl.innerHTML = `<div class="legal-card">
+    <div class="legal-head"><div class="legal-title">${t.title}</div><button class="legal-x" onclick="this.closest('.legal-ovl').remove()">✕</button></div>
+    <div class="legal-body">${t.body}</div></div>`;
+  document.body.appendChild(ovl);
+}
+
+const LEGAL_TERMS = { title: '이용약관', body: `Cubit 이용약관
+
+제1조 (목적)
+이 약관은 Cubit(이하 "서비스")의 이용 조건과 운영자·이용자의 권리, 의무를 정합니다.
+
+제2조 (서비스 내용)
+서비스는 이유식 식단 관리, 재고 관리, 섭취 기록 기능을 제공합니다. 서비스가 제공하는 식단·재료 정보는 참고용이며 의학적 조언이 아닙니다. 아기의 알레르기, 질환, 영양 상태에 관한 판단은 반드시 소아과 전문의와 상담해주세요.
+
+제3조 (계정)
+1. 회원가입은 만 14세 이상의 보호자만 할 수 있습니다.
+2. 계정에 입력하는 아기의 정보는 법정대리인(보호자) 본인이 직접 입력하는 것으로 간주합니다.
+3. 계정 정보의 관리 책임은 이용자에게 있으며, 비밀번호를 타인과 공유하지 마세요.
+
+제4조 (데이터)
+1. 이용자가 입력한 식단·재고·기록 데이터의 소유권은 이용자에게 있습니다.
+2. 운영자는 서비스 개선을 위해 개인을 식별할 수 없는 형태의 통계 정보를 활용할 수 있습니다.
+
+제5조 (서비스 변경 및 중단)
+운영자는 서비스의 내용을 변경하거나 중단할 수 있으며, 중대한 변경은 사전에 공지합니다.
+
+제6조 (면책)
+1. 서비스는 무료 베타로 제공되며, 데이터의 완전성을 보증하지 않습니다. 중요한 기록은 별도로 보관해주세요.
+2. 천재지변, 외부 인프라 장애 등 불가항력으로 인한 손해에 대해 운영자는 책임을 지지 않습니다.
+
+제7조 (문의)
+서비스 관련 문의: yem3889@naver.com
+
+시행일: 2026년 7월 9일` };
+
+const LEGAL_PRIVACY = { title: '개인정보처리방침', body: `Cubit 개인정보처리방침
+
+Cubit(이하 "서비스")은 개인정보보호법에 따라 이용자의 개인정보를 보호하며 다음과 같이 처리방침을 둡니다.
+
+1. 수집하는 개인정보 항목
+- 필수: 이메일 주소, 비밀번호(암호화 저장)
+- 서비스 이용 과정에서 입력하는 정보: 아기 이름(태명), 생년월일, 이유식 시작일, 식단·재고·섭취 기록
+※ 아기의 정보는 법정대리인(보호자)이 직접 입력합니다.
+
+2. 수집 및 이용 목적
+- 회원 식별 및 로그인
+- 아기별 맞춤 식단 생성 및 기록·재고 관리 기능 제공
+
+3. 보유 및 이용 기간
+- 회원 탈퇴 시 지체 없이 파기합니다.
+- 단, 관계 법령에 따라 보존이 필요한 정보는 해당 기간 동안 분리 보관 후 파기합니다.
+
+4. 개인정보 처리 위탁 및 국외 이전
+- 서비스는 데이터 보관을 위해 Supabase Inc.(미국 등 국외 소재 서버)의 클라우드 인프라를 이용합니다.
+- 이전 항목: 위 1항의 수집 정보 전체 / 이전 목적: 데이터 저장 및 서비스 제공 / 보유 기간: 회원 탈퇴 시까지
+
+5. 제3자 제공
+- 이용자의 동의 없이 개인정보를 제3자에게 제공하지 않습니다. (법령에 의한 경우 제외)
+
+6. 이용자의 권리
+- 이용자는 언제든지 자신의 개인정보를 조회·수정·삭제(탈퇴)할 수 있습니다.
+- 문의: yem3889@naver.com
+
+7. 안전성 확보 조치
+- 비밀번호는 복호화할 수 없는 방식으로 암호화되어 저장됩니다.
+- 데이터베이스 접근은 인증된 사용자로 제한됩니다.
+
+8. 개인정보 보호책임자
+- 이름: 양서연 / 연락처: yem3889@naver.com
+
+시행일: 2026년 7월 9일` };
+
 /* ── 사용자 식단 로드: meal_plan 행이 있으면 내장 meals를 통째로 교체 ── */
 async function loadMealPlan() {
   usesDbPlan = false;
@@ -3205,10 +3437,12 @@ async function enterApp(session) {
     const b = babies[0];
     BABY_ID = b.id;
     BABY_NAME = b.name || '아기';
+    IS_OWNER = isOwnerBaby(b);
     rebaseDates(parseDbDateFull(b.solid_start_date), parseDbDateFull(b.birth_date));
     await loadMealPlan();
+    await selfHealNewAccount(b);
     recomputeMonthBounds();
-    document.title = BABY_NAME + ' 이유식';
+    document.title = 'Cubit — ' + BABY_NAME;
     hideGate();
     await startApp();
   } catch (e) {
