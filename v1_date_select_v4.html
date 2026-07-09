@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Security-Policy" content="default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data:;">
-<title>기특한 찐아의 이유식</title>
+<title>아기 이유식</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 /* ===== 폰트 ===== */
@@ -22,10 +22,11 @@
 
 /* ===== 컬러 변수 ===== */
 :root {
-  --coral: #F97070;
+  --coral: #F97070;          /* 메인 액션 */
+  --coral-deep: #E04545;     /* 경고/부족 (코랄 동일계열, 진하게) */
+  --coral-grad: linear-gradient(135deg,#F97070 0%,#FF9A5C 100%); /* 중요 액션 버튼 */
   --orange: #ff7a4d;
   --sky: #29aaee;
-  --green: #2eaa55;
   --gray: #888;
   --bg: #f6f4f1;
   --text: #2b2422;
@@ -69,7 +70,6 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .day-item.selected.today .dn { color: #fff; font-weight: 800; }
 
 /* ===== 뷰 전환 ===== */
-#main-view { display: block; padding-bottom: 64px; min-height: 100vh; }
 #cal-view { display: none; padding-bottom: 64px; min-height: 100vh; background:#fff; }
 
 /* ===== 날짜 헤더 (D-day) ===== */
@@ -77,22 +77,25 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .dday-row { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
 .dday { font-family:'Paperlogy',sans-serif; font-size: 34px; font-weight: 800; line-height: 1; color: #1f1a18; letter-spacing: -1px; }
 .dday-date { font-family:'Paperlogy',sans-serif; font-size: 14px; color: #6e6661; font-weight: 500; }
-.dday-mid { color:#764ba2; font-weight: 700; }
+.dday-mid { color:var(--coral-deep); font-weight: 700; }
 
 /* 오늘 식단 / 지난 식단 타이틀 */
 .sec-title { font-family:'Paperlogy',sans-serif; display:flex; align-items:center; gap:8px; padding: 14px 18px 6px; font-size: 16px; font-weight: 600; color:#1f1a18; }
 .sec-title .accent { color: var(--coral); }
-.stock-warn { font-size: 11px; font-weight: 600; color: var(--coral); white-space: nowrap; }
+.stock-warn { margin-left:auto; font-size: 11px; font-weight: 600; color: var(--coral-deep); white-space: nowrap; }
+.deadline-warn { margin-left:auto; display:inline-flex; align-items:center; gap:4px; font-size: 11px; font-weight: 700; color: #1f1a18; white-space: nowrap; }
+.deadline-warn .dw-icon { font-size: 12px; }
 
 /* ===== 중기 전환 배너 ===== */
-.mid-banner { margin: 6px 16px 0; background: linear-gradient(135deg,#667eea,#764ba2); padding: 14px 16px; border-radius: 16px; }
+.mid-banner { margin: 6px 16px 0; background: var(--coral-grad); padding: 14px 16px; border-radius: 16px; }
 .mid-banner-title { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 4px; }
 .mid-banner-sub { font-size: 11px; color: rgba(255,255,255,0.88); line-height: 1.5; }
 
 /* ===== 식단 카드 (아침/저녁) ===== */
 .meal-card { margin: 8px 16px 0; background: var(--card); border-radius: 18px; padding: 18px 18px 16px; box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
 .meal-card.evening { background: var(--card); box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
-.meal-card.dimmed { opacity: 0.5; }
+.meal-card.dimmed { background:#fdf8f6; box-shadow:0 2px 10px rgba(60,45,40,0.04); }
+.meal-card.dimmed .meal-lbl { color:#a89f99; }
 .meal-card-head { display:flex; align-items:center; gap:8px; margin-bottom: 14px; flex-wrap: wrap; }
 .meal-lbl { font-size: 13px; font-weight: 700; color: #6e6661; }
 .day-badge { display:inline-block; font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; }
@@ -118,14 +121,14 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .memo-input-lbl span { color:#b3aca7; font-weight:500; font-size:11px; }
 .memo-input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 13px; resize: none; outline: none; color: #2b2422; background:#faf8f6; }
 .memo-input:focus { border-color: var(--coral); }
-.check-btn { width: 100%; margin-top: 14px; padding: 15px; background: var(--coral); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 700; box-shadow:0 4px 14px rgba(249,112,112,0.3); }
+.check-btn { width: 100%; margin-top: 14px; padding: 15px; background: var(--coral-grad); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 700; box-shadow:0 6px 16px rgba(249,112,112,0.32); }
 
 /* 완료 기록 */
 .memo-done { margin-top:16px; }
 .memo-done-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
 .memo-done-lbl { font-size:12px; font-weight:700; color:#6e6661; }
 .memo-edit-btn { background:none; border:1px solid var(--border); border-radius:8px; padding:4px 10px; font-size:11px; color:#9a938f; }
-.memo-txt { font-size:12px; color:#3a3330; line-height:1.6; background:#f4f8f4; border-radius:10px; padding:10px 12px; }
+.memo-txt { font-size:12px; color:#3a3330; line-height:1.6; background:#faf6f4; border-radius:10px; padding:10px 12px; }
 .memo-edit-wrap { margin-top:10px; display:none; }
 .memo-save-btn { margin-top:8px; width:100%; padding:11px; background:#9a938f; color:#fff; border:none; border-radius:10px; font-size:12px; font-weight:700; }
 
@@ -135,13 +138,15 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .skip-am-btn { margin-top:10px; width:100%; padding:10px; background:none; border:none; font-size:12px; font-weight:600; color:#6e6661; text-align:center; }
 .skip-am-btn:active { opacity:0.6; }
 .undo-skip-btn { margin-top:10px; width:100%; padding:10px; background:none; border:none; font-size:12px; font-weight:600; color:#6e6661; }
+.shift-day-btn { margin:10px 0 2px; width:100%; padding:12px; background:#fff; border:1px solid #f6ddd6; border-radius:14px; font-size:12.5px; font-weight:700; color:var(--coral-deep); box-shadow:0 2px 10px rgba(224,69,69,0.06); }
+.shift-day-btn:active { background:#fdf1ee; }
 .meal-card.am-skipped { opacity:0.5; }
 /* 저녁 잠금 래퍼 */
 .evening-wrap { margin: 8px 16px 0; }
 .pm-locked-card { background:var(--card); border-radius:18px; padding:18px 18px 16px; opacity:0.35; box-shadow:0 4px 18px rgba(60,45,40,0.06); pointer-events:none; }
 .pm-locked-card .meal-card-head { margin-bottom:10px; }
 /* 저녁 활성 카드 완료 버튼 — 아침과 동일 */
-.check-btn.pm-btn { background: var(--coral); box-shadow:0 4px 14px rgba(249,112,112,0.3); }
+.check-btn.pm-btn { background: var(--coral-grad); box-shadow:0 6px 16px rgba(249,112,112,0.32); }
 /* 저녁 완료 배지 */
 .pm-done-badge { background:#fef1f1; color:var(--coral); font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
 .pm-done-lbl { font-size:12px; font-weight:700; color:var(--coral); }
@@ -154,6 +159,22 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .new-lbl { font-family:'Paperlogy',sans-serif; font-size: 13px; font-weight: 600; color: var(--coral); margin-bottom: 10px; }
 .new-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .new-chip { background: var(--coral); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 14px; border-radius: 20px; }
+
+/* ===== 오늘 할 일 (재고 부족/임박) ===== */
+.todo-card { margin: 8px 16px 0; background: var(--card); border-radius: 18px; padding: 16px 18px; box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
+.todo-lbl { font-family:'Paperlogy',sans-serif; font-size: 14px; font-weight: 600; color:#1f1a18; margin-bottom: 8px; }
+.todo-row { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+.todo-row:last-child { border-bottom:none; }
+.todo-row:active { opacity:0.6; }
+.todo-dot { width:7px; height:7px; border-radius:50%; background:var(--coral-deep); flex-shrink:0; }
+.todo-name { flex:1; font-size:14px; font-weight:600; color:var(--coral-deep); }
+.todo-action { font-size:12px; font-weight:700; color:#9a938f; white-space:nowrap; }
+.todo-empty { font-size:13px; color:#9a938f; padding:4px 0 2px; }
+
+/* 마감 임박(D-2 이하) 행 — 배경 없음, 텍스트 블랙, D-day 칩만 코랄 강조 */
+.todo-row.imminent .todo-dot { background:#1f1a18; }
+.todo-row.imminent .todo-name { color:#1f1a18; }
+.todo-row.imminent .todo-dday { color:var(--coral-deep) !important; font-weight:700; }
 
 /* ===== 아코디언 (카드 형태) ===== */
 .acc { margin: 8px 16px 0; background: var(--card); border-radius: 18px; overflow: hidden; box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
@@ -169,14 +190,14 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .stock-row:last-of-type { border-bottom: none; }
 .stock-name { flex: 1; }
 .stock-val { font-weight: 700; }
-.stock-low { color: #fd0c0c !important; }
+.stock-low { color: var(--coral-deep) !important; }
 .stock-edit-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; gap: 8px; }
 .stock-edit-row:last-of-type { border-bottom: none; }
 .stock-input { width: 60px; border: 1px solid var(--border); border-radius: 6px; padding: 5px 6px; font-size: 12px; text-align: center; outline: none; }
 .stock-input:focus { border-color: var(--sky); }
 .stock-unit { font-size: 11px; color: var(--text-sub); }
 .stock-edit-btn { width: 100%; margin-top: 10px; padding: 10px; background: #f5f2ef; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: #6e6661; }
-.stock-save-all-btn { width: 100%; margin-top: 10px; padding: 10px; background: var(--green); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; }
+.stock-save-all-btn { width: 100%; margin-top: 10px; padding: 10px; background: var(--coral-grad); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; }
 .stock-cancel-btn { width: 100%; margin-top: 6px; padding: 9px; background: #f5f2ef; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; color: var(--gray); }
 .add-divider { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .add-stock-btn { width: 100%; padding: 10px; background: #f5f2ef; border: 1px dashed var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--gray); }
@@ -185,7 +206,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .add-form input:focus { border-color: var(--coral); }
 .add-form-row { display: flex; gap: 6px; margin-bottom: 6px; }
 .add-form-row input { margin-bottom: 0; flex: 1; }
-.add-confirm-btn { width: 100%; padding: 10px; background: var(--green); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; }
+.add-confirm-btn { width: 100%; padding: 10px; background: var(--coral-grad); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; }
 .shop-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding: 4px 0 16px; }
 .shop-chip { display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid var(--border); border-radius:12px; padding:11px 13px; font-size:13px; color:#2b2422; font-weight:500; min-width:0; }
 .shop-chip-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -214,10 +235,34 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .edit-add-amt { width:80px; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; outline:none; text-align:center; font-family:'Pretendard',sans-serif; background:#faf8f6; }
 .edit-add-name:focus, .edit-add-amt:focus { border-color:var(--coral); }
 .edit-actions { display:flex; gap:8px; margin-top:12px; }
-.edit-save-btn { flex:1; padding:10px; background:var(--coral); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; font-family:'Pretendard',sans-serif; }
+.edit-save-btn { flex:1; padding:10px; background:var(--coral-grad); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; font-family:'Pretendard',sans-serif; }
 .edit-cancel-btn { flex:1; padding:10px; background:#f5f2ef; color:#6e6661; border:none; border-radius:10px; font-size:13px; font-weight:600; font-family:'Pretendard',sans-serif; }
 /* 카드 헤더 편집 버튼 */
 .card-edit-btn { margin-left:auto; background:none; border:none; font-size:12px; font-weight:600; color:#9a938f; padding:0; letter-spacing:0; }
+
+/* ===== 식단 날짜 교환 ===== */
+.card-actions { margin-left:auto; display:flex; align-items:center; gap:14px; }
+.card-swap-btn { background:none; border:none; font-size:12px; font-weight:600; color:var(--coral); padding:0; letter-spacing:0; }
+.swap-panel { margin:8px 16px 0; background:var(--card); border-radius:18px; padding:18px; box-shadow:0 4px 18px rgba(60,45,40,0.06); }
+.swap-panel-title { font-size:13px; font-weight:700; color:var(--coral); margin-bottom:3px; }
+.swap-panel-sub { font-size:11.5px; color:#9a938f; margin-bottom:12px; line-height:1.4; }
+.swap-chips { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; }
+.swap-chip { flex-shrink:0; min-width:62px; max-width:96px; border:1px solid var(--border); border-radius:12px; padding:9px 10px; background:#faf8f6; text-align:center; cursor:pointer; transition:border-color .12s, background .12s; }
+.swap-chip .sc-date { font-family:'Paperlogy',sans-serif; font-size:13px; font-weight:700; color:#1f1a18; }
+.swap-chip .sc-name { font-size:10.5px; color:#9a938f; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.swap-chip.sel { border-color:var(--coral); background:#fff1f1; }
+.swap-chip.sel .sc-name { color:var(--coral); }
+.swap-confirm-row { display:flex; gap:8px; align-items:center; margin-top:14px; }
+.swap-confirm-lbl { flex:1; font-size:13px; font-weight:700; color:#1f1a18; }
+.swap-do-btn { padding:9px 16px; background:var(--coral-grad); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; font-family:'Pretendard',sans-serif; }
+.swap-cancel-btn { padding:9px 14px; background:#f5f2ef; color:#6e6661; border:none; border-radius:10px; font-size:13px; font-weight:600; font-family:'Pretendard',sans-serif; }
+.swap-empty { font-size:12px; color:#9a938f; padding:4px 0; }
+.merged-div { height:1px; background:var(--border); margin:16px 0; }
+.merged-subhead { display:flex; align-items:center; gap:8px; margin:0 0 14px; }
+.sc-warn { font-size:10px; margin-left:3px; }
+.day-item { position:relative; }
+.swap-dot { position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--coral); }
+.rcal-cell .swap-dot { bottom:2px; }
 
 /* ===== 하단 탭 ===== */
 .bottom-tabs { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; display: flex; z-index: 300; border-top:1px solid var(--border); }
@@ -231,7 +276,9 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .mcal .month-top { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
 .mcal .month-title { font-size: 28px; font-weight: 700; color: #000; line-height: 1.15; }
 .mcal .checklist-box { border: 1px solid #CACACA; border-radius: 8px; padding: 12px 16px; }
-.mcal .checklist-title { font-size: 11px; font-weight: 700; color: #F97070; margin-bottom: 8px; letter-spacing: 0.2px; }
+.mcal .checklist-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px; }
+.mcal .checklist-title { font-size: 11px; font-weight: 700; color: #F97070; letter-spacing: 0.2px; }
+.mcal .checklist-at { font-size: 9px; color: #b8b0aa; font-weight: 600; }
 .mcal .checklist-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 5px 10px; margin-bottom: 12px; }
 .mcal .checklist-item { display: flex; align-items: flex-start; gap: 5px; cursor: pointer; user-select: none; }
 .mcal .checklist-item input[type="checkbox"] { appearance:none; -webkit-appearance:none; width:13px; height:13px; min-width:13px; border:1px solid #CACACA; border-radius:3px; flex-shrink:0; cursor:pointer; position:relative; margin-top:1px; }
@@ -275,47 +322,314 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
   .bottom-tabs, .mcal .print-btn-wrap, .header { display: none !important; }
   #cal-view .header { display:none; }
 }
+
+/* =====================================================
+   ===== v3 추가 — 5탭 구조 / 홈·재고·기록·더보기 =====
+   ===================================================== */
+#home-view, #stock-view, #record-view, #more-view, #meal-view {
+  display:none; padding-bottom:64px; min-height:100vh;
+}
+#cal-view .header-top { display:flex; align-items:center; gap:10px; }
+
+/* 인사 영역 */
+.greet { display:flex; align-items:center; padding:20px 18px 4px; }
+.greet-txt { font-family:'Paperlogy',sans-serif; font-size:20px; font-weight:700; color:#1f1a18; letter-spacing:-0.3px; }
+
+/* 공통 탭 헤더 / 패널 */
+.tab-hd { padding:20px 18px 2px; }
+.tab-title { font-family:'Paperlogy',sans-serif; font-size:24px; font-weight:800; color:#1f1a18; letter-spacing:-0.5px; }
+.panel { margin:10px 16px 0; background:var(--card); border-radius:18px; padding:16px 18px; box-shadow:0 4px 18px rgba(60,45,40,0.06); }
+.panel-title { font-family:'Paperlogy',sans-serif; font-size:14px; font-weight:600; color:#1f1a18; margin-bottom:10px; }
+.panel-title-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.panel-title-row .panel-title { margin-bottom:0; }
+
+/* 재고 요약 배지 (충분/임박/부족) */
+.sum-badges { display:flex; gap:8px; }
+.sum-badge { flex:1; text-align:center; font-size:12px; font-weight:700; padding:11px 4px; border-radius:12px; line-height:1.2; }
+.sum-badge.full { background:#eef6ee; color:#4a8a4a; }
+.sum-badge.soon { background:#fff3ea; color:#c97a3a; }
+.sum-badge.out  { background:#fdecec; color:var(--coral-deep); }
+.stock-summary-wrap { margin:12px 16px 0; }
+
+/* 홈 — 재고 요약 / 최근 기록 카드 */
+.home-summary, .home-recent { margin:10px 16px 0; background:var(--card); border-radius:18px; padding:16px 18px; box-shadow:0 4px 18px rgba(60,45,40,0.06); cursor:pointer; }
+.home-summary:active, .home-recent:active { opacity:0.7; }
+.home-sub-lbl { font-family:'Paperlogy',sans-serif; font-size:14px; font-weight:600; color:#1f1a18; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
+.home-sub-lbl .more-arrow { font-size:13px; color:#cfc9c4; font-weight:700; }
+.home-rec-row { display:flex; gap:10px; align-items:center; padding:8px 0; font-size:13px; border-bottom:1px solid var(--border); }
+.home-rec-row:last-child { border-bottom:none; }
+.home-rec-date { font-weight:700; color:#6e6661; width:46px; flex-shrink:0; }
+.home-rec-slot { color:var(--coral); font-weight:700; width:36px; flex-shrink:0; }
+.home-rec-memo { color:#3a3330; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* 오늘 할 일 — D-day */
+.todo-dday { font-size:11px; font-weight:700; margin-right:10px; white-space:nowrap; color:var(--text-sub); }
+.todo-dday.dd-soon   { color:var(--coral); }
+.todo-dday.dd-urgent { color:var(--coral-deep); }
+
+/* 재고 상태 배지 */
+.st-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; margin-right:8px; flex-shrink:0; }
+.st-badge.st-full { background:#eef6ee; color:#4a8a4a; }
+.st-badge.st-soon { background:#fff3ea; color:#c97a3a; }
+.st-badge.st-out  { background:#fdecec; color:var(--coral-deep); }
+
+/* 장볼 재료 리스트 (D-day 포함) */
+.shop-list { display:flex; flex-direction:column; }
+.shop-line { display:flex; align-items:center; gap:8px; padding:11px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.shop-line:last-child { border-bottom:none; }
+.shop-line-name { flex:1; font-weight:500; color:#2b2422; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.shop-dday { font-size:11px; font-weight:700; white-space:nowrap; color:var(--text-sub); }
+.shop-dday.dd-soon   { color:var(--coral); }
+.shop-dday.dd-urgent { color:var(--coral-deep); }
+
+/* ⓘ 툴팁 */
+.tip-btn { background:none; border:1px solid var(--border); color:var(--text-sub); width:20px; height:20px; border-radius:50%; font-size:11px; line-height:1; padding:0; flex-shrink:0; }
+.tip-line { display:none; font-size:11px; color:#8a827d; background:#faf6f4; border-radius:8px; padding:8px 10px; margin-bottom:10px; line-height:1.5; }
+
+/* 기록 탭 */
+.rec-monthnav { display:flex; align-items:center; justify-content:center; gap:24px; padding:14px 0 2px; }
+.rec-monthnav .nav-arrow { background:transparent; border:none; font-size:18px; color:#5a534e; padding:2px 6px; }
+.rec-monthnav span { font-family:'Paperlogy',sans-serif; font-size:16px; font-weight:700; color:#1f1a18; }
+.rec-card { margin:10px 16px 0; background:var(--card); border-radius:16px; padding:14px 16px; box-shadow:0 4px 18px rgba(60,45,40,0.06); }
+.rec-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.rec-date { font-size:13px; font-weight:700; color:#1f1a18; }
+.rec-date .rec-slot-tag { color:var(--coral); margin-left:6px; }
+.rec-cancel { background:none; border:1px solid #f5c4b3; color:var(--coral-deep); border-radius:8px; padding:4px 10px; font-size:11px; font-weight:600; }
+.rec-items { font-size:13px; color:#3a3330; line-height:1.5; }
+.rec-memo { margin-top:8px; font-size:12px; color:#b06a4a; background:#faf6f4; border-radius:8px; padding:8px 10px; line-height:1.5; }
+.rec-memo.plain { color:#9a938f; }
+
+/* 더보기 탭 */
+.more-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.more-row:last-child { border-bottom:none; }
+.more-k { color:#6e6661; }
+.more-v { font-weight:700; color:#1f1a18; }
+.more-print-btn { width:100%; padding:13px; background:#1f1a18; color:#fff; border:none; border-radius:12px; font-size:13px; font-weight:700; }
+
+/* 식단 탭 헤더 인쇄 버튼 */
+.meal-print-btn { background:#1f1a18; color:#fff; border:none; border-radius:20px; padding:7px 13px; font-size:12px; font-weight:700; }
+.cal-back-btn { background:none; border:none; font-size:14px; font-weight:700; color:#5a534e; padding:6px 0; }
+
+/* 강조 플래시 (장볼 재료로 이동 시) */
+.flash { animation:flashbg 1.2s ease; }
+@keyframes flashbg { 0%,100% { box-shadow:0 4px 18px rgba(60,45,40,0.06); } 30% { box-shadow:0 0 0 2px var(--coral); } }
+
+/* 되돌리기 토스트 */
+.undo-toast {
+  position:fixed; bottom:76px; left:50%; transform:translateX(-50%);
+  background:#2b2422; color:#fff; border-radius:14px;
+  padding:12px 16px; display:flex; align-items:center; gap:14px;
+  font-size:13px; white-space:nowrap; z-index:999;
+  box-shadow:0 6px 24px rgba(0,0,0,0.22);
+  animation:toastIn 0.22s ease;
+}
+@keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px);} to{opacity:1;transform:translateX(-50%) translateY(0);} }
+.undo-toast-name { color:#ffc8a8; font-weight:700; }
+.undo-btn {
+  background:var(--coral); color:#fff; border:none;
+  border-radius:8px; padding:6px 13px; font-size:12px; font-weight:700;
+}
+
+/* =====================================================
+   ===== v4 추가 — 카드형 재고 / 반응 / 기록 달력 등 =====
+   ===================================================== */
+
+/* 인사 영역 — 위계 낮춤 (D+ 헤더가 주인공) */
+.greet-txt { font-size:15px !important; font-weight:600 !important; color:#6e6661 !important; }
+.home-dayhd { padding:2px 18px 2px; }
+
+/* 재고 요약 — 흰 카드 + 포인트 색 숫자 */
+.sum-badges { display:flex; gap:10px; }
+.sum-badge {
+  flex:1; background:var(--card) !important; border-radius:14px;
+  padding:14px 6px 12px !important; text-align:center;
+  box-shadow:0 3px 12px rgba(60,45,40,0.05); display:flex; flex-direction:column; gap:4px;
+}
+.sum-num { font-family:'Paperlogy',sans-serif; font-size:26px; font-weight:800; line-height:1; }
+.sum-lbl { font-size:11px; font-weight:600; color:var(--text-sub); }
+.sum-badge.out  .sum-num { color:var(--coral-deep); }   /* 부족 = 딥코랄 */
+.sum-badge.soon .sum-num { color:var(--coral); }        /* 임박 = 코랄 */
+.sum-badge.full .sum-num { color:var(--text); }          /* 충분 = 본문색 */
+
+/* 코랄 + 버튼 (재고/장보기 추가) */
+.add-fab { width:34px; height:34px; border-radius:50%; background:var(--coral-grad); color:#fff; border:none; font-size:20px; font-weight:600; line-height:1; box-shadow:0 4px 12px rgba(249,112,112,0.35); display:flex; align-items:center; justify-content:center; }
+.add-fab.small { width:26px; height:26px; font-size:16px; box-shadow:0 3px 9px rgba(249,112,112,0.3); }
+.tab-hd-row { display:flex; align-items:center; justify-content:space-between; }
+.panel-edit-btn { margin-left:auto; background:none; border:1px solid var(--border); color:var(--text-sub); border-radius:8px; padding:4px 12px; font-size:12px; font-weight:600; }
+.panel-edit-btn.on { color:var(--coral-deep); border-color:#f5c4b3; }
+
+/* 재고 카드형 */
+.stock-card { display:flex; align-items:center; gap:13px; background:var(--card); border-radius:16px; padding:13px 15px; margin-bottom:10px; box-shadow:0 3px 12px rgba(60,45,40,0.05); }
+.stock-card:last-child { margin-bottom:0; }
+.stock-card-ic { width:46px; height:46px; border-radius:13px; background:#f4f1ee; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.stock-card-ic img { width:30px; height:30px; object-fit:contain; }
+.stock-card-ic .emoji { font-size:22px; }
+.stock-card-mid { flex:1; min-width:0; }
+.stock-card-name { font-size:15px; font-weight:700; color:#2b2422; }
+.stock-card-sub { font-size:11px; color:var(--text-sub); margin-top:2px; }
+.stock-card-right { text-align:right; flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.stock-card-val { font-family:'Paperlogy',sans-serif; font-size:19px; font-weight:800; color:#4a8a4a; }
+.stock-card-val.low { color:var(--coral-deep); }
+
+/* 재고 편집 카드 */
+.stock-edit-card { background:#faf8f6; border:1px solid var(--border); border-radius:14px; padding:12px 13px; margin-bottom:10px; }
+.ec-top { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.ec-top .stock-edit-name { flex:1; font-size:14px; font-weight:700; color:#2b2422; }
+.ec-bottom { display:flex; gap:10px; }
+.ec-field { flex:1; display:flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:7px 10px; }
+.ec-field label { font-size:11px; color:var(--text-sub); white-space:nowrap; }
+.ec-field input { flex:1; border:none; outline:none; font-size:14px; font-weight:700; color:#2b2422; width:100%; text-align:right; background:transparent; }
+.ec-field .ec-unit { font-size:11px; color:var(--text-sub); }
+.base-g-select { flex:1; border:none; outline:none; font-size:14px; font-weight:700; color:#2b2422; background:transparent; text-align:right; cursor:pointer; }
+.add-form-select-wrap { flex:1; display:flex; flex-direction:column; gap:4px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+.add-form-label { font-size:11px; color:var(--text-sub); }
+.add-form-select-wrap .base-g-select { font-size:14px; font-weight:600; text-align:left; padding:0; }
+.ec-warn { margin-top:8px; font-size:11px; font-weight:600; color:var(--coral-deep); line-height:1.4; background:#fff4f2; border-radius:8px; padding:7px 10px; }
+.stock-x { background:none; border:none; color:#cfc9c4; font-size:15px; padding:2px 4px; }
+
+/* 장볼 재료 2단 카드 */
+.shop-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.shop-card { position:relative; background:#fff5f5; border:1px solid #fde0e0; border-radius:14px; padding:13px 14px; }
+.shop-card-name { font-size:14px; font-weight:700; color:#2b2422; padding-right:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.shop-card .shop-dday { display:inline-block; margin-top:6px; font-size:11px; font-weight:700; }
+.shop-card-x { position:absolute; top:8px; right:8px; width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,0.06); border:none; color:#8a827d; font-size:11px; line-height:1; padding:0; }
+
+/* 반응 칩 */
+.reaction-lbl { font-size:12px; font-weight:700; color:#6e6661; margin:2px 0 6px; }
+.reaction-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.reaction-chip { display:flex; align-items:center; gap:4px; background:#faf8f6; border:1.5px solid var(--border); border-radius:18px; padding:5px 11px; font-size:12px; font-weight:600; color:#6e6661; }
+.reaction-chip .re-e { font-size:13px; }
+.reaction-chip.selected { background:#fff1f1; border-color:var(--coral); color:var(--coral-deep); }
+/* 주의·부족함: 별도 차원 플래그 → 기본부터 한 톤 낮은 그레이 배경, 선택 시 더 진하게 */
+.reaction-chip.tone-warn, .reaction-chip.tone-short { background:#eeeae6; border-color:#eeeae6; color:#7a736e; }
+.reaction-chip.tone-warn.selected, .reaction-chip.tone-short.selected { background:#ddd7d1; border-color:#ddd7d1; color:#3e3935; }
+.intro-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0; border-bottom:1px solid var(--border); }
+.intro-row:last-child { border-bottom:none; }
+.intro-name { font-size:13px; font-weight:700; color:#1f1a18; min-width:56px; }
+.intro-date { font-size:11px; color:#9a938f; }
+.intro-status { margin-left:auto; font-size:11px; font-weight:600; color:var(--coral); }
+.intro-memo { width:100%; font-size:11px; color:#8a837e; line-height:1.4; }
+.intro-empty { font-size:12px; color:#9a938f; padding:6px 0; }
+
+/* 기록 탭 리스트/달력 토글 */
+.rec-toggle { display:flex; gap:6px; background:#efe9e4; border-radius:12px; padding:4px; margin:10px 16px 2px; }
+.rec-tg { flex:1; padding:9px; border:none; background:transparent; border-radius:9px; font-size:13px; font-weight:700; color:var(--text-sub); }
+.rec-tg.active { background:#fff; color:#2b2422; box-shadow:0 2px 6px rgba(60,45,40,0.08); }
+.rec-items .ri-amt { color:var(--text-sub); font-weight:600; }
+
+/* 기록 달력 */
+.rcal { margin:8px 16px 0; background:var(--card); border-radius:18px; padding:14px 12px; box-shadow:0 4px 18px rgba(60,45,40,0.06); }
+.rcal-wd { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+.rcal-wd div { text-align:center; font-size:11px; font-weight:700; color:var(--text-sub); padding:4px 0; }
+.rcal-wd div.sun { color:var(--coral-deep); }
+.rcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.rcal-cell { position:relative; aspect-ratio:1; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; font-size:12px; color:#3a3330; }
+.rcal-cell.empty { background:transparent; }
+.rcal-cell.done { background:#fff1f1; }
+.rcal-cell.today { box-shadow:inset 0 0 0 1.5px var(--coral); }
+.rcal-dn { font-size:11px; font-weight:600; }
+.rcal-cell.done .rcal-dn { color:var(--coral-deep); font-weight:800; }
+.rcal-emoji { font-size:13px; line-height:1; }
+/* 아침·저녁 2슬롯 아이콘 (작게 나란히) */
+.rcal-slots { display:flex; gap:2px; align-items:center; justify-content:center; line-height:1; }
+.rcal-slot { display:flex; flex-direction:column; align-items:center; gap:0; }
+.rcal-slot-ic { font-size:11px; line-height:1.1; }
+.rcal-slot-tag { font-size:7px; color:var(--text-sub); font-weight:700; line-height:1; }
+.rcal-cell.selected { box-shadow:inset 0 0 0 2px #1f1a18; }
+.rcal-cell.selected.today { box-shadow:inset 0 0 0 2px var(--coral); }
+.rcal-legend { display:flex; flex-wrap:wrap; gap:8px 12px; margin:12px 16px 0; padding:0 2px; }
+.rcal-legend span { font-size:11px; color:var(--text-sub); }
+/* 달력 하단 — 선택일 상세 (그날 아침/저녁 식단 + 메모) */
+.rcal-detail { margin:10px 16px 0; background:var(--card); border-radius:16px; padding:14px 16px; box-shadow:0 4px 18px rgba(60,45,40,0.06); }
+.rcal-detail-date { font-size:14px; font-weight:800; color:#1f1a18; margin-bottom:10px; font-family:'Paperlogy',sans-serif; }
+.rcal-detail-slot { padding:10px 0; border-bottom:1px solid var(--border); }
+.rcal-detail-slot:last-child { border-bottom:none; }
+.rcal-detail-slot-head { display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+.rcal-detail-slot-lbl { font-size:12px; font-weight:700; color:var(--coral); }
+.rcal-detail-react { font-size:12px; font-weight:600; color:#6e6661; }
+.rcal-detail-items { font-size:13px; color:#3a3330; line-height:1.5; }
+.rcal-detail-items .ri-amt { color:var(--text-sub); font-weight:600; }
+.rcal-detail-memo { margin-top:6px; font-size:12px; color:#b06a4a; background:#faf6f4; border-radius:8px; padding:8px 10px; line-height:1.5; }
+.rcal-detail-empty { font-size:12px; color:#9a938f; padding:4px 0; }
+.rcal-detail-none { font-size:12px; color:#b3aca7; }
+
+/* ===== v8: 인증/온보딩 게이트 ===== */
+#gate-view { position:fixed; inset:0; z-index:999; background:var(--bg); display:none; align-items:center; justify-content:center; padding:24px 20px; overflow-y:auto; }
+.gate-card { width:100%; max-width:360px; background:var(--card); border:1px solid var(--border); border-radius:20px; padding:28px 22px 22px; box-shadow:0 8px 30px rgba(0,0,0,.06); }
+.gate-logo { text-align:center; font-size:36px; line-height:1; }
+.gate-title { text-align:center; font-size:19px; font-weight:800; color:var(--text); margin:10px 0 4px; }
+.gate-sub { text-align:center; font-size:13px; color:var(--text-sub); margin-bottom:18px; line-height:1.55; }
+.gate-field { margin-bottom:10px; }
+.gate-label { font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:4px; display:block; }
+.gate-input { width:100%; padding:13px 14px; border:1px solid var(--border); border-radius:12px; font-size:15px; font-family:inherit; background:#fbfaf9; color:var(--text); }
+.gate-input:focus { outline:none; border-color:var(--coral); background:#fff; }
+.gate-btn { width:100%; padding:14px; border:none; border-radius:12px; background:var(--coral-grad); color:#fff; font-size:15px; font-weight:800; margin-top:8px; cursor:pointer; font-family:inherit; }
+.gate-btn:disabled { opacity:.55; }
+.gate-msg { font-size:12.5px; line-height:1.5; margin-top:10px; text-align:center; color:var(--coral-deep); display:none; }
+.gate-switch { text-align:center; margin-top:14px; font-size:13px; color:var(--text-sub); line-height:1.6; }
+.gate-switch b { color:var(--coral); cursor:pointer; }
+body.gated .bottom-tabs { display:none; }
+.more-logout-btn { width:100%; padding:12px; margin-top:10px; border:1px solid var(--border); border-radius:12px; background:#fff; color:var(--coral-deep); font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
 </style>
 </head>
 <body>
 
-<!-- ===== 메인 뷰 ===== -->
-<div id="main-view">
+<!-- ===== v8: 로그인/온보딩 게이트 ===== -->
+<div id="gate-view"><div class="gate-card" id="gate-card"></div></div>
+
+<!-- ===== 홈 탭 ===== -->
+<div id="home-view"></div>
+
+<!-- ===== 재고 탭 ===== -->
+<div id="stock-view"></div>
+
+<!-- ===== 식단 탭 ===== -->
+<div id="meal-view">
   <div class="header">
-    <div class="header-top">
-      <div class="title">기특한 찐아의 이유식</div>
-      <div class="sub" id="sub"></div>
-    </div>
     <div class="month-nav">
       <button class="nav-arrow" onclick="changeMonth(-1)">‹</button>
       <span id="month-lbl"></span>
       <button class="nav-arrow" onclick="changeMonth(1)">›</button>
-      <div class="month-nav-right">
+      <div class="month-nav-right" style="display:flex;align-items:center;gap:8px;">
         <button class="today-btn" onclick="goToday()">Today</button>
+        <button class="meal-print-btn" onclick="openMonthly()">🖨 인쇄</button>
       </div>
     </div>
+    <div class="sub" id="sub" style="padding:0 18px 2px;"></div>
     <div class="strip-wrap" id="strip-wrap">
       <div class="strip" id="strip"></div>
     </div>
   </div>
-  <div id="content"></div>
+  <div id="meal-content"></div>
 </div>
 
-<!-- ===== 월간 달력 뷰 ===== -->
+<!-- ===== 기록 탭 ===== -->
+<div id="record-view"></div>
+
+<!-- ===== 더보기 탭 ===== -->
+<div id="more-view"></div>
+
+<!-- ===== 월간 달력 뷰 (탭 아님 — 인쇄 진입) ===== -->
 <div id="cal-view">
   <div class="header">
     <div class="header-top">
-      <div class="title">기특한 찐아의 이유식</div>
-      <div class="sub">월간 식단표</div>
+      <button class="cal-back-btn" onclick="backFromMonthly()">‹ 뒤로</button>
+      <div class="title" style="font-size:18px;">월간 식단표</div>
     </div>
   </div>
   <div id="cal-content"></div>
 </div>
 
+<!-- 되돌리기 토스트 -->
+<div id="undo-toast" style="display:none;"></div>
+
 <!-- ===== 하단 탭 ===== -->
 <div class="bottom-tabs">
-  <button class="btab active" id="tab-main" onclick="switchTab('main')">Main</button>
-  <button class="btab" id="tab-cal" onclick="switchTab('cal')">Monthly</button>
+  <button class="btab active" id="tab-home" onclick="switchTab('home')">홈</button>
+  <button class="btab" id="tab-stock" onclick="switchTab('stock')">재고</button>
+  <button class="btab" id="tab-meal" onclick="switchTab('meal')">식단</button>
+  <button class="btab" id="tab-record" onclick="switchTab('record')">기록</button>
+  <button class="btab" id="tab-more" onclick="switchTab('more')">더보기</button>
 </div>
 
 <script>
@@ -348,6 +662,15 @@ const SUPABASE_URL = 'https://qntrusgrggrpcduwdzld.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFudHJ1c2dyZ2dycGNkdXdkemxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjA4OTksImV4cCI6MjA5NDMzNjg5OX0.wg_UKr5qp8_vWpNx2ZBrCcUe_J0ksqm2aR6R1irLqU0';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* ===== v8: 로그인 사용자/아기 컨텍스트 =====
+   - 모든 DB 읽기/쓰기는 반드시 BABY_ID 범위로 제한한다 (RLS + 명시 필터 이중 안전장치)
+   - meal_plan 행이 있으면 DB 식단(usesDbPlan=true), 없으면 내장 meals(오너 계정) */
+let USER_ID = null;
+let BABY_ID = null;
+let BABY_NAME = '아기';
+let AUTH_EMAIL = '';
+let usesDbPlan = false;
+
 let dbStocks = [];
 let shops = [];
 let stockEditMode = false;
@@ -357,11 +680,58 @@ let showShopAddForm = false;
 /* ================================================
    기준 날짜
 ================================================ */
-const START = new Date(2026, 4, 9);    // 이유식 시작 2026-05-09
+/* ── v8: 템플릿 기준일(찐아 스케줄) — 신규 아기의 식단은 이 기준에서의 D+오프셋으로 생성된다 ── */
+const BASE_START = new Date(2026, 4, 9);     // 템플릿 이유식 시작일 2026-05-09
+const BASE_BIRTH = new Date(2025, 10, 14);   // 템플릿 생년월일 2025-11-14
+const BASE_MID   = new Date(2026, 6, 2);     // 템플릿 중기 전환 (D+55)
+const BASE_TWO   = new Date(2026, 5, 8);     // 템플릿 2끼 전환 (참고용)
+
+/* ── 실제 적용 날짜 (로그인 후 아기 프로필로 재기준화됨. 기본값=템플릿) ── */
+let START = new Date(BASE_START);            // 이유식 시작
 const TODAY = new Date();
-const BIRTH = new Date(2025, 10, 14);  // 2025-11-14
-const MID_START = new Date(2026, 6, 1);// 중기 전환 7/1
-const TWO_MEAL_START = new Date(2026, 5, 8); // 2끼 전환 6/8
+let BIRTH = new Date(BASE_BIRTH);            // 생년월일
+let MID_START = new Date(BASE_MID);          // 중기 전환
+let TWO_MEAL_START = new Date(BASE_TWO);
+let PLAN_YEAR = START.getFullYear();         // 내부 "M/D" 키의 연도 (v8: 단일 연도 내 식단만 지원)
+
+function v8DateOnly(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function v8AddDays(d, n) { const x = v8DateOnly(d); x.setDate(x.getDate() + n); return x; }
+function v8DayDiff(a, b) { return Math.round((v8DateOnly(a) - v8DateOnly(b)) / 86400000); }
+
+/* ================================================
+   ★ 끼니 단계 (meal_phases)  ── 단일 소스 ──
+   - 끼니 수 전환을 날짜 하드코딩이 아닌 이 표가 결정한다.
+   - 3끼 전환 시: 아래 3끼 항목의 from 날짜만 채우면 자동 적용.
+     (해당 날짜의 식단 데이터에 lunch:[...] 배열만 추가하면 점심 카드가 켜짐)
+   - 완료 저장: am=meal_log(날짜행) / pm·건너뜀·교환·편집=appState(meal_log _appstate 행) — 모두 Supabase 동기화
+================================================ */
+const PHASES = [
+  { id:'early1', from:new Date(2026,4,9), meals:1,
+    slots:[{key:'am', label:'이유식'}] },
+  { id:'early2', from:new Date(2026,5,8), meals:2,
+    slots:[{key:'am', label:'아침'}, {key:'pm', label:'저녁'}] },
+  { id:'mid3', from:new Date(2026,7,18), meals:3,
+    slots:[{key:'am', label:'아침'}, {key:'lunch', label:'점심'}, {key:'pm', label:'저녁'}] },
+];
+/* v8: 단계 전환일의 시작일 대비 오프셋(일). 아기별 재기준화에 사용 */
+const PHASE_OFFSETS = PHASES.map(p => v8DayDiff(p.from, BASE_START));
+
+/* v8: 아기 프로필 기준으로 모든 기준 날짜를 재계산 (오너=템플릿과 동일 결과) */
+function rebaseDates(startDate, birthDate) {
+  START = v8DateOnly(startDate);
+  BIRTH = v8DateOnly(birthDate);
+  PLAN_YEAR = START.getFullYear();
+  MID_START = v8AddDays(START, v8DayDiff(BASE_MID, BASE_START));
+  TWO_MEAL_START = v8AddDays(START, v8DayDiff(BASE_TWO, BASE_START));
+  PHASES.forEach((p, i) => { p.from = v8AddDays(START, PHASE_OFFSETS[i]); });
+}
+
+/* 해당 날짜에 적용되는 단계 반환 (가장 마지막으로 from을 지난 단계) */
+function phaseFor(d) {
+  let p = PHASES[0];
+  for (const ph of PHASES) { if (d >= ph.from) p = ph; }
+  return p;
+}
 
 /* ================================================
    식단 데이터
@@ -420,72 +790,145 @@ const meals = {
   "6/20": { badge:{t:'new',x:'New 밀'}, am:['밀 1팩','쌀 30g','한우 15g'], pm:['쌀 45g','한우 15g'] },
   "6/21": { am:['밀 1팩','쌀 30g','한우 15g'], pm:['쌀 45g','한우 15g'] },
   "6/22": { am:['밀 1팩','쌀 30g','한우 15g'], pm:['쌀 45g','한우 15g'] },
-  "6/23": { am:['쌀 30g','단호박 15g','양배추 15g'], pm:['두부 15g','쌀 30g','한우 15g'] },
-  "6/24": { am:['반복:땅콩 반복노출','쌀 45g','한우 15g'], pm:['쌀 30g','애호박 15g','한우 15g'] },
-  "6/25": { am:['쌀 30g','두부 15g','단호박 15g'], pm:['쌀 30g','오트밀 15g','한우 15g'] },
-  "6/26": { am:['쌀 30g','양배추 15g','한우 15g'], pm:['쌀 30g','단호박 15g','두부 15g'] },
-  "6/27": { am:['반복:땅콩 반복노출','쌀 45g','한우 15g'], pm:['쌀 30g','애호박 15g','한우 15g'] },
-  "6/28": { am:['쌀 30g','두부 15g','양배추 15g'], pm:['쌀 30g','단호박 15g','한우 15g'] },
-  "6/29": { am:['반복:밀 반복','쌀 30g','한우 15g'], pm:['쌀 30g','애호박 15g','두부 15g'] },
-  "6/30": { am:['반복:땅콩 반복노출','쌀 45g','한우 15g'], pm:['쌀 30g','양배추 15g','한우 15g'] },
+  "6/23": { badge:{t:'new',x:'New 조개'}, am:['조개 소량','쌀 30g','한우 15g'], pm:['쌀 30g','한우 15g','단호박 15g'], note:'조개 관찰 1일차 (고위험·3일)' },
+  "6/24": { am:['조개 1팩','쌀 30g','한우 15g'], pm:['쌀 30g','두부 15g','단호박 15g'], note:'조개 관찰 2일차' },
+  "6/25": { am:['조개 1팩','쌀 30g','한우 15g'], pm:['쌀 30g','한우 15g','양배추 15g'], note:'조개 관찰 3일차 · 신규 도입 완료' },
 
-  /* ── 7월 (중기, 월간 플래너와 동일) ── */
-  "7/1":  { badge:{t:'trans',x:'중기 이유식 시작'}, newBadge:{t:'new',x:'New 당근'}, midStart:true, am:['당근 15g','쌀죽 60g','한우 20g'], pm:['쌀죽 60g','애호박 20g','한우 20g'] },
-  "7/2":  { am:['당근 20g','쌀죽 60g','한우 20g'], pm:['쌀죽 60g','단호박 20g','한우 20g'] },
-  "7/3":  { am:['당근 20g','쌀죽 60g','한우 20g'], pm:['쌀죽 60g','양배추 20g','한우 20g'] },
-  "7/4":  { badge:{t:'new',x:'New 닭고기'}, am:['닭고기 15g','쌀죽 60g','당근 20g'], pm:['쌀죽 60g','애호박 20g','한우 20g'] },
-  "7/5":  { am:['닭고기 15g','쌀죽 60g','당근 20g'], pm:['쌀죽 60g','단호박 20g','한우 20g'] },
-  "7/6":  { am:['닭고기 20g','쌀죽 60g','당근 20g'], pm:['쌀죽 60g','양배추 20g','한우 20g'] },
-  "7/7":  { badge:{t:'new',x:'New 새우'}, am:['새우 1팩','쌀죽 60g','애호박 20g'], pm:['쌀죽 60g','닭고기 20g','당근 20g'] },
-  "7/8":  { am:['새우 1팩','쌀죽 60g','애호박 20g'], pm:['쌀죽 60g','닭고기 20g','단호박 20g'] },
-  "7/9":  { am:['새우 1팩','쌀죽 60g','당근 20g'], pm:['쌀죽 60g','한우 20g','양배추 20g'] },
-  "7/10": { badge:{t:'new',x:'New 흰살생선'}, am:['흰살생선 1팩','쌀죽 60g','단호박 20g'], pm:['쌀죽 60g','닭고기 20g','당근 20g'] },
-  "7/11": { am:['흰살생선 1팩','쌀죽 60g','단호박 20g'], pm:['반복:새우 반복','쌀죽 60g','애호박 20g'] },
-  "7/12": { am:['흰살생선 1팩','쌀죽 60g','당근 20g'], pm:['쌀죽 60g','닭고기 20g','양배추 20g'] },
-  "7/13": { badge:{t:'new',x:'New 대게'}, am:['대게 1팩','쌀죽 60g','당근 20g'], pm:['쌀죽 60g','닭고기 20g','단호박 20g'] },
-  "7/14": { am:['대게 1팩','쌀죽 60g','애호박 20g'], pm:['반복:흰살생선 반복','쌀죽 60g','당근 20g'] },
-  "7/15": { badge:{t:'grain',x:'입자 Lv.2'}, am:['대게 1팩','쌀죽(묽은) 60g','단호박 20g'], pm:['반복:새우 반복','쌀죽(묽은) 60g','양배추 20g'] },
-  "7/16": { badge:{t:'new',x:'New 조개'}, am:['조개 1팩','쌀죽(묽은) 60g','당근 20g'], pm:['쌀죽(묽은) 60g','닭고기 20g','애호박 20g'] },
-  "7/17": { am:['조개 1팩','쌀죽(묽은) 60g','단호박 20g'], pm:['반복:대게 반복','쌀죽(묽은) 60g','당근 20g'] },
-  "7/18": { am:['조개 1팩','쌀죽(묽은) 60g','애호박 20g'], pm:['쌀죽(묽은) 60g','닭고기 20g','양배추 20g'] },
-  "7/19": { badge:{t:'new',x:'New 참깨'}, am:['참깨 1팩','쌀죽(묽은) 60g','닭고기 20g'], pm:['반복:조개 반복','쌀죽(묽은) 60g','단호박 20g'] },
-  "7/20": { am:['참깨 1팩','쌀죽(묽은) 60g','한우 20g'], pm:['쌀죽(묽은) 60g','당근 20g','애호박 20g'] },
-  "7/21": { am:['참깨 1팩','쌀죽(묽은) 60g','닭고기 20g'], pm:['쌀죽(묽은) 60g','단호박 20g','한우 20g'] },
-  "7/22": { badge:{t:'grain',x:'입자 Lv.3'}, newBadge:{t:'new',x:'New 호두'}, am:['호두 1팩','쌀알갱이죽 60g','단호박 20g'], pm:['쌀알갱이죽 60g','닭고기 20g','당근 20g'] },
-  "7/23": { am:['호두 1팩','쌀알갱이죽 60g','닭고기 20g'], pm:['반복:참깨 반복','쌀알갱이죽 60g','애호박 20g'] },
-  "7/24": { am:['호두 1팩','쌀알갱이죽 60g','당근 20g'], pm:['반복:대게 반복','쌀알갱이죽 60g','애호박 20g'] },
-  "7/25": { badge:{t:'new',x:'New 메밀'}, am:['메밀 1팩','쌀알갱이죽 60g','닭고기 20g'], pm:['반복:호두 반복','쌀알갱이죽 60g','단호박 20g'] },
-  "7/26": { am:['메밀 1팩','쌀알갱이죽 60g','단호박 20g'], pm:['쌀알갱이죽 60g','닭고기 20g','당근 20g'] },
-  "7/27": { am:['메밀 1팩','쌀알갱이죽 60g','당근 20g'], pm:['반복:조개 반복','쌀알갱이죽 60g','애호박 20g'] },
-  "7/28": { am:['쌀알갱이죽 60g','닭고기 20g','단호박 20g'], pm:['쌀알갱이죽 60g','한우 20g','당근 20g'] },
-  "7/29": { am:['반복:땅콩 반복','쌀알갱이죽 60g','한우 20g'], pm:['쌀알갱이죽 60g','닭고기 20g','애호박 20g'] },
-  "7/30": { am:['쌀알갱이죽 60g','한우 20g','당근 20g'], pm:['반복:메밀 반복','쌀알갱이죽 60g','단호박 20g'] },
-  "7/31": { am:['쌀알갱이죽 60g','닭고기 20g','양배추 20g'], pm:['쌀알갱이죽 60g','한우 20g','애호박 20g'] },
+  /* ── 6/26~27 정리 (도입 없음, 이미 섭취 완료) ── */
+  "6/26": { am:['쌀 45g','두부 15g','단호박 15g'], pm:['쌀 30g','한우 15g','양배추 15g'] },
+  "6/27": { am:['쌀 45g','한우 15g','애호박 15g'], pm:['쌀 30g','두부 15g','단호박 15g'] },
+
+  /* ── 6월 말: 당근 도입 시작 (6/28~, 저위험 2일) ── */
+  "6/28": { badge:{t:'new',x:'New 당근'}, am:['당근 15g','쌀 45g','한우 15g'], pm:['쌀 30g','두부 15g','단호박 15g'], note:'당근 관찰 1일차(저위험·2일)' },
+  "6/29": { am:['당근 20g','쌀 45g','한우 15g'], pm:['쌀 30g','두부 15g','양배추 15g'], note:'당근 관찰 2일차 · 도입완료' },
+
+  /* 닭고기 (저위험 2일) — 6/30~7/1, 7/1 중기전환 포함 */
+  "6/30": { badge:{t:'new',x:'New 닭고기'}, am:['닭고기 15g','쌀 45g','당근 15g'], pm:['쌀 30g','한우 15g','애호박 15g'], note:'닭고기 관찰 1일차(저위험·2일)' },
+  "7/1":  { am:['쌀미음 60g'], pm:['쌀미음 60g'], note:'🩺 소화 쉬어가기 — 묽은 변으로 쌀미음만. 오전 경과 보고 필요시 오후 소아과' },
+
+  /* ═══════════ 🩺 장염 회복기 (7/2~7/28): 신규 재료 중단, 통과 재료만 로테이션 ═══════════ */
+  /* 7/2·7/3: 실제 먹인 회복식으로 기록 고정 (새우 미도입 → New 배지·midStart 제거, 중기 마커만 유지) */
+  "7/2":  { badge:{t:'trans',x:'중기 이유식 시작'}, midStart:true, done:true, pmDone:true, am:['쌀 60g'], pm:['쌀 60g','단호박 15g'], note:'🩺 장염 회복 후 중기 입자 전환 · 쌀죽 위주 · 중기 농도 유지(쌀:물=1:5) · 신규 재료 중단' },
+  "7/3":  { done:true, pmDone:true, am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'🩺 장염 회복 · 통과 재료만' },
+
+  /* 7/4~7/28 회복기 로테이션 (신규 없음, 2끼, 오트밀 화·금 아침) */
+  "7/4":  { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
+  "7/5":  { am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'] },
+  "7/6":  { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
+  "7/7":  { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'] },
+  "7/8":  { am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','두부 15g','당근 15g'] },
+  "7/9":  { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
+  "7/10": { am:['쌀 45g','닭고기 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
+  "7/11": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
+  "7/12": { am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'] },
+  "7/13": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
+  "7/14": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'] },
+  "7/15": { am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','두부 15g','당근 15g'] },
+  "7/16": { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
+  "7/17": { am:['쌀 45g','닭고기 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
+  "7/18": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
+  "7/19": { badge:{t:'grain',x:'입자 Lv.2'}, am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'입자 Lv.2 전환 (신규 도입 없음)' },
+  "7/20": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
+  "7/21": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'] },
+  "7/22": { am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','두부 15g','당근 15g'] },
+  "7/23": { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
+  "7/24": { am:['쌀 45g','닭고기 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
+  "7/25": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
+  "7/26": { badge:{t:'grain',x:'입자 Lv.3'}, am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'입자 Lv.3 전환 (신규 도입 없음)' },
+  "7/27": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
+  "7/28": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'] },
+
+  /* ═══════════ 알러지 테스트 재개 (7/29~8/17, 2끼) — 회복 후 신규 도입 ═══════════ */
+  /* 새우 (고위험·3일) — 7/29~31 */
+  "7/29": { badge:{t:'new',x:'New 새우'}, am:['새우 1팩','쌀 60g','애호박 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'🍤 회복 후 신규 도입 재개 · 새우 관찰 1일차(고위험·3일)' },
+  "7/30": { am:['새우 1팩','쌀 60g','단호박 15g'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'새우 관찰 2일차' },
+  "7/31": { am:['새우 1팩','쌀 60g','당근 15g'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'새우 관찰 3일차 · 도입완료' },
+
+  /* ═══════════ 8월 (생후 9개월, 중기 후반) ═══════════ */
+  /* 흰살생선 (고위험·3일) — 8/1~3 */
+  "8/1":  { badge:{t:'new',x:'New 흰살생선'}, am:['흰살생선 1팩','쌀 60g','단호박 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'흰살생선 관찰 1일차(고위험·3일)' },
+  "8/2":  { am:['흰살생선 1팩','쌀 60g','애호박 15g'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'흰살생선 관찰 2일차' },
+  "8/3":  { am:['흰살생선 1팩','쌀 60g','당근 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'], note:'흰살생선 관찰 3일차 · 도입완료' },
+
+  /* 대게 (고위험·3일) — 8/4~6 */
+  "8/4":  { badge:{t:'new',x:'New 대게'}, am:['대게 1팩','쌀 60g','당근 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'], note:'대게 관찰 1일차(고위험·3일)' },
+  "8/5":  { am:['대게 1팩','쌀 60g','애호박 15g'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'대게 관찰 2일차' },
+  "8/6":  { am:['대게 1팩','쌀 60g','단호박 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'대게 관찰 3일차 · 도입완료' },
+
+  /* 완충일 (8/7) — 입자 전환은 7/19·7/26에 완료 */
+  "8/7":  { am:['쌀 45g','한우 15g','당근 15g','오트밀 15g'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
+
+  /* 참깨 (고위험·3일) — 8/8~10 */
+  "8/8":  { badge:{t:'new',x:'New 참깨'}, am:['참깨 1팩','쌀 60g','닭고기 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'참깨 관찰 1일차(고위험·3일)' },
+  "8/9":  { am:['참깨 1팩','쌀 60g','당근 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'], note:'참깨 관찰 2일차' },
+  "8/10": { am:['참깨 1팩','쌀 60g','한우 15g'], pm:['쌀 60g','닭고기 15g','양배추 15g'], note:'참깨 관찰 3일차 · 도입완료' },
+
+  /* 호두 (고위험·3일) — 8/11~13 */
+  "8/11": { badge:{t:'new',x:'New 호두'}, am:['호두 1팩','쌀 60g','단호박 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'호두 관찰 1일차(고위험·3일)' },
+  "8/12": { am:['호두 1팩','쌀 60g','애호박 15g'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'호두 관찰 2일차' },
+  "8/13": { am:['호두 1팩','쌀 60g','당근 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'], note:'호두 관찰 3일차 · 도입완료' },
+
+  /* 완충일 (8/14) — 입자 전환은 7/19·7/26에 완료 */
+  "8/14": { am:['쌀 45g','한우 15g','당근 15g','오트밀 15g'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
+
+  /* 메밀 (고위험·3일) — 8/15~17, 신규 도입 마지막 */
+  "8/15": { badge:{t:'new',x:'New 메밀'}, am:['메밀 1팩','쌀 60g','닭고기 15g'], pm:['쌀 60g','한우 15g','단호박 15g'], note:'메밀 관찰 1일차(고위험·3일) · 알러지 반응 주의' },
+  "8/16": { am:['메밀 1팩','쌀 60g','단호박 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'메밀 관찰 2일차' },
+  "8/17": { am:['메밀 1팩','쌀 60g','당근 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'메밀 관찰 3일차 · 신규 도입 전체 완료' },
+
+  /* ── 8/18 3끼 전환 (점심 추가, 새 재료 없이 적응) ── */
+  "8/18": { badge:{t:'trans',x:'3끼 시작'}, mealStart3:true, am:['쌀 60g','닭고기 15g','당근 15g'], lunch:['쌀 60g','한우 15g','단호박 15g'], pm:['쌀 60g','흰살생선 15g','애호박 15g'], note:'3끼 전환 · 점심 추가 · 새 재료 없이 끼니 수 적응' },
+  "8/19": { am:['쌀 60g','한우 15g','애호박 15g'], lunch:['쌀 45g','닭고기 15g','당근 15g','오트밀 15g'], pm:['쌀 60g','새우 15g','단호박 15g'] },
+  "8/20": { am:['쌀 60g','닭고기 15g','양배추 15g'], lunch:['쌀 60g','한우 15g','단호박 15g'], pm:['쌀 60g','대게 15g','당근 15g'] },
+
+  /* 계란흰자 (고위험·3일) — 8/21~23, 오전 시작 */
+  "8/21": { badge:{t:'new',x:'New 계란흰자'}, am:['계란흰자 소량','쌀 60g','당근 15g'], lunch:['쌀 60g','닭고기 15g','애호박 15g'], pm:['쌀 60g','한우 15g','단호박 15g'], note:'흰자 관찰 1일차(고위험·3일) · 완숙 후 으깨어 소량부터 · 오전 시작' },
+  "8/22": { am:['계란흰자 1/4개','쌀 60g','애호박 15g'], lunch:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'흰자 관찰 2일차' },
+  "8/23": { am:['계란흰자 1/3개','쌀 60g','당근 15g'], lunch:['쌀 45g','닭고기 15g','단호박 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'흰자 관찰 3일차 · 도입완료' },
+
+  /* 완충 (흰자 경과 관찰) — 8/24~25 */
+  "8/24": { am:['쌀 60g','닭고기 15g','양배추 15g'], lunch:['쌀 60g','한우 15g','단호박 15g'], pm:['쌀 60g','새우 15g','당근 15g'] },
+  "8/25": { am:['쌀 45g','한우 15g','애호박 15g','오트밀 15g'], lunch:['쌀 60g','닭고기 15g','당근 15g'], pm:['쌀 60g','대게 15g','단호박 15g'] },
+
+  /* 치즈 (중위험·3일) — 8/26~28, 무염 아기치즈 */
+  "8/26": { badge:{t:'new',x:'New 치즈'}, am:['아기치즈 1/3장','쌀 60g','당근 15g'], lunch:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'치즈 관찰 1일차(중위험·3일) · 무염/저염 아기치즈 · 우유단백 첫 노출' },
+  "8/27": { am:['아기치즈 1/2장','쌀 60g','애호박 15g'], lunch:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'], note:'치즈 관찰 2일차' },
+  "8/28": { am:['아기치즈 1/2장','쌀 60g','당근 15g'], lunch:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','흰살생선 15g','양배추 15g'], note:'치즈 관찰 3일차 · 도입완료' },
+
+  /* 로테이션 (3끼) — 8/29~31 · 요거트는 9월 초로 이월 */
+  "8/29": { am:['쌀 60g','한우 15g','애호박 15g'], lunch:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','메밀 15g','당근 15g'] },
+  "8/30": { am:['쌀 60g','닭고기 15g','단호박 15g'], lunch:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','대게 15g','애호박 15g'] },
+  "8/31": { am:['쌀 60g','한우 15g','당근 15g'], lunch:['쌀 60g','닭고기 15g','애호박 15g'], pm:['쌀 60g','참깨 15g','단호박 15g'] },
 };
 
 /* 월별 재료 체크리스트 (월간 플래너) */
 const CHECKLIST = {
-  6: ['쌀가루 (아이보리 1단계)','오트밀 파우더 (아이보리)','한우 우둔살 350g','달걀 (노른자용)','땅콩버터 100%','양배추','단호박','두부 (스푼타임 키트)','밀 (스푼타임 키트)','감자','애호박'],
-  7: ['쌀 (중기용)','한우 우둔살 350g','닭고기','당근','새우 (스푼타임 키트)','흰살생선 (스푼타임 키트)','대게 (스푼타임 키트)','조개 (스푼타임 키트)','참깨 (스푼타임 키트)','호두 (스푼타임 키트)','메밀 (스푼타임 키트)','애호박','단호박','양배추'],
+  6: ['쌀가루 (아이보리 1단계)','오트밀 파우더 (아이보리)','한우 우둔살 350g','달걀 (노른자용)','땅콩버터 100%','양배추','단호박','두부 (스푼타임 키트)','밀 (스푼타임 키트)','조개 (스푼타임 키트)','감자','애호박'],
+  7: ['쌀 (중기용)','한우 우둔살 350g','닭고기','두부','감자','고구마','브로콜리','당근','애호박','단호박','양배추','오트밀 파우더 (잔여분)','새우 (스푼타임 키트) — 7/29 재개'],
+  8: ['쌀 (중기용)','한우 우둔살 350g','닭고기','흰살생선 (스푼타임 키트)','대게 (스푼타임 키트)','참깨 (스푼타임 키트)','호두 (스푼타임 키트)','메밀 (스푼타임 키트)','달걀 (흰자용)','아기치즈 (무염)','당근','애호박','단호박','양배추','오트밀 파우더 (잔여분)'],
 };
 const REPEAT_MEMO = {
   6: [ {name:'땅콩', memo:'100% 땅콩버터 1~2g + 물/분유에 희석'} ],
   7: [
-    {name:'땅콩', memo:'100% 땅콩버터 1~2g + 쌀죽에 섞기'},
-    {name:'새우', memo:'냉동새우 삶아 곱게 갈아 쌀죽에 섞기'},
+    {name:'땅콩버터', memo:'100% 땅콩버터 소량을 쌀죽에 섞기 (반복 노출 · 수량 자유)'},
+    {name:'새우', memo:'냉동새우 삶아 곱게 갈아 쌀죽에 섞기 (7/29 도입 재개)'},
+  ],
+  8: [
     {name:'흰살생선', memo:'대구·명태 삶아 으깨어 쌀죽에 섞기'},
     {name:'대게', memo:'냉동게살 삶아 잘게 찢어 쌀죽에 섞기'},
-    {name:'조개', memo:'바지락 삶은 육수+살 으깨어 쌀죽에 섞기'},
     {name:'참깨', memo:'참깨가루 or 참기름 소량 쌀죽에 섞기'},
     {name:'호두', memo:'호두 삶아 곱게 갈아 쌀죽에 섞기'},
     {name:'메밀', memo:'메밀가루 소량 쌀죽에 섞어 익히기'},
+    {name:'계란흰자', memo:'완숙 흰자 으깨어 소량부터 (노른자 통과 후 단계적)'},
+    {name:'치즈', memo:'무염/저염 아기치즈 1/3장부터 쌀죽에 녹여 섞기'},
   ],
 };
 
 /* 알러지 유의사항 */
 const notices = [
   "오트밀: 글루텐 프리 인증 제품 사용",
-  "노른자: 완숙 후 으깨어 사용 / 흰자는 돌 이후",
+  "노른자: 완숙 후 으깨어 사용",
+  "계란흰자: 만 9개월경 완숙 흰자 소량부터 (노른자 통과 후, 고위험 3일 관찰 · 8/21~)",
   "땅콩: 첫날 반드시 오전 + 병원 진료 가능 시간",
   "땅콩: 주 2~3회 반복 노출 필수",
   "새 식재료: 3일 이상 단독 관찰",
@@ -497,13 +940,32 @@ const notices = [
   "새우/대게: 껍질·내장 완전 제거 후 사용",
   "흰살생선: 가시 완전 제거, 대구·명태 등 담백한 종류 추천",
   "메밀: 알러지 반응 강할 수 있음 — 반드시 오전 소량부터",
-  "중기 전환(7/1~): 농도 쌀:물=1:5, 1회 목표량 60~120g",
+  "치즈: 무염·무가당 제품 / 돌 전 생우유는 음료로 금지 (8/26~)",
+  "🩺 장염 회복기(7/2~7/28): 신규 재료 전면 중단, 통과한 재료로만 로테이션 · 농도·양은 평소대로 유지",
+  "🍤 신규 도입 재개: 7/29 새우부터 순차 재개 (재진 결과에 따라 하루 밀기로 조정)",
+  "요거트: 8월 자리 부족으로 9월 초 이월 예정 (무가당 플레인, 치즈 통과 후)",
+  "오트밀: 오트밀미음 소진 후엔 쌀에 오트밀 파우더 혼합 (쌀 45g + 오트밀 15g, g 단위 유지)",
+  "중기 전환(7/2~): 농도 쌀:물=1:5, 1회 목표량 60~120g",
+  "3끼 전환(8/18~): 점심 추가, 새 재료 없이 끼니 수 적응",
 ];
 
 /* ================================================
    유틸
 ================================================ */
 const DOW = ["월","화","수","목","금","토","일"];
+
+/* v8: 식단이 존재하는 월 범위 (0-index). meals 로드/교체 후 재계산 */
+let MONTH_MIN = 4, MONTH_MAX = 7;
+function recomputeMonthBounds() {
+  let mn = 99, mx = -1;
+  Object.keys(meals).forEach(k => {
+    const m = k.match(/^(\d{1,2})\//); if (!m) return;
+    const mi = parseInt(m[1], 10) - 1;
+    mn = Math.min(mn, mi); mx = Math.max(mx, mi);
+  });
+  if (mx >= 0) { MONTH_MIN = mn; MONTH_MAX = mx; }
+}
+
 let curMonth = TODAY.getMonth();
 let sel = new Date(TODAY);
 
@@ -522,7 +984,7 @@ function weekDays(s) {
   return Array.from({length:7}, (_,i) => { const d=new Date(s); d.setDate(s.getDate()+i); return d; });
 }
 function weekNumber(d) {
-  const f = new Date(2026, d.getMonth(), 1);
+  const f = new Date(PLAN_YEAR, d.getMonth(), 1);
   return Math.ceil((d.getDate() + ((f.getDay() || 7) - 1)) / 7);
 }
 function esc(v) {
@@ -543,8 +1005,11 @@ function parseItem(raw) {
   const m = s.match(/^(.*?)\s+(\d+\s*g|\d+\s*팩|\d+\s*개|소량|반복노출|반복)$/);
   let name, amount;
   if (m) { name=m[1]; amount=m[2]; } else { name=s; amount=''; }
+  // 해당 재료의 base_g를 dbStocks에서 조회 (없으면 기본값 15)
+  const stock = (typeof dbStocks !== 'undefined') ? dbStocks.find(s => s.name === name) : null;
+  const base_g = (stock && stock.base_g) ? stock.base_g : 15;
   let cube=0; const g=parseInt(amount);
-  if (/g$/.test(amount) && !isNaN(g)) cube=Math.round(g/15);
+  if (/g$/.test(amount) && !isNaN(g)) cube=Math.round(g/base_g);
   return { name, amount, cube, repeat };
 }
 
@@ -584,14 +1049,61 @@ function emojiFor(name) {
 }
 
 /* ================================================
-   날짜 스트립
+   탭 상태
+================================================ */
+let activeTab = 'home';
+let lastTab = 'home';
+let recordMonth = TODAY.getMonth();   // 0-index (4=5월 … 6=7월)
+let recordView = 'list';              // 'list' | 'cal'
+let recordSelDay = null;              // 달력에서 선택한 날짜 (1~31), 하단 상세 표시용
+
+/* 아기 반응 선택지 (섭취완료 시)
+   순서: 먹은 양 스펙트럼(잘먹음→거의안먹음) → 별도 차원 플래그(주의·부족함, 다른 색) */
+const REACTIONS = [
+  { e:'😊', t:'잘 먹음' },
+  { e:'😐', t:'보통' },
+  { e:'😔', t:'조금 남김' },
+  { e:'🙁', t:'거의 안먹음' },
+  { e:'⚠️', t:'주의', tone:'warn' },
+  { e:'🥺', t:'부족함', tone:'short' },
+];
+function reactionRowHtml(slot) {
+  return `<div class="reaction-lbl">아기 반응 <span style="color:#b3aca7;font-weight:500;">(선택)</span></div>
+    <div class="reaction-row" id="${slot}-reactions">
+      ${REACTIONS.map(r => `<button type="button" class="reaction-chip${r.tone ? ' tone-' + r.tone : ''}" data-r="${r.e} ${r.t}" onclick="selectReaction(this)"><span class="re-e">${r.e}</span>${r.t}</button>`).join('')}
+    </div>`;
+}
+function selectReaction(el) {
+  const cont = el.parentElement;
+  const was = el.classList.contains('selected');
+  cont.querySelectorAll('.reaction-chip').forEach(c => c.classList.remove('selected'));
+  if (!was) el.classList.add('selected');
+}
+/* 컨테이너에서 선택된 반응 + 메모를 합쳐 최종 memo 문자열 생성 */
+function composeMemo(reactionContainerId, noteInputId) {
+  const rEl = document.querySelector(`#${reactionContainerId} .reaction-chip.selected`);
+  const react = rEl ? rEl.dataset.r : '';
+  const noteEl = document.getElementById(noteInputId);
+  const note = noteEl ? noteEl.value.trim() : '';
+  if (react && note) return `${react} · ${note}`;
+  if (react) return react;
+  if (note) return note;
+  return '섭취완료';
+}
+
+/* ================================================
+   날짜 스트립 (식단 탭 전용 — 요소 없으면 무시)
 ================================================ */
 function renderStrip() {
-  document.getElementById('month-lbl').textContent = `${curMonth + 1}월`;
-  document.getElementById('sub').textContent = ageStr(TODAY);
+  const ml = document.getElementById('month-lbl');
+  const sb = document.getElementById('sub');
+  const stripEl = document.getElementById('strip');
+  if (ml) ml.textContent = `${curMonth + 1}월`;
+  if (sb) sb.textContent = ageStr(TODAY);
+  if (!stripEl) return;
   let html = "";
   for (let day = 1; day <= 31; day++) {
-    const d = new Date(2026, curMonth, day);
+    const d = new Date(PLAN_YEAR, curMonth, day);
     if (d.getMonth() !== curMonth) break;
     const data = meals[dk(d)];
     let cls = "day-item";
@@ -600,10 +1112,11 @@ function renderStrip() {
     if (data && isDayDone(data)) cls += " done-day";
     html += `<div class="${cls}" onclick="pick(${d.getFullYear()},${d.getMonth()},${d.getDate()})"><div class="dn">${day}</div></div>`;
   }
-  document.getElementById('strip').innerHTML = html;
+  stripEl.innerHTML = html;
   setTimeout(() => {
     const wrap = document.getElementById('strip-wrap');
-    const items = document.getElementById('strip').querySelectorAll('.day-item');
+    if (!wrap) return;
+    const items = stripEl.querySelectorAll('.day-item');
     const idx = sel.getDate() - 1;
     if (items[idx]) {
       const il = items[idx].getBoundingClientRect().left;
@@ -614,10 +1127,9 @@ function renderStrip() {
 }
 
 /* ================================================
-   끼니 카드 렌더링
+   끼니 행 렌더링 (기존 보존)
 ================================================ */
 function mealRowsHtml(items, dateKey, slot) {
-  /* dateKey/slot 없으면(monthly 등) 순수 표시 */
   const data = dateKey ? meals[dateKey] : null;
   const editKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
   const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
@@ -627,7 +1139,7 @@ function mealRowsHtml(items, dateKey, slot) {
     const edited = data[editedKey] || [...items];
     let h = '';
     edited.forEach((raw, idx) => {
-      const { name, amount, cube, repeat } = parseItem(raw);
+      const { name, amount } = parseItem(raw);
       const icon = iconFor(name);
       const tile = icon
         ? `<div class="ic-tile"><img src="${icon}" alt=""></div>`
@@ -650,18 +1162,15 @@ function mealRowsHtml(items, dateKey, slot) {
     return h;
   }
 
-  /* 표시 모드 */
   const displayItems = (data && data[editedKey]) ? data[editedKey] : items;
-  return displayItems.map((raw, idx) => {
-    const { name, amount, cube, repeat } = parseItem(raw);
+  return displayItems.map((raw) => {
+    const { name, amount, repeat } = parseItem(raw);
     const icon = iconFor(name);
     const tile = icon
       ? `<div class="ic-tile"><img src="${icon}" alt=""></div>`
       : `<div class="ic-tile"><span class="emoji">${emojiFor(name)}</span></div>`;
     const amtHtml = amount ? `<span class="mr-amt">${esc(amount)}</span>` : '';
-    const cubeHtml = cube > 0 ? `<span class="mr-cube"><span class="num">${cube}</span> 큐브</span>` : `<span class="mr-cube"></span>`;
-    /* 완료 전이고 편집 가능한 슬롯이면 큐브 표시만 */
-    return `<div class="meal-row">${tile}<span class="mr-name${repeat?' repeat':''}">${esc(name)}</span>${amtHtml}${cubeHtml}</div>`;
+    return `<div class="meal-row">${tile}<span class="mr-name${repeat?' repeat':''}">${esc(name)}</span>${amtHtml}</div>`;
   }).join('');
 }
 
@@ -672,163 +1181,420 @@ function dayBadgesHtml(data) {
   return h;
 }
 
+/* 중기 전환 배너 (홈/식단 공용) */
+function midBannerHtml() {
+  return `<div class="mid-banner">
+    <div class="mid-banner-title">🎉 중기 이유식 전환! (생후 약 210일)</div>
+    <div class="mid-banner-sub">농도 쌀:물 = 1:5 · 1회 목표 60~120g · 2회식 유지 · 오트밀 → 퀵오트 교체</div>
+  </div>`;
+}
+
 /* ================================================
-   메인 콘텐츠
+   식단 카드 (아침/저녁) — 홈·식단 공용
+   d: 표시할 날짜(Date). 기존 섭취완료·메모·편집·건너뜀 동작 그대로.
 ================================================ */
-function renderContent() {
-  const key = dk(sel);
+function mealCardsHtml(d) {
+  const key = dk(d);
   const data = meals[key];
-  const todaySelected = isToday(sel);
-  const midPhase = isMidPhase(sel);
-  const twoMeal = sel >= TWO_MEAL_START && data && data.pm;
+  if (!data) return `<div class="empty-card">이날은 식단이 없어요</div>`;
+  const phase = phaseFor(d);
+  const slotLabel = {};
+  phase.slots.forEach(s => { slotLabel[s.key] = s.label; });
 
-  let html = `
-    <div class="day-hd">
-      <div class="dday-row">
-        <span class="dday">${dds(sel)}</span>
-        <span class="dday-date">${sel.getMonth()+1}월 ${sel.getDate()}일 ${dows(sel)}요일${midPhase ? ' · <span class="dday-mid">중기</span>' : ''}</span>
+  const isTwomeal = phase.meals >= 2 && !!data.pm;
+  const hasLunch  = phase.meals >= 3 && !!data.lunch;
+  const amSkipped = !!data.amSkipped;
+  const amDone    = !!data.done;
+  const lunchDone = !!data.lunchDone;
+  const lunchSkipped = !!data.lunchSkipped;
+  const pmDone    = !!data.pmDone;
+  const amCleared = amDone || amSkipped;
+  const lunchCleared = lunchDone || lunchSkipped;
+  const lunchUnlocked = amCleared;
+  const pmUnlocked = hasLunch ? lunchCleared : amCleared;
+  const swapping  = (swapOpenKey === key);  /* 교환 모드: 섭취 입력 섹션 접고 피커 노출 */
+  const amEditMode = !!data.amEditMode;
+  const amEditBtn = (!amDone && !amSkipped && !amEditMode)
+    ? `<button class="card-edit-btn" onclick="startEdit('${key}','am')">편집</button>` : '';
+  /* 교환 버튼: 오늘 이후 + 미완료 + 편집중 아님일 때만 노출 */
+  const swapEligible = !amDone && !amSkipped && !amEditMode;
+  const swapBtn = swapEligible
+    ? `<button class="card-swap-btn" onclick="toggleSwapPicker('${key}')">↕ 교환</button>` : '';
+
+  /* 교환 모드(B안): 아침·저녁을 카드 한 장에 합쳐 표시 + 피커 (폭 통일, 하루 단위 강조) */
+  if (swapping) {
+    let mh = `<div class="meal-card">
+      <div class="meal-card-head">
+        <span class="meal-lbl">${slotLabel.am || (isTwomeal ? '아침' : '이유식')}</span>
+        ${dayBadgesHtml(data)}
+        <span class="card-actions">${swapBtn}${amEditBtn}</span>
       </div>
-    </div>`;
+      <div class="meal-rows">${mealRowsHtml(data.am || [], key, 'am')}</div>
+      ${data.note ? `<div class="meal-note">💧 ${esc(data.note)}</div>` : ''}`;
+    if (isTwomeal) {
+      mh += `<div class="merged-div"></div>
+        <div class="merged-subhead"><span class="meal-lbl">${slotLabel.pm || '저녁'}</span></div>
+        <div class="meal-rows">${mealRowsHtml(data.pm, key, 'pm')}</div>`;
+    }
+    mh += `</div>`;
+    mh += swapPickerHtml(key);
+    return mh;
+  }
 
-  if (data && data.midStart) {
+  let html = '';
+  const amCardCls = amSkipped ? ' am-skipped' : (amDone ? ' dimmed' : '');
+  html += `<div class="meal-card${amCardCls}">
+    <div class="meal-card-head">
+      <span class="meal-lbl">${slotLabel.am || (isTwomeal ? '아침' : '이유식')}</span>
+      ${amSkipped ? `<span class="skip-badge">건너뜀</span>` : ''}
+      ${dayBadgesHtml(data)}
+      ${amDone ? `<span class="done-badge">✓ 완료</span>` : `<span class="card-actions">${swapBtn}${amEditBtn}</span>`}
+    </div>
+    <div class="meal-rows">${mealRowsHtml(data.am || [], key, 'am')}</div>
+    ${data.note ? `<div class="meal-note">💧 ${esc(data.note)}</div>` : ''}`;
+
+  if (amSkipped) {
+    html += `<button class="undo-skip-btn" onclick="skipAm('${key}')">↩ 아침 건너뜀 취소</button>`;
+  } else if (!amDone) {
     html += `
-      <div class="mid-banner">
-        <div class="mid-banner-title">🎉 중기 이유식 전환! (생후 약 210일)</div>
-        <div class="mid-banner-sub">농도 쌀:물 = 1:5 · 1회 목표 60~120g · 2회식 유지 · 오트밀 → 퀵오트 교체</div>
+      <div class="memo-block">
+        ${reactionRowHtml('am')}
+        <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
+        <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+        <button class="check-btn" onclick="checkDone('${key}')">✓ 섭취 완료</button>
+        ${isTwomeal ? `<button class="skip-am-btn" onclick="skipAm('${key}')">아침 건너뜀</button>` : ''}
+      </div>`;
+  } else {
+    html += `
+      <div class="memo-done">
+        <div class="memo-done-head">
+          <div class="memo-done-lbl">📝 ${isTwomeal ? '아침 ' : ''}기록</div>
+          <div style="display:flex;gap:6px;">
+            <button class="memo-edit-btn" onclick="showMemoEdit()">수정</button>
+            <button class="memo-edit-btn" style="color:var(--coral-deep);border-color:#f5c4b3;" onclick="cancelDone('${key}')">취소</button>
+          </div>
+        </div>
+        <div class="memo-txt" id="memo-display-txt">${esc(data.memo || '섭취완료')}</div>
+        <div class="memo-edit-wrap" id="memo-edit-wrap">
+          ${reactionRowHtml('am')}
+          <textarea id="memo-input" class="memo-input" rows="2">${esc(data.memo || '')}</textarea>
+          <button class="memo-save-btn" onclick="updateMemo('${key}')">저장</button>
+        </div>
       </div>`;
   }
+  html += `</div>`; /* /아침 카드 */
+
+  /* ── 점심 카드 (3끼일 때만) ── */
+  if (hasLunch) {
+    if (!lunchUnlocked) {
+      html += `<div class="evening-wrap">
+        <div class="pm-locked-card">
+          <div class="meal-card-head"><span class="meal-lbl">${slotLabel.lunch || '점심'}</span><span style="margin-left:auto;font-size:16px;opacity:0.5;">🔒</span></div>
+          <div class="meal-rows">${mealRowsHtml(data.lunch)}</div>
+        </div>
+      </div>`;
+    } else if (lunchSkipped) {
+      html += `<div class="meal-card am-skipped">
+        <div class="meal-card-head">
+          <span class="meal-lbl">${slotLabel.lunch || '점심'}</span>
+          <span class="skip-badge">건너뜀</span>
+        </div>
+        <div class="meal-rows">${mealRowsHtml(data.lunch, key, 'lunch')}</div>
+        <button class="undo-skip-btn" onclick="skipLunch('${key}')">↩ 점심 건너뜀 취소</button>
+      </div>`;
+    } else if (lunchDone) {
+      html += `<div class="meal-card dimmed">
+        <div class="meal-card-head">
+          <span class="meal-lbl">${slotLabel.lunch || '점심'}</span>
+          <span class="pm-done-badge">✓ 완료</span>
+        </div>
+        <div class="meal-rows">${mealRowsHtml(data.lunch, key, 'lunch')}</div>
+        <div class="memo-done" style="margin-top:14px;">
+          <div class="memo-done-head">
+            <div class="pm-done-lbl">📝 섭취 기록</div>
+            <div style="display:flex;gap:6px;">
+              <button class="memo-edit-btn" onclick="showLunchMemoEdit()">수정</button>
+              <button class="memo-edit-btn" style="color:var(--coral-deep);border-color:#f5c4b3;" onclick="cancelLunchDone('${key}')">취소</button>
+            </div>
+          </div>
+          <div class="memo-txt" id="lunch-memo-display-txt">${esc(data.lunchMemo || '섭취완료')}</div>
+          <div class="memo-edit-wrap" id="lunch-memo-edit-wrap">
+            ${reactionRowHtml('lunch')}
+            <textarea id="lunch-memo-input" class="memo-input" rows="2">${esc(data.lunchMemo || '')}</textarea>
+            <button class="memo-save-btn" onclick="updateLunchMemo('${key}')">저장</button>
+          </div>
+        </div>
+      </div>`;
+    } else {
+      const lunchEditMode = !!data.lunchEditMode;
+      const lunchEditBtn = !lunchEditMode ? `<button class="card-edit-btn" onclick="startEdit('${key}','lunch')">편집</button>` : '';
+      html += `<div class="meal-card">
+        <div class="meal-card-head"><span class="meal-lbl">${slotLabel.lunch || '점심'}</span>${lunchEditBtn}</div>
+        <div class="meal-rows">${mealRowsHtml(data.lunch, key, 'lunch')}</div>
+        <div class="memo-block">
+          ${reactionRowHtml('lunch')}
+          <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
+          <textarea id="lunch-memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+          <button class="check-btn pm-btn" onclick="checkLunchDone('${key}')">✓ 섭취 완료</button>
+          <button class="skip-am-btn" onclick="skipLunch('${key}')">점심 건너뜀</button>
+        </div>
+      </div>`;
+    }
+  }
+
+  if (isTwomeal) {
+    if (!pmUnlocked) {
+      html += `<div class="evening-wrap">
+        <div class="pm-locked-card">
+          <div class="meal-card-head"><span class="meal-lbl">${slotLabel.pm || '저녁'}</span><span style="margin-left:auto;font-size:16px;opacity:0.5;">🔒</span></div>
+          <div class="meal-rows">${mealRowsHtml(data.pm)}</div>
+        </div>
+      </div>`;
+    } else if (pmDone) {
+      html += `<div class="meal-card dimmed">
+        <div class="meal-card-head">
+          <span class="meal-lbl">${slotLabel.pm || '저녁'}</span>
+          <span class="pm-done-badge">✓ 완료</span>
+        </div>
+        <div class="meal-rows">${mealRowsHtml(data.pm, key, 'pm')}</div>
+        <div class="memo-done" style="margin-top:14px;">
+          <div class="memo-done-head">
+            <div class="pm-done-lbl">📝 섭취 기록</div>
+            <div style="display:flex;gap:6px;">
+              <button class="memo-edit-btn" onclick="showPmMemoEdit()">수정</button>
+              <button class="memo-edit-btn" style="color:var(--coral-deep);border-color:#f5c4b3;" onclick="cancelPmDone('${key}')">취소</button>
+            </div>
+          </div>
+          <div class="memo-txt" id="pm-memo-display-txt">${esc(data.pmMemo || '섭취완료')}</div>
+          <div class="memo-edit-wrap" id="pm-memo-edit-wrap">
+            ${reactionRowHtml('pm')}
+            <textarea id="pm-memo-input" class="memo-input" rows="2">${esc(data.pmMemo || '')}</textarea>
+            <button class="memo-save-btn" onclick="updatePmMemo('${key}')">저장</button>
+          </div>
+        </div>
+      </div>`;
+    } else {
+      const pmEditMode = !!data.pmEditMode;
+      const pmEditBtn = !pmEditMode ? `<button class="card-edit-btn" onclick="startEdit('${key}','pm')">편집</button>` : '';
+      html += `<div class="meal-card">
+        <div class="meal-card-head"><span class="meal-lbl">${slotLabel.pm || '저녁'}</span>${pmEditBtn}</div>
+        <div class="meal-rows">${mealRowsHtml(data.pm, key, 'pm')}</div>
+        <div class="memo-block">
+          ${reactionRowHtml('pm')}
+          <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
+          <textarea id="pm-memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+          <button class="check-btn pm-btn" onclick="checkPmDone('${key}')">✓ 섭취 완료</button>
+        </div>
+      </div>`;
+    }
+  }
+
+  /* 하루 미루기 (아침 미완료 + 오늘 이후일 때만) */
+  if (!amDone && !amSkipped && !swapping) {
+    const isPastDay = d < new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+    if (!isPastDay) {
+      html += `<button class="shift-day-btn" onclick="shiftFromDay('${key}')">↻ 오늘 쉬어가고 일정 하루 미루기</button>`;
+    }
+  }
+  return html;
+}
+
+/* 오늘 식단의 재고 부족 경고 텍스트 */
+function todayWarnHtml(data) {
+  // 마감 임박(D-2 이하) 재료가 있으면 최우선으로 헤더에 각인
+  const imminent = imminentDeadlineStocks();
+  if (imminent.length) {
+    return `<span class="deadline-warn"><span class="dw-icon">⚠️</span>마감 임박 재료가 있습니다</span>`;
+  }
+  if (!data || dbStocks.length === 0) return '';
+  const items = [...(data.amEdited || data.am || []), ...(data.pmEdited || data.pm || [])];
+  const lowNames = [];
+  items.forEach(raw => {
+    const { name } = parseItem(raw);
+    const st = dbStocks.find(s => s.name === name);
+    if (st && st.amount <= st.low_alert && !lowNames.includes(name)) lowNames.push(name);
+  });
+  return lowNames.length ? `<span class="stock-warn">⚠️ ${lowNames.join(' · ')} 부족</span>` : '';
+}
+
+/* ================================================
+   구매 데드라인 계산
+   사용 예정일 = 오늘 이후 해당 재료가 등장하는 가장 가까운 날
+   구매 데드라인 = 사용 예정일 - 2일 / D-day = 데드라인 - 오늘
+================================================ */
+function dateOnly(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function nextUseDate(name) {
+  const base = dateOnly(TODAY);
+  for (let off = 0; off <= 120; off++) {
+    const d = new Date(base); d.setDate(base.getDate() + off);
+    const data = meals[dk(d)]; if (!data) continue;
+    const items = [...(data.amEdited || data.am || []), ...(data.pmEdited || data.pm || [])];
+    if (items.some(raw => parseItem(raw).name === name)) return d;
+  }
+  return null;
+}
+function deadlineInfo(name) {
+  const use = nextUseDate(name); if (!use) return null;
+  const deadline = new Date(use); deadline.setDate(use.getDate() - 2);
+  const dday = Math.round((dateOnly(deadline) - dateOnly(TODAY)) / 86400000);
+  return { use, deadline, dday };
+}
+/* 마감 임박(데드라인 D-2 이하) 이면서 재고 부족인 재료 목록 */
+function imminentDeadlineStocks() {
+  if (!dbStocks.length) return [];
+  return dbStocks.filter(s => {
+    if (s.amount > s.low_alert) return false;       // 재고 충분하면 제외
+    const info = deadlineInfo(s.name);
+    return info && info.dday <= 2;                    // 마감 2일 이내
+  });
+}
+/* D-day 칩 HTML (오늘 할 일 / 장볼 재료 공용) */
+function ddayChipHtml(name, cls) {
+  const info = deadlineInfo(name);
+  if (!info) return '';
+  const n = info.dday;
+  let colorCls = '', mark = '';
+  if (n <= 1) { colorCls = 'dd-urgent'; mark = ' ❗'; }
+  else if (n <= 3) { colorCls = 'dd-soon'; }
+  const ddText = n >= 1 ? `D-${n}` : (n === 0 ? 'D-day' : '지남');
+  const dateText = `${info.deadline.getMonth()+1}/${info.deadline.getDate()}까지`;
+  return `<span class="${cls} ${colorCls}">${ddText} · ${dateText}${mark}</span>`;
+}
+
+/* ================================================
+   재고 요약 배지 (충분 / 임박 / 부족)
+================================================ */
+function stockSummaryHtml() {
+  if (!dbStocks.length) return `<div class="todo-empty">재고 정보를 불러오는 중...</div>`;
+  let full = 0, soon = 0, out = 0;
+  dbStocks.forEach(s => {
+    if (s.amount <= 0) out++;
+    else if (s.amount <= s.low_alert) soon++;
+    else full++;
+  });
+  return `<div class="sum-badges">
+    <div class="sum-badge out"><div class="sum-num">${out}</div><div class="sum-lbl">부족</div></div>
+    <div class="sum-badge soon"><div class="sum-num">${soon}</div><div class="sum-lbl">임박</div></div>
+    <div class="sum-badge full"><div class="sum-num">${full}</div><div class="sum-lbl">충분</div></div>
+  </div>`;
+}
+
+/* ================================================
+   최근 완료 기록 (아침=meal_log / 저녁=appState, 모두 Supabase)
+================================================ */
+function allRecords() {
+  const recs = [];
+  Object.keys(meals).forEach(key => {
+    const data = meals[key];
+    const [m, d] = key.split('/').map(Number);
+    const dateObj = new Date(PLAN_YEAR, m - 1, d);
+    if (data.done) {
+      const items = (data.amEdited || data.am || []).map(parseItem);
+      recs.push({ key, dateObj, slot: (data.pm ? '아침' : '이유식'), memo: data.memo || '섭취완료', items, which: 'am' });
+    }
+    if (data.lunchDone) {
+      const items = (data.lunchEdited || data.lunch || []).map(parseItem);
+      recs.push({ key, dateObj, slot: '점심', memo: data.lunchMemo || '섭취완료', items, which: 'lunch' });
+    }
+    if (data.pmDone) {
+      const items = (data.pmEdited || data.pm || []).map(parseItem);
+      recs.push({ key, dateObj, slot: '저녁', memo: data.pmMemo || '섭취완료', items, which: 'pm' });
+    }
+  });
+  recs.sort((a, b) => (b.dateObj - a.dateObj) || (a.which < b.which ? 1 : -1));
+  return recs;
+}
+/* memo 문자열에서 반응 이모지 추출 (달력용) */
+function reactionEmojiOf(memo) {
+  if (!memo) return '';
+  const r = REACTIONS.find(x => memo.includes(x.t) || memo.includes(x.e));
+  return r ? r.e : '';
+}
+
+/* ================================================
+   탭별 렌더링
+================================================ */
+function renderHome() {
+  const key = dk(TODAY);
+  const data = meals[key];
+  const hh = TODAY.getHours();
+  const greetMsg = hh < 11 ? '좋은 아침이에요! ☀️' : hh < 17 ? '좋은 오후예요! 🌤️' : '편안한 저녁이에요! 🌙';
+  let html = `<div class="greet">
+    <div class="greet-txt">${esc(BABY_NAME)}맘, ${greetMsg}</div>
+  </div>`;
+
+  /* D+ 날짜 헤더 (홈 위계 최상위) */
+  html += `<div class="day-hd home-dayhd">
+    <div class="dday-row">
+      <span class="dday">${dds(TODAY)}</span>
+      <span class="dday-date">${TODAY.getMonth()+1}월 ${TODAY.getDate()}일 ${dows(TODAY)}요일${isMidPhase(TODAY) ? ' · <span class="dday-mid">중기</span>' : ''}</span>
+    </div>
+  </div>`;
+
+  /* 오늘 식단 */
+  html += `<div class="sec-title"><span class="accent">오늘</span> 식단${todayWarnHtml(data)}</div>`;
+  if (data && data.midStart) html += midBannerHtml();
+  html += mealCardsHtml(TODAY);
+
+  /* 오늘 할 일 */
+  html += todoCardHtml();
+
+  /* 냉동실 현황 */
+  html += `<div class="home-summary" onclick="switchTab('stock')">
+    <div class="home-sub-lbl">냉동실 현황 <span class="more-arrow" style="color:var(--coral);font-weight:700;">재고 관리 ›</span></div>
+    <div id="home-summary-box">${stockSummaryHtml()}</div>
+  </div>`;
+
+  /* 최근 기록 */
+  const recents = allRecords().slice(0, 3);
+  let recHtml;
+  if (!recents.length) {
+    recHtml = `<div class="todo-empty">아직 기록이 없어요</div>`;
+  } else {
+    recHtml = recents.map(r => `<div class="home-rec-row">
+      <span class="home-rec-date">${r.key}</span>
+      <span class="home-rec-slot">${r.slot}</span>
+      <span class="home-rec-memo">${esc(r.memo)}</span>
+    </div>`).join('');
+  }
+  html += `<div class="home-recent" onclick="switchTab('record')">
+    <div class="home-sub-lbl">최근 기록 <span class="more-arrow">›</span></div>
+    ${recHtml}
+  </div>`;
+
+  html += `<div style="height:80px;"></div>`;
+  document.getElementById('home-view').innerHTML = html;
+}
+
+function renderMeal() {
+  renderStrip();
+  const data = meals[dk(sel)];
+  const todaySelected = isToday(sel);
+  const midPhase = isMidPhase(sel);
+
+  let html = `<div class="day-hd">
+    <div class="dday-row">
+      <span class="dday">${dds(sel)}</span>
+      <span class="dday-date">${sel.getMonth()+1}월 ${sel.getDate()}일 ${dows(sel)}요일${midPhase ? ' · <span class="dday-mid">중기</span>' : ''}</span>
+    </div>
+  </div>`;
+
+  if (data && data.midStart) html += midBannerHtml();
 
   if (!data) {
     html += `<div class="empty-card">이날은 식단이 없어요</div>`;
   } else {
     const sectionLbl = todaySelected ? `<span class="accent">오늘</span> 식단`
                      : isPast(sel) ? `지난 식단` : `예정 식단`;
-
-    /* 오늘 식단일 때만 재고 경고 체크 */
-    let warnHtml = '';
-    if (todaySelected && dbStocks.length > 0) {
-      const todayItems = [...(data.amEdited || data.am || []), ...(data.pmEdited || data.pm || [])];
-      const lowNames = [];
-      todayItems.forEach(raw => {
-        const { name } = parseItem(raw);
-        const stock = dbStocks.find(s => s.name === name);
-        if (stock && stock.amount <= stock.low_alert && !lowNames.includes(name)) lowNames.push(name);
-      });
-      if (lowNames.length > 0) {
-        warnHtml = `<span class="stock-warn">⚠️ ${lowNames.join(' · ')} 부족</span>`;
-      }
-    }
+    const warnHtml = todaySelected ? todayWarnHtml(data) : '';
     html += `<div class="sec-title">${sectionLbl}${warnHtml}</div>`;
-
-    const isTwomeal = !!data.pm;
-    const amSkipped  = !!data.amSkipped;
-    const amDone     = !!data.done;
-    const pmDone     = !!data.pmDone;
-    const pmUnlocked = amDone || amSkipped; // 저녁 활성 조건
-
-    const amEditMode = !!(data.amEditMode);
-    const amEditBtn = (!amDone && !amSkipped && !amEditMode)
-      ? `<button class="card-edit-btn" onclick="startEdit('${key}','am')">편집</button>` : '';
-
-    /* ── 아침(오전) 카드 ── */
-    const amCardCls = amSkipped ? ' am-skipped' : (amDone ? ' dimmed' : '');
-    html += `<div class="meal-card${amCardCls}">
-      <div class="meal-card-head">
-        <span class="meal-lbl">${isTwomeal ? '아침' : '이유식'}</span>
-        ${amSkipped ? `<span class="skip-badge">건너뜀</span>` : ''}
-        ${dayBadgesHtml(data)}
-        ${amDone ? `<span class="done-badge">✓ 완료</span>` : amEditBtn}
-      </div>
-      <div class="meal-rows">${mealRowsHtml(data.am || [], key, 'am')}</div>
-      ${data.note ? `<div class="meal-note">💧 ${esc(data.note)}</div>` : ''}`;
-
-    if (amSkipped) {
-      /* 건너뜀 상태 — 취소 버튼만 */
-      html += `<button class="undo-skip-btn" onclick="skipAm('${key}')">↩ 아침 건너뜀 취소</button>`;
-    } else if (!amDone) {
-      /* 미완료 — 섭취완료 + 아침 건너뜀 보조버튼 */
-      html += `
-        <div class="memo-block">
-          <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
-          <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
-          <button class="check-btn" onclick="checkDone('${key}')">섭취 완료</button>
-          ${isTwomeal ? `<button class="skip-am-btn" onclick="skipAm('${key}')">아침 건너뜀</button>` : ''}
-        </div>`;
-    } else {
-      /* 아침 완료 — 기록 표시 */
-      html += `
-        <div class="memo-done">
-          <div class="memo-done-head">
-            <div class="memo-done-lbl">📝 아침 기록</div>
-            <div style="display:flex;gap:6px;">
-              <button class="memo-edit-btn" onclick="showMemoEdit()">수정</button>
-              <button class="memo-edit-btn" style="color:#e65100;border-color:#ffccbc;" onclick="cancelDone('${key}')">취소</button>
-            </div>
-          </div>
-          <div class="memo-txt" id="memo-display-txt">${esc(data.memo || '섭취완료')}</div>
-          <div class="memo-edit-wrap" id="memo-edit-wrap">
-            <textarea id="memo-input" class="memo-input" rows="2">${esc(data.memo || '')}</textarea>
-            <button class="memo-save-btn" onclick="updateMemo('${key}')">저장</button>
-          </div>
-        </div>`;
-    }
-    html += `</div>`; /* /meal-card 아침 */
-
-    /* ── 저녁(오후) 카드 — 2끼일 때만 ── */
-    if (isTwomeal) {
-      if (!pmUnlocked) {
-        /* 잠김: 아침 미완료 + 미건너뜀 */
-        html += `<div class="evening-wrap">
-          <div class="pm-locked-card">
-            <div class="meal-card-head"><span class="meal-lbl">저녁</span><span style="margin-left:auto;font-size:16px;opacity:0.5;">🔒</span></div>
-            <div class="meal-rows">${mealRowsHtml(data.pm)}</div>
-          </div>
-        </div>`;
-      } else if (pmDone) {
-        /* 저녁 완료 */
-        html += `<div class="meal-card dimmed">
-          <div class="meal-card-head">
-            <span class="meal-lbl">저녁</span>
-            <span class="pm-done-badge">✓ 완료</span>
-          </div>
-          <div class="meal-rows">${mealRowsHtml(data.pm, key, 'pm')}</div>
-          <div class="memo-done" style="margin-top:14px;">
-            <div class="memo-done-head">
-              <div class="pm-done-lbl">📝 섭취 기록</div>
-              <div style="display:flex;gap:6px;">
-                <button class="memo-edit-btn" onclick="showPmMemoEdit()">수정</button>
-                <button class="memo-edit-btn" style="color:#e65100;border-color:#ffccbc;" onclick="cancelPmDone('${key}')">취소</button>
-              </div>
-            </div>
-            <div class="memo-txt" id="pm-memo-display-txt">${esc(data.pmMemo || '섭취완료')}</div>
-            <div class="memo-edit-wrap" id="pm-memo-edit-wrap">
-              <textarea id="pm-memo-input" class="memo-input" rows="2">${esc(data.pmMemo || '')}</textarea>
-              <button class="memo-save-btn" onclick="updatePmMemo('${key}')">저장</button>
-            </div>
-          </div>
-        </div>`;
-      } else {
-        /* 저녁 활성(아침 완료 or 건너뜀) */
-        const pmEditMode = !!(data.pmEditMode);
-        const pmEditBtn = !pmEditMode ? `<button class="card-edit-btn" onclick="startEdit('${key}','pm')">편집</button>` : '';
-        html += `<div class="meal-card">
-          <div class="meal-card-head"><span class="meal-lbl">저녁</span>${pmEditBtn}</div>
-          <div class="meal-rows">${mealRowsHtml(data.pm, key, 'pm')}</div>
-          <div class="memo-block">
-            <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
-            <textarea id="pm-memo-input" class="memo-input" rows="2" placeholder="예) 잘 먹음, 조금 남김, 발진 없음..."></textarea>
-            <button class="check-btn pm-btn" onclick="checkPmDone('${key}')">섭취 완료</button>
-          </div>
-        </div>`;
-      }
-    }
+    html += mealCardsHtml(sel);
   }
 
   /* 이번 주 새 식재료 */
   const newItems = [];
   weekDays(weekStart(sel)).forEach(d => {
-    const m = meals[dk(d)];
-    if (!m) return;
+    const m = meals[dk(d)]; if (!m) return;
     [m.badge, m.newBadge].forEach(b => {
       if (b && b.t === 'new') {
         const nm = b.x.replace(/^New\s*/, '').trim();
@@ -843,71 +1609,445 @@ function renderContent() {
     </div>`;
   }
 
-  html += accHtml("a-s", "재고 현황", stockHtml());
-  html += accHtml("a-h", "장볼 재료", shopHtml());
-  html += accHtml("a-n", "알러지 유의사항", noticeHtml());
   html += `<div style="height:80px;"></div>`;
-  document.getElementById('content').innerHTML = html;
+  document.getElementById('meal-content').innerHTML = html;
+}
+
+function renderStock() {
+  const editBtn = stockEditMode
+    ? `<button class="panel-edit-btn on" onclick="cancelStockEdit()">취소</button>`
+    : `<button class="panel-edit-btn" onclick="startStockEdit()">편집</button>`;
+  let html = `<div class="tab-hd tab-hd-row">
+    <div class="tab-title">재고</div>
+    <button class="add-fab" onclick="toggleAddForm()" title="새 재료 추가">+</button>
+  </div>`;
+  html += `<div class="stock-summary-wrap" id="stock-summary-box">${stockSummaryHtml()}</div>`;
+  html += `<div id="stock-addform-box">${showAddForm ? addStockFormHtml() : ''}</div>`;
+  html += `<div class="panel">
+    <div class="panel-title-row"><span class="panel-title">냉동 큐브 재고</span>${editBtn}</div>
+    <div id="stock-box">${stockHtml()}</div>
+  </div>`;
+  html += `<div class="panel" id="shop-section">
+    <div class="panel-title-row">
+      <span class="panel-title">장볼 재료</span>
+      <button class="tip-btn" onclick="toggleDeadlineTip()">ⓘ</button>
+      <button class="add-fab small" style="margin-left:auto;" onclick="toggleShopAddForm()" title="장볼 재료 추가">+</button>
+    </div>
+    <div class="tip-line" id="deadline-tip">구매 데드라인 = 사용 예정일 2일 전 (큐브 제조·냉동 시간 고려)</div>
+    <div id="shop-addform-box">${showShopAddForm ? shopAddFormHtml() : ''}</div>
+    <div id="shop-box">${shopHtml()}</div>
+  </div>`;
+  html += `<div style="height:80px;"></div>`;
+  document.getElementById('stock-view').innerHTML = html;
+}
+function shopAddFormHtml() {
+  return `<div class="add-form" style="margin-bottom:10px;"><input type="text" id="new-shop-item" placeholder="예) 한우 우둔살 350g" /><button class="add-confirm-btn" onclick="addShopItem()">추가하기</button></div>`;
+}
+function toggleDeadlineTip() {
+  const t = document.getElementById('deadline-tip');
+  if (t) t.style.display = (t.style.display === 'block') ? 'none' : 'block';
+}
+
+function renderRecord() {
+  let html = `<div class="tab-hd"><div class="tab-title">기록</div></div>`;
+  html += `<div class="rec-toggle">
+    <button class="rec-tg ${recordView==='list'?'active':''}" onclick="setRecordView('list')">리스트</button>
+    <button class="rec-tg ${recordView==='cal'?'active':''}" onclick="setRecordView('cal')">달력</button>
+  </div>`;
+  html += `<div class="rec-monthnav">
+    <button class="nav-arrow" onclick="changeRecordMonth(-1)">‹</button>
+    <span>${recordMonth + 1}월</span>
+    <button class="nav-arrow" onclick="changeRecordMonth(1)">›</button>
+  </div>`;
+
+  if (recordView === 'cal') {
+    html += recordCalHtml(recordMonth);
+  } else {
+    const recs = allRecords().filter(r => r.dateObj.getMonth() === recordMonth);
+    if (!recs.length) {
+      html += `<div class="empty-card">${recordMonth + 1}월 기록이 없어요</div>`;
+    } else {
+      html += recs.map(r => {
+        const cancelFn = r.which === 'am' ? `cancelDone('${r.key}')` : (r.which === 'lunch' ? `cancelLunchDone('${r.key}')` : `cancelPmDone('${r.key}')`);
+        const itemsTxt = r.items.length
+          ? r.items.map(it => `${esc(it.name)}${it.amount ? ` <span class="ri-amt">${esc(it.amount)}</span>` : ''}`).join(' · ')
+          : '-';
+        const memoHtml = (r.memo && r.memo !== '섭취완료')
+          ? `<div class="rec-memo">📝 ${esc(r.memo)}</div>`
+          : `<div class="rec-memo plain">📝 섭취완료</div>`;
+        return `<div class="rec-card">
+          <div class="rec-head">
+            <span class="rec-date">${r.key}<span class="rec-slot-tag">${r.slot}</span></span>
+            <button class="rec-cancel" onclick="${cancelFn}">완료 취소</button>
+          </div>
+          <div class="rec-items">${itemsTxt}</div>
+          ${memoHtml}
+        </div>`;
+      }).join('');
+    }
+  }
+  html += `<div style="height:80px;"></div>`;
+  document.getElementById('record-view').innerHTML = html;
+}
+function setRecordView(v) { recordView = v; recordSelDay = null; renderRecord(); }
+
+/* 기록 월간 달력 (아침·저녁 각각 반응 아이콘 + 선택일 하단 상세) */
+function recordCalHtml(month) {
+  const y = PLAN_YEAR, m = month;
+  const first = new Date(y, m, 1).getDay();   // 0=일
+  const last = new Date(y, m + 1, 0).getDate();
+  const recs = allRecords().filter(r => r.dateObj.getMonth() === m);
+  // 날짜별로 아침(am)·저녁(pm) 반응 이모지를 따로 보관
+  const byDay = {};
+  recs.forEach(r => {
+    const d = r.dateObj.getDate();
+    if (!byDay[d]) byDay[d] = { am: '', pm: '', amDone: false, pmDone: false };
+    const e = reactionEmojiOf(r.memo) || '✓';
+    if (r.which === 'am') { byDay[d].am = e; byDay[d].amDone = true; }
+    else { byDay[d].pm = e; byDay[d].pmDone = true; }
+  });
+
+  const WD = ['일','월','화','수','목','금','토'];
+  let html = `<div class="rcal">
+    <div class="rcal-wd">${WD.map((w,i)=>`<div class="${i===0?'sun':''}">${w}</div>`).join('')}</div>
+    <div class="rcal-grid">`;
+  for (let i = 0; i < first; i++) html += `<div class="rcal-cell empty"></div>`;
+  for (let d = 1; d <= last; d++) {
+    const rec = byDay[d];
+    const dObj = new Date(y, m, d);
+    const isTod = dObj.toDateString() === TODAY.toDateString();
+    let cls = 'rcal-cell';
+    if (rec) cls += ' done';
+    if (isTod) cls += ' today';
+    if (recordSelDay === d) cls += ' selected';
+    const click = rec ? ` onclick="recordPickDay(${d})"` : '';
+    // 아침·저녁 슬롯 아이콘 (각각 있으면 표시)
+    let slots = '';
+    if (rec) {
+      slots = `<div class="rcal-slots">`;
+      if (rec.amDone) slots += `<div class="rcal-slot"><span class="rcal-slot-ic">${rec.am}</span><span class="rcal-slot-tag">아</span></div>`;
+      if (rec.pmDone) slots += `<div class="rcal-slot"><span class="rcal-slot-ic">${rec.pm}</span><span class="rcal-slot-tag">저</span></div>`;
+      slots += `</div>`;
+    }
+    html += `<div class="${cls}"${click}>
+      <div class="rcal-dn">${d}</div>
+      ${slots}
+    </div>`;
+  }
+  const rem = (first + last) % 7;
+  if (rem) for (let i = 0; i < 7 - rem; i++) html += `<div class="rcal-cell empty"></div>`;
+  html += `</div></div>`;
+  html += `<div class="rcal-legend">${REACTIONS.map(r=>`<span>${r.e} ${r.t}</span>`).join('')}<span>✓ 기록 있음 · 아=아침 저=저녁</span></div>`;
+  // 선택일 상세 패널
+  html += recordDetailHtml(month);
+  return html;
+}
+
+/* 달력 하단 — 선택한 날짜의 아침/저녁 식단 + 섭취 메모 */
+function recordDetailHtml(month) {
+  if (recordSelDay == null) return '';
+  const y = 2026, m = month, d = recordSelDay;
+  const key = `${m + 1}/${d}`;
+  const data = meals[key];
+  const dObj = new Date(y, m, d);
+  const dateLbl = `${m + 1}월 ${d}일 ${dows(dObj)}요일`;
+  let html = `<div class="rcal-detail"><div class="rcal-detail-date">${dateLbl}</div>`;
+  if (!data) {
+    html += `<div class="rcal-detail-empty">이 날은 식단 정보가 없어요</div></div>`;
+    return html;
+  }
+  // 슬롯별 렌더 (아침 → 점심 → 저녁)
+  const slots = [
+    { key: 'am', lbl: (data.pm || data.lunch) ? '아침' : '이유식', items: data.amEdited || data.am, done: data.done, memo: data.memo },
+    ...(data.lunch ? [{ key: 'lunch', lbl: '점심', items: data.lunchEdited || data.lunch, done: data.lunchDone, memo: data.lunchMemo }] : []),
+    ...(data.pm ? [{ key: 'pm', lbl: '저녁', items: data.pmEdited || data.pm, done: data.pmDone, memo: data.pmMemo }] : []),
+  ];
+  slots.forEach(s => {
+    if (!s.items) return;
+    const itemsTxt = s.items.map(raw => {
+      const it = parseItem(raw);
+      return `${esc(it.name)}${it.amount ? ` <span class="ri-amt">${esc(it.amount)}</span>` : ''}`;
+    }).join(' · ');
+    const react = s.done ? reactionTextOf(s.memo) : '';
+    const reactHtml = react ? `<span class="rcal-detail-react">${esc(react)}</span>` : (s.done ? '' : `<span class="rcal-detail-none">미기록</span>`);
+    let memoHtml = '';
+    if (s.done && s.memo && s.memo !== '섭취완료') {
+      // 메모에서 반응 텍스트 부분을 빼고 순수 메모만 (있으면)
+      const pureMemo = pureMemoOf(s.memo);
+      if (pureMemo) memoHtml = `<div class="rcal-detail-memo">📝 ${esc(pureMemo)}</div>`;
+    }
+    html += `<div class="rcal-detail-slot">
+      <div class="rcal-detail-slot-head">
+        <span class="rcal-detail-slot-lbl">${esc(s.lbl)}</span>
+        ${reactHtml}
+      </div>
+      <div class="rcal-detail-items">${itemsTxt}</div>
+      ${memoHtml}
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+/* memo 문자열에서 반응(이모지+텍스트) 부분만 추출 */
+function reactionTextOf(memo) {
+  if (!memo) return '';
+  const r = REACTIONS.find(x => memo.includes(x.t));
+  return r ? `${r.e} ${r.t}` : '';
+}
+/* memo에서 반응 부분을 제거한 순수 메모만 추출 (형식: "😊 잘 먹음 · 실제메모") */
+function pureMemoOf(memo) {
+  if (!memo) return '';
+  const r = REACTIONS.find(x => memo.includes(x.t));
+  if (!r) return (memo === '섭취완료') ? '' : memo;
+  // "이모지 텍스트 · 메모" 에서 뒷부분만
+  const idx = memo.indexOf('·');
+  return idx >= 0 ? memo.slice(idx + 1).trim() : '';
+}
+
+function recordPickDay(d) {
+  // 같은 날 다시 누르면 닫기 (토글)
+  recordSelDay = (recordSelDay === d) ? null : d;
+  renderRecord();
+  // 상세가 열렸으면 살짝 스크롤해서 보이게
+  if (recordSelDay != null) {
+    setTimeout(() => {
+      const el = document.querySelector('.rcal-detail');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 80);
+  }
+}
+function recordGoDate(y, m, d) {
+  sel = new Date(y, m, d);
+  curMonth = m;
+  switchTab('meal');
+}
+function changeRecordMonth(dir) {
+  recordMonth = Math.max(MONTH_MIN, Math.min(MONTH_MAX, recordMonth + dir));
+  recordSelDay = null;
+  renderRecord();
+}
+
+/* 재료 도입 이력: 'New' 배지 기준 첫 도입일 + 그날 반응/메모 */
+function introHistoryHtml() {
+  const intro = [];
+  const seen = new Set();
+  Object.keys(meals).forEach(key => {
+    const m = meals[key];
+    [m.badge, m.newBadge].forEach(b => {
+      if (b && b.t === 'new') {
+        const name = b.x.replace(/^New\s*/, '').trim();
+        if (name && !seen.has(name)) {
+          seen.add(name);
+          const [mm, dd] = key.split('/').map(Number);
+          intro.push({ name, key, dateObj: new Date(PLAN_YEAR, mm - 1, dd), memo: m.memo, done: !!m.done });
+        }
+      }
+    });
+  });
+  if (!intro.length) return `<div class="intro-empty">아직 도입한 재료가 없어요</div>`;
+  intro.sort((a, b) => a.dateObj - b.dateObj);
+  return intro.map(it => {
+    const past = isPast(it.dateObj) || isToday(it.dateObj);
+    const emoji = it.done ? reactionEmojiOf(it.memo) : '';
+    const note = it.done && it.memo && it.memo !== '섭취완료'
+      ? `<span class="intro-memo">${esc(it.memo)}</span>` : '';
+    const status = it.done ? `${emoji ? emoji + ' ' : ''}완료` : (past ? '미기록' : '예정');
+    return `<div class="intro-row">
+      <span class="intro-name">${esc(it.name)}</span>
+      <span class="intro-date">${esc(it.key)} 도입</span>
+      <span class="intro-status">${status}</span>
+      ${note}
+    </div>`;
+  }).join('');
+}
+
+function renderMore() {
+  const phase = phaseFor(TODAY);
+  const mid = TODAY >= MID_START;
+  const stageName = mid ? '중기' : '초기';
+  let html = `<div class="tab-hd"><div class="tab-title">더보기</div></div>`;
+  html += `<div class="panel">
+    <div class="panel-title">이유식 단계</div>
+    <div class="more-row"><span class="more-k">현재 단계</span><span class="more-v">${stageName} · ${phase.meals}끼</span></div>
+    <div class="more-row"><span class="more-k">이유식 시작일</span><span class="more-v">${START.getFullYear()}.${START.getMonth()+1}.${START.getDate()} · ${dds(TODAY)}</span></div>
+    <div class="more-row"><span class="more-k">생후</span><span class="more-v">${ageStr(TODAY)}</span></div>
+  </div>`;
+  html += `<div class="panel">
+    <div class="panel-title">식단표 인쇄</div>
+    <button class="more-print-btn" onclick="openMonthly()">📅 월간 식단표 보기 / 인쇄</button>
+  </div>`;
+  html += accHtml('a-n-more', '알러지 유의사항', noticeHtml());
+  html += accHtml('a-intro-more', '재료 도입 이력', introHistoryHtml());
+  html += `<div class="panel">
+    <div class="panel-title">계정</div>
+    <div class="more-row"><span class="more-k">아기</span><span class="more-v">${esc(BABY_NAME)}</span></div>
+    <div class="more-row"><span class="more-k">생년월일</span><span class="more-v">${BIRTH.getFullYear()}.${BIRTH.getMonth()+1}.${BIRTH.getDate()}</span></div>
+    <div class="more-row"><span class="more-k">로그인</span><span class="more-v">${esc(AUTH_EMAIL)}</span></div>
+    <button class="more-logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>`;
+  html += `<div class="panel">
+    <div class="panel-title">앱 정보</div>
+    <div class="more-row"><span class="more-k">앱</span><span class="more-v">아기 이유식 v8</span></div>
+    <div class="more-row"><span class="more-k">식단</span><span class="more-v">${usesDbPlan ? '내 식단 (자동 생성)' : '기본 식단'}</span></div>
+  </div>`;
+  html += `<div style="height:80px;"></div>`;
+  document.getElementById('more-view').innerHTML = html;
+}
+
+/* 활성 탭 다시 렌더 */
+function rerender() {
+  if (activeTab === 'home') renderHome();
+  else if (activeTab === 'stock') renderStock();
+  else if (activeTab === 'meal') renderMeal();
+  else if (activeTab === 'record') renderRecord();
+  else if (activeTab === 'more') renderMore();
 }
 
 /* ================================================
-   아코디언
+   아코디언 (더보기 알러지 등)
 ================================================ */
 function accHtml(id, title, body) {
   return `<div class="acc" id="${id}"><div class="acc-header" onclick="toggleAcc('${id}')"><span class="acc-title">${title}</span><span class="acc-arrow">▼</span></div><div class="acc-body">${body}</div></div>`;
 }
-function toggleAcc(id) { document.getElementById(id).classList.toggle('open'); }
+function toggleAcc(id) { const e = document.getElementById(id); if (e) e.classList.toggle('open'); }
 
 /* ================================================
-   재고 현황 (기존 로직 유지)
+   오늘 할 일 — 재고 부족/임박 + 구매 데드라인
+================================================ */
+function todoCardHtml() {
+  const low = dbStocks.filter(s => s.amount <= s.low_alert);
+  let rows;
+  if (low.length === 0) {
+    rows = `<div class="todo-empty">재고가 넉넉해요 · 오늘 장볼 건 없어요 ✓</div>`;
+  } else {
+    // 마감 임박(D-2 이하) 재료를 위로 정렬
+    const isImminent = s => {
+      const info = deadlineInfo(s.name);
+      return info && info.dday <= 2;
+    };
+    const sorted = [...low].sort((a, b) => (isImminent(b) - isImminent(a)));
+    rows = sorted.map(s => {
+      const out = s.amount <= 0;
+      const imminent = isImminent(s);
+      return `<div class="todo-row${imminent ? ' imminent' : ''}" onclick="goShop()">
+        <span class="todo-dot"></span>
+        <span class="todo-name">${esc(s.name)} ${out ? '소진' : '부족'}</span>
+        ${ddayChipHtml(s.name, 'todo-dday')}
+        <span class="todo-action">장보기 ›</span>
+      </div>`;
+    }).join('');
+  }
+  return `<div class="todo-card"><div class="todo-lbl">오늘 할 일</div>${rows}</div>`;
+}
+/* 오늘 할 일 / 재고 요약 탭 → 재고 탭(장볼 재료 강조) */
+function goShop() {
+  switchTab('stock');
+  setTimeout(() => {
+    const el = document.getElementById('shop-section');
+    if (el) {
+      el.scrollIntoView({ behavior:'smooth', block:'center' });
+      el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 1300);
+    }
+  }, 120);
+}
+
+/* ================================================
+   재고 현황 (기존 로직 유지 + 상태 배지 + 부족 우선 정렬)
 ================================================ */
 function stockHtml() {
   if (dbStocks.length === 0) return '<div style="padding:8px 0;color:#aaa;font-size:12px;">재고 정보를 불러오는 중...</div>';
   let html = '';
   if (!stockEditMode) {
-    html += dbStocks.map(s => {
-      const isLow = s.amount <= s.low_alert;
+    const rank = s => (s.amount <= 0 ? 0 : (s.amount <= s.low_alert ? 1 : 2));
+    const sorted = [...dbStocks].sort((a, b) => rank(a) - rank(b));
+    html += sorted.map(s => {
+      const out = s.amount <= 0, soon = !out && s.amount <= s.low_alert;
+      const base = s.base_g || 15;
       const icon = iconFor(s.name);
       const iconEl = icon
-        ? `<img src="${icon}" alt="" style="width:22px;height:22px;object-fit:contain;flex-shrink:0;">`
-        : `<span style="font-size:16px;flex-shrink:0;">${emojiFor(s.name)}</span>`;
-      return `<div class="stock-row" style="gap:14px;">${iconEl}<span class="stock-name">${esc(s.name)}</span><span class="stock-val${isLow ? ' stock-low' : ''}">${s.amount}${esc(s.unit)} ${isLow ? '❗' : ''}</span></div>`;
+        ? `<img src="${icon}" alt="">`
+        : `<span class="emoji">${emojiFor(s.name)}</span>`;
+      const badge = out ? `<span class="st-badge st-out">부족</span>`
+                  : soon ? `<span class="st-badge st-soon">임박</span>`
+                  : `<span class="st-badge st-full">충분</span>`;
+      const isCube = !s.unit || s.unit === '개' || s.unit === '큐브';
+      const totalG = isCube ? s.amount * base : null;
+      const subText = isCube
+        ? `기준 ${base}g · 총 ${totalG}g`
+        : `기준 ${base}g`;
+      return `<div class="stock-card">
+        <div class="stock-card-ic">${iconEl}</div>
+        <div class="stock-card-mid">
+          <div class="stock-card-name">${esc(s.name)}</div>
+          <div class="stock-card-sub">${subText}</div>
+        </div>
+        <div class="stock-card-right">
+          <div class="stock-card-val${(out || soon) ? ' low' : ''}">${s.amount}${esc(s.unit)}${out ? ' ❗' : ''}</div>
+          ${badge}
+        </div>
+      </div>`;
     }).join('');
-    html += `<button class="stock-edit-btn" onclick="startStockEdit()">재고 수정하기</button>`;
   } else {
     html += dbStocks.map((s, idx) => `
-  <div class="stock-edit-row">
-    <div class="stock-order-btns">
-      <button class="stock-order-btn" onclick="moveStock(${idx},-1)" ${idx===0?'disabled':''}>▲</button>
-      <button class="stock-order-btn" onclick="moveStock(${idx},1)" ${idx===dbStocks.length-1?'disabled':''}>▼</button>
-    </div>
-    <span class="stock-edit-name">${esc(s.name)}</span>
-    <input type="number" class="stock-input" id="si-${s.id}" value="${s.amount}" min="0" style="margin-right:4px;" />
-    <span class="stock-unit">${esc(s.unit)}</span>
-    <button class="stock-edit-x" onclick="deleteStock(${s.id})">✕</button>
-  </div>`).join('');
-    html += `<button class="stock-save-all-btn" onclick="saveAllStocks()">전체 저장</button>`;
-    html += `<button class="stock-cancel-btn" onclick="cancelStockEdit()">취소</button>`;
+      <div class="stock-edit-card">
+        <div class="ec-top">
+          <div class="stock-order-btns">
+            <button class="stock-order-btn" onclick="moveStock(${idx},-1)" ${idx===0?'disabled':''}>▲</button>
+            <button class="stock-order-btn" onclick="moveStock(${idx},1)" ${idx===dbStocks.length-1?'disabled':''}>▼</button>
+          </div>
+          <span class="stock-edit-name">${esc(s.name)}</span>
+          <button class="stock-x" onclick="deleteStock(${s.id})">✕</button>
+        </div>
+        <div class="ec-bottom">
+          <div class="ec-field"><label>수량</label><input type="number" id="si-${s.id}" value="${s._tempAmount ?? s.amount}" min="0"><span class="ec-unit">${esc(s.unit)}</span></div>
+          <div class="ec-field"><label>큐브 기준</label><select id="sb-${s.id}" class="base-g-select" data-orig="${s.base_g ?? 15}" onchange="onBaseChange(${s.id})">${[5,10,15,20,25,30].map(v=>`<option value="${v}"${(s._tempBase ?? s.base_g ?? 15)===v?' selected':''}>${v}g</option>`).join('')}</select></div>
+        </div>
+        <div class="ec-warn" id="warn-${s.id}" style="display:${(s._tempBase != null && s._tempBase !== (s.base_g ?? 15)) ? 'block' : 'none'};">⚠️ 큐브 기준이 바뀌면 실제 재고와 달라질 수 있어요. 수량을 직접 확인해주세요.</div>
+      </div>`).join('');
+    html += `<div style="margin-top:4px;">
+      <button class="stock-save-all-btn" style="margin-top:0;" onclick="saveAllStocks()">저장</button>
+    </div>`;
   }
-  html += `<div class="add-divider"><button class="add-stock-btn" onclick="toggleAddForm()">+ 새 재료 추가</button>`;
-  if (showAddForm) {
-    html += `<div class="add-form">
-        <input type="text" id="ns-name" placeholder="재료 이름 (예: 당근)" />
-        <div class="add-form-row"><input type="number" id="ns-amt" placeholder="수량" min="0" /><input type="text" id="ns-unit" placeholder="단위 (개/g/봉)" /></div>
-        <input type="number" id="ns-alert" placeholder="알림 기준 수량 (예: 2)" min="0" />
-        <button class="add-confirm-btn" onclick="addStock()">추가하기</button>
-      </div>`;
-  }
-  html += `</div>`;
   return html;
 }
-function startStockEdit() { stockEditMode = true; refreshStockBody(); }
-function cancelStockEdit() { stockEditMode = false; refreshStockBody(); }
-function refreshStockBody() { const b=document.querySelector('#a-s .acc-body'); if(b) b.innerHTML=stockHtml(); }
-function toggleAddForm() { showAddForm=!showAddForm; refreshStockBody(); }
+/* 새 재료 추가 폼 (섹션 상단 + 버튼으로 토글) */
+function addStockFormHtml() {
+  return `<div class="add-form" style="margin:0 16px 4px;">
+    <input type="text" id="ns-name" placeholder="재료 이름 (예: 당근)" />
+    <div class="add-form-row">
+      <input type="number" id="ns-amt" placeholder="수량" min="0" />
+      <input type="text" id="ns-unit" placeholder="단위 (개/큐브)" />
+    </div>
+    <div class="add-form-row">
+      <div class="add-form-select-wrap">
+        <label class="add-form-label">큐브 기준 g</label>
+        <select id="ns-base" class="base-g-select">${[5,10,15,20,25,30].map(v=>`<option value="${v}"${v===15?' selected':''}>${v}g</option>`).join('')}</select>
+      </div>
+      <input type="number" id="ns-alert" placeholder="알림 기준 수량" min="0" />
+    </div>
+    <button class="add-confirm-btn" onclick="addStock()">추가하기</button>
+  </div>`;
+}
+function startStockEdit() { stockEditMode = true; refreshStock(); }
+function cancelStockEdit() { stockEditMode = false; refreshStock(); }
+/* 재고 탭 전체 재렌더 (활성일 때) + 홈 요약 동기화 */
+function refreshStock() {
+  if (activeTab === 'stock') renderStock();
+  const hsm = document.getElementById('home-summary-box'); if (hsm) hsm.innerHTML = stockSummaryHtml();
+}
+function refreshStockBody() { refreshStock(); }
+function refreshShopBody() { refreshStock(); }
+function toggleAddForm() {
+  showAddForm = !showAddForm;
+  const b = document.getElementById('stock-addform-box');
+  if (b) b.innerHTML = showAddForm ? addStockFormHtml() : '';
+  else refreshStock();
+}
 
 /* ================================================
-   장볼 재료 (기존 로직 유지)
+   장볼 재료 (기존 로직 유지 + D-day)
 ================================================ */
 function shopHtml() {
   const autoShopNames = dbStocks.filter(s => s.amount <= s.low_alert).map(s => s.name);
@@ -916,34 +2056,51 @@ function shopHtml() {
     ...autoShopNames.map(n => ({ name: n, id: null })),
     ...manualShops.map(s => ({ name: s.name, id: s.id })),
   ];
-
-  let html = '';
   if (allItems.length === 0) {
-    html += `<div style="padding:8px 0;font-size:12px;color:#aaa;text-align:center;">장볼 재료가 없어요 👍</div>`;
-  } else {
-    html += `<div class="shop-grid">`;
-    allItems.forEach(item => {
-      const xBtn = item.id !== null
-        ? `<button class="shop-chip-x" onclick="removeShopItem(${item.id})">✕</button>` : '';
-      html += `<div class="shop-chip"><span class="shop-chip-name">${esc(item.name)}</span>${xBtn}</div>`;
-    });
-    html += `</div>`;
+    return `<div style="padding:14px 0;font-size:12px;color:#aaa;text-align:center;">장볼 재료가 없어요 👍</div>`;
   }
-  html += `<div style="padding-top:4px;"><button class="add-stock-btn" style="color:var(--coral);border-color:#fde0e0;background:#fff5f5;" onclick="toggleShopAddForm()">+ 장볼 재료 추가</button>`;
-  if (showShopAddForm) html += `<div class="add-form" style="margin-top:8px;"><input type="text" id="new-shop-item" placeholder="예) 한우 우둔살 350g" /><button class="add-confirm-btn" onclick="addShopItem()">추가하기</button></div>`;
+  let html = `<div class="shop-grid">`;
+  allItems.forEach(item => {
+    const xBtn = item.id !== null
+      ? `<button class="shop-card-x" onclick="removeShopItem(${item.id})">✕</button>` : '';
+    const dday = ddayChipHtml(item.name, 'shop-dday');
+    html += `<div class="shop-card">
+      ${xBtn}
+      <div class="shop-card-name">${esc(item.name)}</div>
+      ${dday || '<span class="shop-dday" style="color:#cfc9c4;">예정일 미정</span>'}
+    </div>`;
+  });
   html += `</div>`;
   return html;
 }
-function toggleShopAddForm() { showShopAddForm=!showShopAddForm; refreshShopBody(); }
-function refreshShopBody() { const b=document.querySelector('#a-h .acc-body'); if(b) b.innerHTML=shopHtml(); }
+function toggleShopAddForm() {
+  showShopAddForm = !showShopAddForm;
+  const b = document.getElementById('shop-addform-box');
+  if (b) b.innerHTML = showShopAddForm ? shopAddFormHtml() : '';
+  else refreshStock();
+}
 
 function noticeHtml() { return `<ul class="notice-list">${notices.map(n => `<li>${esc(n)}</li>`).join('')}</ul>`; }
-function showMemoEdit() { const w=document.getElementById('memo-edit-wrap'); if(w) w.style.display='block'; }
+function showMemoEdit() { const w = document.getElementById('memo-edit-wrap'); if (w) w.style.display = 'block'; }
 
+function onBaseChange(id) {
+  const sel = document.getElementById(`sb-${id}`);
+  const warn = document.getElementById(`warn-${id}`);
+  if (!sel || !warn) return;
+  const orig = parseInt(sel.dataset.orig);
+  const cur = parseInt(sel.value);
+  warn.style.display = (cur !== orig) ? 'block' : 'none';
+}
 function moveStock(idx, dir) {
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= dbStocks.length) return;
-  dbStocks.forEach(s => { const i=document.getElementById(`si-${s.id}`); if(i) s._tempAmount=parseInt(i.value); });
+  // 순서 변경 전 현재 입력값 임시 보존 (수량 + base_g 모두)
+  dbStocks.forEach(s => {
+    const amtEl = document.getElementById(`si-${s.id}`);
+    const baseEl = document.getElementById(`sb-${s.id}`);
+    if (amtEl) s._tempAmount = parseInt(amtEl.value);
+    if (baseEl) s._tempBase = parseInt(baseEl.value);
+  });
   [dbStocks[idx], dbStocks[newIdx]] = [dbStocks[newIdx], dbStocks[idx]];
   refreshStockBody();
 }
@@ -952,16 +2109,26 @@ function moveStock(idx, dir) {
    Supabase (기존 로직 그대로)
 ================================================ */
 async function saveAllStocks() {
-  for (let i=0; i<dbStocks.length; i++) {
+  for (let i = 0; i < dbStocks.length; i++) {
     const s = dbStocks[i];
     const input = document.getElementById(`si-${s.id}`);
+    const baseEl = document.getElementById(`sb-${s.id}`);
     const newAmt = input ? parseInt(input.value) : (s._tempAmount ?? s.amount);
+    const newBase = baseEl ? parseInt(baseEl.value) : (s._tempBase ?? s.base_g ?? 15);
     if (isNaN(newAmt) || newAmt < 0) continue;
-    const { error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i }).eq('id', s.id);
-    if (error) { alert(`${s.name} 저장 실패: ${error.message}`); return; }
+    const safeBase = isNaN(newBase) ? 15 : newBase;
+    // base_g 컬럼이 없을 수도 있으므로 먼저 base_g 포함 시도 → 실패 시 기본 컬럼만
+    let { error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i, base_g: safeBase }).eq('id', s.id);
+    if (error) {
+      ({ error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i }).eq('id', s.id));
+      if (error) { alert(`${s.name} 저장 실패: ${error.message}`); return; }
+    } else {
+      s.base_g = safeBase;
+      delete s._tempBase;
+      delete s._tempAmount;
+    }
   }
   stockEditMode = false; await loadStocks();
-  const acc = document.getElementById('a-s'); if (acc) acc.classList.add('open');
 }
 async function deleteStock(id) {
   const stock = dbStocks.find(s => s.id === id); if (!stock) return;
@@ -969,23 +2136,27 @@ async function deleteStock(id) {
   const { error } = await sb.from('inventory').delete().eq('id', id);
   if (error) { alert('삭제 실패: ' + error.message); return; }
   stockEditMode = true; await loadStocks();
-  const acc = document.getElementById('a-s'); if (acc) acc.classList.add('open');
 }
 async function addStock() {
   const name = document.getElementById('ns-name')?.value?.trim();
   const amount = parseInt(document.getElementById('ns-amt')?.value || 0);
   const unit = document.getElementById('ns-unit')?.value?.trim() || '개';
   const low_alert = parseInt(document.getElementById('ns-alert')?.value || 2);
+  const baseRaw = parseInt(document.getElementById('ns-base')?.value);
+  const base_g = isNaN(baseRaw) ? 15 : baseRaw;
   if (!name) { alert('재료 이름을 입력해주세요.'); return; }
   const sort_order = dbStocks.length;
-  const { error } = await sb.from('inventory').insert([{ name, amount, unit, low_alert, sort_order }]);
-  if (error) { alert('추가 실패: ' + error.message); return; }
+  // base_g 컬럼이 없을 수도 있으므로 포함 시도 → 실패 시 제외하고 재시도
+  let { error } = await sb.from('inventory').insert([{ user_id: USER_ID, baby_id: BABY_ID, name, amount, unit, low_alert, sort_order, base_g }]);
+  if (error) {
+    ({ error } = await sb.from('inventory').insert([{ user_id: USER_ID, baby_id: BABY_ID, name, amount, unit, low_alert, sort_order }]));
+    if (error) { alert('추가 실패: ' + error.message); return; }
+  }
   showAddForm = false; await loadStocks();
-  const acc = document.getElementById('a-s'); if (acc) acc.classList.add('open');
 }
 async function loadStocks() {
   try {
-    const { data, error } = await sb.from('inventory').select('*').order('sort_order').order('id');
+    const { data, error } = await sb.from('inventory').select('*').eq('baby_id', BABY_ID).order('sort_order').order('id');
     if (error) { console.error('재고 로딩 오류:', error); return; }
     if (data) dbStocks = data;
     refreshStockBody();
@@ -994,274 +2165,679 @@ async function loadStocks() {
 async function addShopItem() {
   const input = document.getElementById('new-shop-item'); const val = input?.value?.trim();
   if (!val) { alert('재료 이름을 입력해주세요.'); return; }
-  const { error } = await sb.from('shop_list').insert([{ name: val }]);
+  const { error } = await sb.from('shop_list').insert([{ user_id: USER_ID, baby_id: BABY_ID, name: val }]);
   if (error) { alert('추가 실패: ' + error.message); return; }
   showShopAddForm = false; await loadShops();
-  const acc = document.getElementById('a-h'); if (acc) acc.classList.add('open');
+}
+/* 되돌리기 상태 */
+let lastDeletedShop = null;
+let undoTimer = null;
+
+function showUndoToast(name) {
+  const t = document.getElementById('undo-toast');
+  if (!t) return;
+  t.style.display = 'flex';
+  t.className = 'undo-toast';
+  t.innerHTML = `<span><span class="undo-toast-name">'${esc(name)}'</span> 삭제됨</span><button class="undo-btn" onclick="undoShopDelete()">되돌리기</button>`;
+}
+function hideUndoToast() {
+  const t = document.getElementById('undo-toast');
+  if (t) t.style.display = 'none';
+  lastDeletedShop = null;
+}
+async function undoShopDelete() {
+  if (!lastDeletedShop) return;
+  if (undoTimer) { clearTimeout(undoTimer); undoTimer = null; }
+  const name = lastDeletedShop.name;
+  hideUndoToast();
+  const { error } = await sb.from('shop_list').insert([{ user_id: USER_ID, baby_id: BABY_ID, name }]);
+  if (error) { alert('복구 실패: ' + error.message); return; }
+  await loadShops();
+  if (activeTab === 'stock') renderStock();
 }
 async function removeShopItem(id) {
+  const shop = shops.find(s => s.id === id);
+  const name = shop ? shop.name : '이 항목';
+  if (!confirm(`'${name}'\n장보기 목록에서 삭제할까요?`)) return;
   const { error } = await sb.from('shop_list').delete().eq('id', id);
   if (error) { alert('삭제 실패: ' + error.message); return; }
+  lastDeletedShop = { name };
   await loadShops();
-  const acc = document.getElementById('a-h'); if (acc) acc.classList.add('open');
+  if (activeTab === 'stock') renderStock();
+  showUndoToast(name);
+  if (undoTimer) clearTimeout(undoTimer);
+  undoTimer = setTimeout(hideUndoToast, 5000);
 }
 async function loadShops() {
   try {
-    const { data, error } = await sb.from('shop_list').select('*').order('id');
+    const { data, error } = await sb.from('shop_list').select('*').eq('baby_id', BABY_ID).order('id');
     if (error) { console.error('shop_list 오류:', error); return; }
     shops = data || []; refreshShopBody();
   } catch (e) { console.error('shop_list 연결 오류:', e); }
 }
+/* ── DB 날짜 경계 변환: 내부 "M/D" ↔ DB "YYYY-MM-DD" ──
+   2026-01 마이그레이션 이후 DB는 YYYY-MM-DD 저장. 내부 로직은 "M/D" 유지.
+   변환은 반드시 이 두 함수(DB 경계)에서만 수행한다. */
+function toDbDate(key) {
+  const m = String(key).match(/^(\d{1,2})\/(\d{1,2})$/);
+  if (!m) return key; // '_appstate' 등 예약 키는 그대로
+  return PLAN_YEAR + '-' + String(m[1]).padStart(2, '0') + '-' + String(m[2]).padStart(2, '0');
+}
+function fromDbDate(d) {
+  const m = String(d).match(/^\d{4}-(\d{2})-(\d{2})$/);
+  if (!m) return d;
+  return parseInt(m[1]) + '/' + parseInt(m[2]);
+}
 async function loadMealLog() {
   try {
-    const { data, error } = await sb.from('meal_log').select('*');
+    const { data, error } = await sb.from('meal_log').select('*').eq('baby_id', BABY_ID);
     if (error) { console.error('meal_log 오류:', error); return; }
     if (data && data.length > 0) data.forEach(log => {
-      if (meals[log.date]) { meals[log.date].done = log.done; meals[log.date].memo = log.memo || '섭취완료'; }
+      const key = fromDbDate(log.date);
+      if (meals[key]) { meals[key].done = log.done; meals[key].memo = log.memo || '섭취완료'; }
     });
   } catch (e) { console.error('meal_log 연결 오류:', e); }
 }
 
 /* 재료 차감 수량 계산 */
-function calcUseCount(amount) {
+function calcUseCount(amount, base) {
+  base = base || 15;
   const s = String(amount || '').trim();
-  if (!s || s === '반복노출' || s === '반복') return 0; /* 반복노출은 차감 없음 */
+  if (!s || s === '반복노출' || s === '반복') return 0;
   if (s === '소량') return 1;
   if (s.includes('팩') || s.includes('개')) return Math.max(1, parseInt(s) || 1);
   const g = parseInt(s);
   if (isNaN(g) || g <= 0) return 0;
-  return Math.max(1, Math.round(g / 15)); /* 최소 1큐브 보장 */
+  return Math.max(1, Math.round(g / base));
 }
 async function checkDone(dateKey) {
   const data = meals[dateKey]; if (!data) return;
   if (!confirm('섭취 완료로 기록할까요? 재고가 자동 차감됩니다.')) return;
-  const memoEl = document.getElementById('memo-input');
-  const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
+  const memo = composeMemo('am-reactions', 'memo-input');
 
   const allRaw = [...(data.amEdited || data.am || [])];
   const stockChanges = [];
   for (const raw of allRaw) {
     const { name, amount } = parseItem(raw);
-    const useCount = calcUseCount(amount);
-    if (useCount <= 0) continue;
     const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
+    const useCount = calcUseCount(amount, stock.base_g || 15);
+    if (useCount <= 0) continue;
     const actualDeduct = Math.min(useCount, stock.amount);
     await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
     stock.amount -= actualDeduct;
     stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
   }
-  const { error: logErr } = await sb.from('meal_log').upsert({ date: dateKey, done: true, memo, stock_changes: stockChanges }, { onConflict: 'date' });
+  const { error: logErr } = await sb.from('meal_log').upsert({ user_id: USER_ID, baby_id: BABY_ID, date: toDbDate(dateKey), done: true, memo, stock_changes: stockChanges }, { onConflict: 'baby_id,date' });
   if (logErr) console.error('meal_log 저장 오류:', logErr);
   meals[dateKey].done = true; meals[dateKey].memo = memo;
-  await loadStocks(); renderStrip(); renderContent();
+  await loadStocks(); rerender();
 }
 async function cancelDone(dateKey) {
   if (!confirm('섭취 완료를 취소할까요? 차감된 재고가 복구됩니다.')) return;
-  const { data: logData, error: fetchErr } = await sb.from('meal_log').select('stock_changes').eq('date', dateKey).single();
+  const { data: logData, error: fetchErr } = await sb.from('meal_log').select('stock_changes').eq('baby_id', BABY_ID).eq('date', toDbDate(dateKey)).single();
   if (fetchErr) { alert('취소 실패: ' + fetchErr.message); return; }
   const changes = logData?.stock_changes || [];
   for (const change of changes) {
     const stock = dbStocks.find(s => s.id === change.id);
     if (stock) await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
   }
-  const { error: updateErr } = await sb.from('meal_log').update({ done: false, stock_changes: [] }).eq('date', dateKey);
+  const { error: updateErr } = await sb.from('meal_log').update({ done: false, stock_changes: [] }).eq('baby_id', BABY_ID).eq('date', toDbDate(dateKey));
   if (updateErr) { alert('취소 실패: ' + updateErr.message); return; }
   meals[dateKey].done = false; meals[dateKey].memo = '';
-  /* 아침 건너뜀 상태도 초기화 */
   meals[dateKey].amSkipped = false;
-  localStorage.removeItem(`jjina_am_skip_${dateKey}`);
-  await loadStocks(); renderStrip(); renderContent();
+  delete appState.amSkip[dateKey];
+  saveAppState();
+  await loadStocks(); rerender();
 }
 async function updateMemo(dateKey) {
-  const memoEl = document.getElementById('memo-input'); if (!memoEl) return;
-  const memo = memoEl.value.trim() || '섭취완료';
-  const { error } = await sb.from('meal_log').upsert({ date: dateKey, done: true, memo }, { onConflict: 'date' });
+  const memo = composeMemo('am-reactions', 'memo-input');
+  const { error } = await sb.from('meal_log').upsert({ user_id: USER_ID, baby_id: BABY_ID, date: toDbDate(dateKey), done: true, memo }, { onConflict: 'baby_id,date' });
   if (error) { alert('저장 실패: ' + error.message); return; }
   meals[dateKey].memo = memo;
-  const editWrap = document.getElementById('memo-edit-wrap');
-  const displayTxt = document.getElementById('memo-display-txt');
-  if (editWrap) editWrap.style.display = 'none';
-  if (displayTxt) displayTxt.textContent = memo;
+  rerender();
 }
 
-/* ================================================
-   아침 건너뜀 토글
-================================================ */
+/* 아침 건너뜀 토글 */
 function skipAm(dateKey) {
   const data = meals[dateKey]; if (!data) return;
   const cur = !!data.amSkipped;
   data.amSkipped = !cur;
   if (!cur) {
-    localStorage.setItem(`jjina_am_skip_${dateKey}`, '1');
+    appState.amSkip[dateKey] = true;
   } else {
-    localStorage.removeItem(`jjina_am_skip_${dateKey}`);
-    /* 저녁도 아직 미완이면 잠금 복원 */
+    delete appState.amSkip[dateKey];
     data.pmDone = false;
-    localStorage.removeItem(`jjina_pm_done_${dateKey}`);
-    localStorage.removeItem(`jjina_pm_memo_${dateKey}`);
+    delete appState.pmDone[dateKey];
+    delete appState.pmMemo[dateKey];
   }
-  renderStrip(); renderContent();
+  saveAppState();
+  rerender();
 }
 
-/* ================================================
-   저녁 섭취완료 / 취소 / 메모수정 (localStorage)
-================================================ */
+/* 저녁 섭취완료 / 취소 / 메모 (appState → Supabase 동기화) */
 async function checkPmDone(dateKey) {
   const data = meals[dateKey]; if (!data || !data.pm) return;
-  const memoEl = document.getElementById('pm-memo-input');
-  const memo = memoEl && memoEl.value.trim() ? memoEl.value.trim() : '섭취완료';
+  const memo = composeMemo('pm-reactions', 'pm-memo-input');
 
-  /* 저녁 항목 재고 차감 */
   const stockChanges = [];
   for (const raw of (data.pmEdited || data.pm || [])) {
     const { name, amount } = parseItem(raw);
-    const useCount = calcUseCount(amount);
-    if (useCount <= 0) continue;
     const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
+    const useCount = calcUseCount(amount, stock.base_g || 15);
+    if (useCount <= 0) continue;
     const actualDeduct = Math.min(useCount, stock.amount);
     await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
     stock.amount -= actualDeduct;
     stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
   }
 
-  /* localStorage에 저장 */
   data.pmDone = true;
   data.pmMemo = memo;
-  localStorage.setItem(`jjina_pm_done_${dateKey}`, '1');
-  localStorage.setItem(`jjina_pm_memo_${dateKey}`, memo);
+  appState.pmDone[dateKey] = true;
+  appState.pmMemo[dateKey] = memo;
+  appState.pmStock[dateKey] = stockChanges;
+  saveAppState();
 
-  await loadStocks(); renderStrip(); renderContent();
+  await loadStocks(); rerender();
 }
-
-function cancelPmDone(dateKey) {
-  if (!confirm('저녁 완료를 취소할까요?')) return;
+async function cancelPmDone(dateKey) {
+  if (!confirm('저녁 완료를 취소할까요? 차감된 재고가 복구됩니다.')) return;
   const data = meals[dateKey]; if (!data) return;
+  // 차감했던 재고 복구
+  const changes = appState.pmStock[dateKey] || [];
+  for (const change of changes) {
+    const stock = dbStocks.find(s => s.id === change.id);
+    if (stock) await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
+  }
   data.pmDone = false; data.pmMemo = '';
-  localStorage.removeItem(`jjina_pm_done_${dateKey}`);
-  localStorage.removeItem(`jjina_pm_memo_${dateKey}`);
-  renderStrip(); renderContent();
+  delete appState.pmDone[dateKey];
+  delete appState.pmMemo[dateKey];
+  delete appState.pmStock[dateKey];
+  saveAppState();
+  await loadStocks(); rerender();
 }
-
 function showPmMemoEdit() {
   const w = document.getElementById('pm-memo-edit-wrap'); if (w) w.style.display = 'block';
 }
-
 function updatePmMemo(dateKey) {
-  const memoEl = document.getElementById('pm-memo-input'); if (!memoEl) return;
-  const memo = memoEl.value.trim() || '섭취완료';
+  const memo = composeMemo('pm-reactions', 'pm-memo-input');
   meals[dateKey].pmMemo = memo;
-  localStorage.setItem(`jjina_pm_memo_${dateKey}`, memo);
-  const editWrap = document.getElementById('pm-memo-edit-wrap');
-  const displayTxt = document.getElementById('pm-memo-display-txt');
-  if (editWrap) editWrap.style.display = 'none';
-  if (displayTxt) displayTxt.textContent = memo;
+  appState.pmMemo[dateKey] = memo;
+  saveAppState();
+  rerender();
 }
 
-/* ================================================
-   하루 완료 여부 (스트립 done-day 판정)
-================================================ */
+/* 점심 섭취완료 / 취소 / 메모 / 건너뛰기 (3끼일 때만 사용) */
+async function checkLunchDone(dateKey) {
+  const data = meals[dateKey]; if (!data || !data.lunch) return;
+  const memo = composeMemo('lunch-reactions', 'lunch-memo-input');
+
+  const stockChanges = [];
+  for (const raw of (data.lunchEdited || data.lunch || [])) {
+    const { name, amount } = parseItem(raw);
+    const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
+    const useCount = calcUseCount(amount, stock.base_g || 15);
+    if (useCount <= 0) continue;
+    const actualDeduct = Math.min(useCount, stock.amount);
+    await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
+    stock.amount -= actualDeduct;
+    stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
+  }
+
+  data.lunchDone = true;
+  data.lunchMemo = memo;
+  appState.lunchDone[dateKey] = true;
+  appState.lunchMemo[dateKey] = memo;
+  appState.lunchStock[dateKey] = stockChanges;
+  saveAppState();
+
+  await loadStocks(); rerender();
+}
+async function cancelLunchDone(dateKey) {
+  if (!confirm('점심 완료를 취소할까요? 차감된 재고가 복구됩니다.')) return;
+  const data = meals[dateKey]; if (!data) return;
+  const changes = appState.lunchStock[dateKey] || [];
+  for (const change of changes) {
+    const stock = dbStocks.find(s => s.id === change.id);
+    if (stock) await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
+  }
+  data.lunchDone = false; data.lunchMemo = '';
+  delete appState.lunchDone[dateKey];
+  delete appState.lunchMemo[dateKey];
+  delete appState.lunchStock[dateKey];
+  saveAppState();
+  await loadStocks(); rerender();
+}
+function showLunchMemoEdit() {
+  const w = document.getElementById('lunch-memo-edit-wrap'); if (w) w.style.display = 'block';
+}
+function updateLunchMemo(dateKey) {
+  const memo = composeMemo('lunch-reactions', 'lunch-memo-input');
+  meals[dateKey].lunchMemo = memo;
+  appState.lunchMemo[dateKey] = memo;
+  saveAppState();
+  rerender();
+}
+function skipLunch(dateKey) {
+  const data = meals[dateKey]; if (!data) return;
+  if (data.lunchSkipped) {
+    data.lunchSkipped = false;
+    delete appState.lunchSkip[dateKey];
+  } else {
+    data.lunchSkipped = true;
+    appState.lunchSkip[dateKey] = true;
+  }
+  saveAppState();
+  rerender();
+}
+
+/* 하루 완료 여부 (스트립 done-day 판정) */
 function isDayDone(data) {
-  if (!data.pm) return !!data.done;          /* 1끼: 아침 완료 */
-  return !!data.pmDone;                       /* 2끼: 저녁까지 완료 */
+  if (data.pm) return !!data.pmDone;   // 점심 유무와 무관하게 마지막 끼니는 저녁
+  return !!data.done;
 }
 
 /* ================================================
-   인라인 재료 편집
+   인라인 재료 편집 (기존 로직 유지)
 ================================================ */
+/* 현재 편집행 input 값들을 "이름 양" 배열로 읽어옴 (3개 함수 공통) */
+function readEditInputs(dateKey, slot, current) {
+  return current.map((raw, i) => {
+    const { name } = parseItem(raw);
+    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${i}`);
+    const amt = amtInput ? amtInput.value.trim() : '';
+    return amt ? `${name} ${amt}` : raw;
+  });
+}
 function startEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
-  const srcKey = slot === 'am' ? 'am' : 'pm';
-  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
-  const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
-  if (!data[editedKey]) data[editedKey] = [...(data[srcKey] || [])];
+  const editedKey = slot + 'Edited';
+  const modeKey = slot + 'EditMode';
+  if (!data[editedKey]) data[editedKey] = [...(data[slot] || [])];
   data[modeKey] = true;
-  renderContent();
+  rerender();
 }
 function saveEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
-  const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
-  const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
-  const current = data[editedKey] || [];
-  /* 입력값 수집 */
-  const updated = current.map((raw, idx) => {
-    const { name } = parseItem(raw);
-    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${idx}`);
-    const newAmt = amtInput ? amtInput.value.trim() : '';
-    return newAmt ? `${name} ${newAmt}` : raw;
-  });
-  data[editedKey] = updated;
+  const editedKey = slot + 'Edited';
+  const modeKey = slot + 'EditMode';
+  data[editedKey] = readEditInputs(dateKey, slot, data[editedKey] || []);
   data[modeKey] = false;
-  renderContent();
+  persistEdit(dateKey, slot);   /* 편집 내용 appState → Supabase 저장 */
+  rerender();
+}
+/* 인라인 편집 영속화 → appState.edits (Supabase 동기화) */
+function persistEdit(dateKey, slot) {
+  const editedKey = slot + 'Edited';
+  const arr = meals[dateKey] && meals[dateKey][editedKey];
+  const k = `${dateKey}_${slot}`;
+  if (arr && arr.length) appState.edits[k] = arr;
+  else delete appState.edits[k];
+  saveAppState();
+}
+function loadEdits() {
+  Object.keys(appState.edits).forEach(k => {
+    const arr = appState.edits[k];
+    if (!Array.isArray(arr) || !arr.length) return;
+    const idx = k.lastIndexOf('_');
+    const dateKey = k.slice(0, idx), slot = k.slice(idx + 1);
+    if (meals[dateKey]) meals[dateKey][slot + 'Edited'] = arr;
+  });
 }
 function cancelEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
-  const modeKey = slot === 'am' ? 'amEditMode' : 'pmEditMode';
+  const modeKey = slot + 'EditMode';
   data[modeKey] = false;
-  renderContent();
+  rerender();
 }
 function deleteEditRow(dateKey, slot, idx) {
   const data = meals[dateKey]; if (!data) return;
   const srcKey = slot === 'am' ? 'am' : 'pm';
   const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
-  /* 삭제 전 현재 입력값 저장 */
   const current = data[editedKey] || [...(data[srcKey] || [])];
-  const updated = current.map((raw, i) => {
-    if (i === idx) return null;
-    const { name } = parseItem(raw);
-    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${i}`);
-    return amtInput ? `${name} ${amtInput.value.trim() || parseItem(raw).amount}` : raw;
-  }).filter(Boolean);
-  data[editedKey] = updated;
-  renderContent();
+  data[editedKey] = readEditInputs(dateKey, slot, current).filter((_, i) => i !== idx);
+  rerender();
 }
 function addEditRow(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
   const srcKey = slot === 'am' ? 'am' : 'pm';
   const editedKey = slot === 'am' ? 'amEdited' : 'pmEdited';
-  /* 추가 전 현재 입력값 저장 */
   const current = data[editedKey] || [...(data[srcKey] || [])];
-  const updated = current.map((raw, i) => {
-    const { name } = parseItem(raw);
-    const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${i}`);
-    return amtInput ? `${name} ${amtInput.value.trim() || parseItem(raw).amount}` : raw;
-  });
+  const updated = readEditInputs(dateKey, slot, current);
   const nameInput = document.getElementById(`ean-${dateKey}-${slot}`);
   const amtInput2 = document.getElementById(`eaa-${dateKey}-${slot}`);
   const newName = nameInput?.value.trim();
   const newAmt = amtInput2?.value.trim();
   if (newName) updated.push(newAmt ? `${newName} ${newAmt}` : newName);
   data[editedKey] = updated;
-  renderContent();
+  rerender();
 }
 
 /* ================================================
-   localStorage 상태 복원
+   기기 간 동기화 상태 (v5.1)
+   - 교환/편집/저녁완료/메모/아침건너뜀을 모두 Supabase로 동기화
+   - meal_log의 예약 행(date='_appstate')의 stock_changes(jsonb)에 통째 저장
+     → 별도 테이블/콘솔작업 없이 모든 기기에서 동일하게 보임
+   - 아침 완료/메모는 기존처럼 meal_log의 해당 날짜 행(이미 동기화됨)
 ================================================ */
-function loadLocalState() {
-  Object.keys(meals).forEach(key => {
-    if (localStorage.getItem(`jjina_am_skip_${key}`) === '1') {
-      meals[key].amSkipped = true;
+const STATE_ROW = '_appstate';
+let appState = { swaps: [], edits: {}, pmDone: {}, pmMemo: {}, amSkip: {}, pmStock: {}, lunchDone: {}, lunchMemo: {}, lunchSkip: {}, lunchStock: {}, shifts: [], checklist: {}, checklistAt: {} };
+
+async function loadAppState() {
+  try {
+    const { data, error } = await sb.from('meal_log').select('stock_changes').eq('baby_id', BABY_ID).eq('date', STATE_ROW);
+    if (error) { console.error('앱 상태 로드 오류:', error); return; }
+    const s = (data && data[0] && data[0].stock_changes) || null;
+    if (s && typeof s === 'object') {
+      appState = {
+        swaps:  Array.isArray(s.swaps) ? s.swaps : [],
+        edits:  (s.edits  && typeof s.edits  === 'object') ? s.edits  : {},
+        pmDone: (s.pmDone && typeof s.pmDone === 'object') ? s.pmDone : {},
+        pmMemo: (s.pmMemo && typeof s.pmMemo === 'object') ? s.pmMemo : {},
+        amSkip: (s.amSkip && typeof s.amSkip === 'object') ? s.amSkip : {},
+        pmStock: (s.pmStock && typeof s.pmStock === 'object') ? s.pmStock : {},
+        lunchDone: (s.lunchDone && typeof s.lunchDone === 'object') ? s.lunchDone : {},
+        lunchMemo: (s.lunchMemo && typeof s.lunchMemo === 'object') ? s.lunchMemo : {},
+        lunchSkip: (s.lunchSkip && typeof s.lunchSkip === 'object') ? s.lunchSkip : {},
+        lunchStock: (s.lunchStock && typeof s.lunchStock === 'object') ? s.lunchStock : {},
+        shifts: Array.isArray(s.shifts) ? s.shifts : [],
+        checklist: (s.checklist && typeof s.checklist === 'object') ? s.checklist : {},
+        checklistAt: (s.checklistAt && typeof s.checklistAt === 'object') ? s.checklistAt : {},
+      };
     }
-    if (localStorage.getItem(`jjina_pm_done_${key}`) === '1') {
+  } catch (e) { console.error('앱 상태 로드 연결 오류:', e); }
+}
+/* 전체 상태를 통째로 저장 (마지막 저장이 항상 최신 → 누락돼도 다음 저장이 복구) */
+async function saveAppState() {
+  try {
+    await sb.from('meal_log').upsert({ user_id: USER_ID, baby_id: BABY_ID, date: STATE_ROW, done: false, memo: '_appstate', stock_changes: appState }, { onConflict: 'baby_id,date' });
+  } catch (e) { console.error('앱 상태 저장 오류:', e); }
+}
+/* 저녁완료/메모/아침건너뜀 상태를 meals에 반영 (로그인 후·재교환 후 호출) */
+function applySyncedState() {
+  Object.keys(meals).forEach(key => {
+    meals[key].amSkipped = !!appState.amSkip[key];
+    if (appState.pmDone[key]) {
       meals[key].pmDone = true;
-      meals[key].pmMemo = localStorage.getItem(`jjina_pm_memo_${key}`) || '섭취완료';
+      meals[key].pmMemo = appState.pmMemo[key] || '섭취완료';
+    } else {
+      meals[key].pmDone = false;
+    }
+    // 점심(3끼)
+    meals[key].lunchSkipped = !!appState.lunchSkip[key];
+    if (appState.lunchDone[key]) {
+      meals[key].lunchDone = true;
+      meals[key].lunchMemo = appState.lunchMemo[key] || '섭취완료';
+    } else {
+      meals[key].lunchDone = false;
     }
   });
 }
 
 /* ================================================
-   날짜 이동
+   식단 날짜 교환 (1:1)
+   - meals = 불변 원본 / 교환은 "식단 내용 필드"만 자리바꿈
+   - 완료기록(done/memo/pmDone/amSkipped)은 캘린더 날짜에 고정 → 과거 보존
+   - 교환 이력은 appState.swaps(Supabase 동기화), 로드 시 순서대로 재적용
+   - 같은 교환 재실행 = 원복(self-inverse) → 되돌리기 단순
 ================================================ */
-function goToday() { sel = new Date(TODAY); curMonth = TODAY.getMonth(); renderStrip(); renderContent(); }
-function changeMonth(dir) {
-  curMonth = Math.max(4, Math.min(6, curMonth + dir));
-  for (let i=1; i<=31; i++) { const d=new Date(2026,curMonth,i); if(d.getMonth()!==curMonth) break; if(meals[dk(d)]){ sel=d; break; } }
-  renderStrip(); renderContent();
+const SWAP_FIELDS = ['am','pm','lunch','note','amEdited','pmEdited','lunchEdited'];
+let swapOpenKey = null;      // 현재 피커가 열린 날짜 키
+let pendingSwapTarget = null;// 선택했지만 아직 확정 전인 대상 키
+let swapUndoTimer = null;
+
+/* 'New 재료' 배지를 떼어 반환 (badge/newBadge 어디 있든) — 음식 따라 이동 대상 */
+function pluckNewBadge(m) {
+  if (m.newBadge && m.newBadge.t === 'new') { const b = m.newBadge; delete m.newBadge; return b; }
+  if (m.badge && m.badge.t === 'new') { const b = m.badge; delete m.badge; return b; }
+  return undefined;
 }
-function pick(y, m, d) { sel = new Date(y, m, d); curMonth = m; renderStrip(); renderContent(); }
+function setNewBadge(m, badge) { if (badge) m.newBadge = badge; else delete m.newBadge; }
+
+/* 식단 내용 + New배지만 두 날짜 간 교환
+   - 2끼 전환/입자(grain)/중기시작(trans·midStart) 마커는 '그 날짜'의 발달 단계 → 교환 안 함(고정)
+   - New 재료 배지는 그 재료(음식)를 따라가야 하므로 함께 교환 */
+function applySwap(a, b) {
+  const A = meals[a], B = meals[b];
+  if (!A || !B) return;
+  SWAP_FIELDS.forEach(f => {
+    const av = A[f], bv = B[f];
+    if (bv === undefined) delete A[f]; else A[f] = bv;
+    if (av === undefined) delete B[f]; else B[f] = av;
+  });
+  const na = pluckNewBadge(A), nb = pluckNewBadge(B);
+  setNewBadge(A, nb); setNewBadge(B, na);
+}
+function replaySwaps() { appState.swaps.forEach(p => { if (Array.isArray(p)) applySwap(p[0], p[1]); }); }
+
+/* 교환 대상이 될 수 있는 날인가: 식단 있음 + 미완료 (과거도 허용 — 미완료면 변경 가능) */
+function swapEligibleKey(key) {
+  const m = meals[key];
+  if (!m || !(m.am && m.am.length)) return false;
+  return !m.done && !m.pmDone && !m.amSkipped;
+}
+/* 칩에 표시할 짧은 이름(배지명 우선, 없으면 첫 재료명) */
+function swapChipLabel(key) {
+  const m = meals[key]; if (!m) return '식단';
+  const badge = (m.newBadge && m.newBadge.x) || (m.badge && m.badge.x);
+  if (badge) return badge.replace(/^New\s*/, '').trim();
+  const first = (m.am && m.am[0]) || (m.pm && m.pm[0]) || '';
+  return parseItem(first).name || '식단';
+}
+/* 해당 날짜 식단에 재고 부족 재료가 있는가 (피커 경고용) */
+function dayHasLowStock(key) {
+  const m = meals[key];
+  if (!m || !dbStocks.length) return false;
+  const items = [...(m.amEdited || m.am || []), ...(m.pmEdited || m.pm || [])];
+  return items.some(raw => {
+    const { name } = parseItem(raw);
+    const st = dbStocks.find(s => s.name === name);
+    return st && st.amount <= st.low_alert;
+  });
+}
+/* 교환 이력에 포함된 날짜인가 (스트립·달력 점 표시용) */
+function isSwappedDay(key) {
+  return appState.swaps.some(p => Array.isArray(p) && (p[0] === key || p[1] === key));
+}
+/* 교환/되돌리기 시 두 날짜의 편집 데이터도 함께 이동 (편집이 음식 따라가도록) */
+function swapEditStorage(a, b) {
+  ['am', 'pm'].forEach(slot => {
+    const ka = `${a}_${slot}`, kb = `${b}_${slot}`;
+    const va = appState.edits[ka], vb = appState.edits[kb];
+    if (vb === undefined) delete appState.edits[ka]; else appState.edits[ka] = vb;
+    if (va === undefined) delete appState.edits[kb]; else appState.edits[kb] = va;
+  });
+}
+function toggleSwapPicker(key) {
+  swapOpenKey = (swapOpenKey === key) ? null : key;
+  pendingSwapTarget = null;
+  rerender();
+}
+function selectSwapTarget(key) { pendingSwapTarget = key; rerender(); }
+function confirmSwap(a, b) {
+  if (!swapEligibleKey(a) || !swapEligibleKey(b) || a === b) return;
+  applySwap(a, b);
+  swapEditStorage(a, b);     /* 편집 데이터도 음식 따라 이동 */
+  appState.swaps.push([a, b]);
+  saveAppState();            /* 모든 기기 동기화 */
+  swapOpenKey = null;
+  pendingSwapTarget = null;
+  rerender();
+  showSwapUndoToast(a, b);
+  if (swapUndoTimer) clearTimeout(swapUndoTimer);
+  swapUndoTimer = setTimeout(hideSwapUndoToast, 5000);
+}
+function undoLastSwap() {
+  if (!appState.swaps.length) return;
+  if (swapUndoTimer) { clearTimeout(swapUndoTimer); swapUndoTimer = null; }
+  const [a, b] = appState.swaps.pop();
+  applySwap(a, b);          // self-inverse → 원복
+  swapEditStorage(a, b);    // 편집 데이터도 원복
+  saveAppState();
+  hideSwapUndoToast();
+  rerender();
+}
+function showSwapUndoToast(a, b) {
+  const t = document.getElementById('undo-toast'); if (!t) return;
+  t.style.display = 'flex';
+  t.className = 'undo-toast';
+  t.innerHTML = `<span><span class="undo-toast-name">${esc(a)} ↔ ${esc(b)}</span> 식단 교환됨</span><button class="undo-btn" onclick="undoLastSwap()">되돌리기</button>`;
+}
+function hideSwapUndoToast() {
+  const t = document.getElementById('undo-toast'); if (t) t.style.display = 'none';
+}
+/* 교환 피커 패널 (식단 카드 하단) */
+function swapPickerHtml(srcKey) {
+  const targets = Object.keys(meals)
+    .filter(k => /^\d+\/\d+$/.test(k) && k !== srcKey && swapEligibleKey(k))
+    .sort((a, b) => {
+      const [am2, ad] = a.split('/').map(Number), [bm, bd] = b.split('/').map(Number);
+      return (am2 * 31 + ad) - (bm * 31 + bd);
+    });
+  let h = `<div class="swap-panel">
+    <div class="swap-panel-title">↕ 어느 날과 바꿀까요?</div>
+    <div class="swap-panel-sub">고른 날과 식단을 통째로 맞바꿔요</div>`;
+  if (!targets.length) {
+    h += `<div class="swap-empty">교환할 수 있는 날짜가 없어요.</div>`;
+  } else {
+    h += `<div class="swap-chips">`;
+    targets.forEach(k => {
+      const sel = (pendingSwapTarget === k) ? ' sel' : '';
+      const low = dayHasLowStock(k) ? `<span class="sc-warn" title="재고 부족">⚠️</span>` : '';
+      h += `<div class="swap-chip${sel}" onclick="selectSwapTarget('${k}')">
+        <div class="sc-date">${esc(k)}${low}</div>
+        <div class="sc-name">${esc(swapChipLabel(k))}</div>
+      </div>`;
+    });
+    h += `</div>`;
+    if (pendingSwapTarget) {
+      h += `<div class="swap-confirm-row">
+        <span class="swap-confirm-lbl">${esc(srcKey)} ↔ ${esc(pendingSwapTarget)} 교환</span>
+        <button class="swap-do-btn" onclick="confirmSwap('${srcKey}','${pendingSwapTarget}')">교환하기</button>
+        <button class="swap-cancel-btn" onclick="toggleSwapPicker('${srcKey}')">취소</button>
+      </div>`;
+    }
+  }
+  h += `</div>`;
+  return h;
+}
 
 /* ================================================
-   월간 달력 (제공된 플래너 디자인 — 6·7월)
+   하루 밀기 (데이터 재배치 — swap과 같은 계열)
+   - fromKey부터 마지막 식단일까지 식단 내용 필드를 한 칸씩 뒤로 이동
+   - fromKey에는 쌀미음(쉬어가기) 삽입
+   - 완료기록(done/pmDone/memo 등)은 날짜에 고정 (과거·기록 보존)
+   - appState.shifts에 from 기록 → 모든 기기 동기화 / 되돌리기 지원
+================================================ */
+const SHIFT_REST = { am:['쌀미음 60g'], pm:['쌀미음 60g'], note:'🩺 소화 쉬어가기 — 일정이 하루 미뤄졌어요' };
+
+/* 식단이 있는 날짜 키들을 날짜 오름차순으로 반환 (M/D 형식만) */
+function sortedMealKeys() {
+  return Object.keys(meals)
+    .filter(k => /^\d+\/\d+$/.test(k))
+    .sort((a, b) => {
+      const [am, ad] = a.split('/').map(Number), [bm, bd] = b.split('/').map(Number);
+      return (am * 31 + ad) - (bm * 31 + bd);
+    });
+}
+/* fromKey 이상인 날짜 키들 (오름차순) */
+function keysFrom(fromKey) {
+  const [fm, fd] = fromKey.split('/').map(Number);
+  const fOrd = fm * 31 + fd;
+  return sortedMealKeys().filter(k => {
+    const [m, d] = k.split('/').map(Number);
+    return (m * 31 + d) >= fOrd;
+  });
+}
+/* 한 칸 뒤로 밀기: 뒤에서부터 앞 식단을 끌어옴 */
+function applyShift(fromKey) {
+  const keys = keysFrom(fromKey);
+  if (keys.length < 2) return false;
+  // 뒤에서부터: keys[i] <- keys[i-1]
+  for (let i = keys.length - 1; i >= 1; i--) {
+    copyMealContent(keys[i - 1], keys[i]);
+  }
+  // fromKey에 쉬어가기 삽입
+  setMealContent(keys[0], SHIFT_REST);
+  return true;
+}
+/* 한 칸 앞으로 당기기 (되돌리기): 앞에서부터 뒤 식단을 끌어옴 */
+function unapplyShift(fromKey) {
+  const keys = keysFrom(fromKey);
+  if (keys.length < 2) return false;
+  for (let i = 0; i < keys.length - 1; i++) {
+    copyMealContent(keys[i + 1], keys[i]);
+  }
+  return true;
+}
+/* 식단 "내용 필드"만 복사 (완료기록·날짜고정 항목은 건드리지 않음) */
+function copyMealContent(srcKey, dstKey) {
+  const S = meals[srcKey], D = meals[dstKey];
+  if (!S || !D) return;
+  SWAP_FIELDS.forEach(f => {
+    if (S[f] === undefined) delete D[f]; else D[f] = JSON.parse(JSON.stringify(S[f]));
+  });
+  // New 배지만 음식 따라 이동 (trans/grain 등 발달단계 배지는 날짜 고정)
+  // 먼저 목적지의 기존 New 배지 제거
+  if (D.newBadge && D.newBadge.t === 'new') delete D.newBadge;
+  if (D.badge && D.badge.t === 'new') delete D.badge;
+  // 출발지의 New 배지를 읽어 목적지에 부여 (출발지 원본은 보존 — replay 무결성)
+  const sNew = (S.newBadge && S.newBadge.t === 'new') ? S.newBadge
+             : (S.badge && S.badge.t === 'new') ? S.badge : undefined;
+  if (sNew) D.newBadge = JSON.parse(JSON.stringify(sNew));
+}
+function setMealContent(key, content) {
+  const D = meals[key]; if (!D) return;
+  SWAP_FIELDS.forEach(f => {
+    if (content[f] === undefined) delete D[f]; else D[f] = JSON.parse(JSON.stringify(content[f]));
+  });
+  // 쉬어가기 날: New 배지 제거 (badge가 New였던 경우도 포함). trans/grain은 보존
+  if (D.newBadge && D.newBadge.t === 'new') delete D.newBadge;
+  if (D.badge && D.badge.t === 'new') delete D.badge;
+  if (content.note !== undefined) D.note = content.note;
+}
+function replayShifts() { appState.shifts.forEach(s => { if (s && s.from) applyShift(s.from); }); }
+
+/* 사용자 액션: 오늘(또는 지정일)부터 하루 밀기 */
+function shiftFromDay(fromKey) {
+  if (!confirm(`${fromKey}부터 이후 일정을 하루씩 미룰까요?\n오늘은 쌀미음(쉬어가기)으로 바뀌고, 이후 식단이 하루씩 뒤로 이동해요.\n(완료한 기록은 그대로 유지됩니다)`)) return;
+  if (!applyShift(fromKey)) { alert('미룰 수 있는 식단이 없어요.'); return; }
+  appState.shifts.push({ from: fromKey, ts: Date.now() });
+  saveAppState();
+  rerender();
+  showShiftUndoToast(fromKey);
+}
+function undoLastShift() {
+  if (!appState.shifts.length) return;
+  const last = appState.shifts.pop();
+  unapplyShift(last.from);
+  saveAppState();
+  hideSwapUndoToast();
+  rerender();
+}
+function showShiftUndoToast(fromKey) {
+  const t = document.getElementById('undo-toast'); if (!t) return;
+  t.style.display = 'flex';
+  t.className = 'undo-toast';
+  t.innerHTML = `<span><span class="undo-toast-name">${esc(fromKey)}</span>부터 하루 미뤄짐</span><button class="undo-btn" onclick="undoLastShift()">되돌리기</button>`;
+  if (swapUndoTimer) clearTimeout(swapUndoTimer);
+  swapUndoTimer = setTimeout(hideSwapUndoToast, 5000);
+}
+
+
+/* ================================================
+   날짜 이동 (식단 탭)
+================================================ */
+function goToday() { sel = new Date(TODAY); curMonth = TODAY.getMonth(); renderMeal(); }
+function changeMonth(dir) {
+  curMonth = Math.max(MONTH_MIN, Math.min(MONTH_MAX, curMonth + dir));
+  for (let i = 1; i <= 31; i++) { const d = new Date(PLAN_YEAR, curMonth, i); if (d.getMonth() !== curMonth) break; if (meals[dk(d)]) { sel = d; break; } }
+  renderMeal();
+}
+function pick(y, m, d) { sel = new Date(y, m, d); curMonth = m; renderMeal(); }
+
+/* ================================================
+   월간 달력 (기존 디자인·로직 보존)
 ================================================ */
 const M_WD = ['일','월','화','수','목','금','토'];
 function mealDayCount(y, m, d) { return Math.round((new Date(y,m-1,d) - START)/86400000) + 1; }
@@ -1272,11 +2848,14 @@ function buildMonthCal(y, m) {
   const last  = new Date(y, m, 0).getDate();
   let h = `<div class="month-section">`;
   h += `<div class="month-top"><div class="month-title">${y}년 ${m}월</div>`;
-  /* 체크리스트 */
   const items = CHECKLIST[m] || [], memos = REPEAT_MEMO[m] || [];
-  h += `<div class="checklist-box"><div class="checklist-title">필요 재료</div><div class="checklist-grid">`;
+  const chkMap = appState.checklist[m] || {};
+  const chkAt = appState.checklistAt[m] || '';
+  if (items.length) {
+  h += `<div class="checklist-box"><div class="checklist-head"><div class="checklist-title">필요 재료</div><span class="checklist-at" id="chk-at-${m}">${chkAt ? '업데이트 ' + esc(chkAt) : ''}</span></div><div class="checklist-grid">`;
   items.forEach((item, i) => {
-    h += `<div class="checklist-item" id="cli-${m}-${i}"><input type="checkbox" id="chk-${m}-${i}" onchange="toggleCheck(${m},${i})"><label for="chk-${m}-${i}">${esc(item)}</label></div>`;
+    const on = !!chkMap[item];
+    h += `<div class="checklist-item${on ? ' checked' : ''}" id="cli-${m}-${i}"><input type="checkbox" id="chk-${m}-${i}"${on ? ' checked' : ''} onchange="toggleCheck(${m},${i},this.checked)"><label for="chk-${m}-${i}">${esc(item)}</label></div>`;
   });
   h += `</div>`;
   if (memos.length) {
@@ -1284,7 +2863,9 @@ function buildMonthCal(y, m) {
     memos.forEach(({name, memo}) => { h += `<div class="repeat-memo-item"><strong>${esc(name)}</strong> — ${esc(memo)}</div>`; });
     h += `</div></div>`;
   }
-  h += `</div></div>`; /* /checklist-box /month-top */
+  h += `</div>`;
+  }
+  h += `</div>`;
 
   h += `<div class="weekdays">${M_WD.map(w=>`<div class="wd">${w}</div>`).join('')}</div><div class="days-grid">`;
   for (let i=0; i<first; i++) h += `<div class="dc empty"></div>`;
@@ -1308,6 +2889,11 @@ function buildMonthCal(y, m) {
       ev.am.forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
       h += `</div></div>`;
     }
+    if (ev.lunch) {
+      h += `<hr class="meal-sep"><div class="meal-block"><div class="meal-header"><span class="time-badge">점심</span></div><div class="meal-items">`;
+      ev.lunch.forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
+      h += `</div></div>`;
+    }
     if (ev.pm) {
       h += `<hr class="meal-sep"><div class="meal-block"><div class="meal-header"><span class="time-badge">오후</span></div><div class="meal-items">`;
       ev.pm.forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
@@ -1322,24 +2908,31 @@ function buildMonthCal(y, m) {
   h += `</div></div>`;
   return h;
 }
-function toggleCheck(m, i) {
+function fmtNow() {
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  return `${d.getMonth() + 1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function toggleCheck(m, i, checked) {
   const row = document.getElementById(`cli-${m}-${i}`);
-  const chk = document.getElementById(`chk-${m}-${i}`);
-  if (chk.checked) row.classList.add('checked'); else row.classList.remove('checked');
+  if (checked) row.classList.add('checked'); else row.classList.remove('checked');
+  const name = (CHECKLIST[m] || [])[i];
+  if (name == null) return;
+  if (!appState.checklist[m]) appState.checklist[m] = {};
+  if (checked) appState.checklist[m][name] = true; else delete appState.checklist[m][name];
+  appState.checklistAt[m] = fmtNow();
+  const at = document.getElementById(`chk-at-${m}`);
+  if (at) at.textContent = '업데이트 ' + appState.checklistAt[m];
+  saveAppState();
 }
 function buildCal() {
   let h = `<div class="mcal">`;
-  h += buildMonthCal(2026, 6);
-  h += buildMonthCal(2026, 7);
+  for (let mm = MONTH_MIN + 1; mm <= MONTH_MAX + 1; mm++) h += buildMonthCal(PLAN_YEAR, mm);
   h += `<div class="print-btn-wrap"><button class="print-btn" onclick="window.print()">📥 인쇄 / PDF 저장</button></div>`;
   h += `</div>`;
   return h;
 }
 
-/* ================================================
-   NEW 식재료 2일 전 자동화
-   — 오늘~D+2 내 NEW 식재료를 장볼재료·재고(0)에 자동 추가
-================================================ */
+/* NEW 식재료 2일 전 자동화 (기존 로직 유지 + 재고 충분 시 장볼 목록 자동 추가 스킵) */
 async function autoAddUpcoming() {
   let stockAdded = false, shopAdded = false;
   for (let offset = 0; offset <= 2; offset++) {
@@ -1351,17 +2944,18 @@ async function autoAddUpcoming() {
     for (const badge of newBadges) {
       const name = badge.x.replace(/^New\s*/, '').trim();
       if (!name) continue;
-      /* 장볼 재료: 없으면 추가 */
+      const stockItem = dbStocks.find(s => s.name === name);
+      const hasEnough = stockItem && stockItem.amount > stockItem.low_alert;
       const inShop = shops.some(s => s.name === name);
-      if (!inShop) {
-        const { error } = await sb.from('shop_list').insert([{ name }]);
+      // 재고가 충분하면(수량 > 알림기준) 장볼 목록에 자동 추가 안 함
+      if (!inShop && !hasEnough) {
+        const { error } = await sb.from('shop_list').insert([{ user_id: USER_ID, baby_id: BABY_ID, name }]);
         if (!error) shopAdded = true;
       }
-      /* 재고: 없으면 수량 0으로 추가 */
-      const inStock = dbStocks.some(s => s.name === name);
+      const inStock = !!stockItem;
       if (!inStock) {
         const sort_order = dbStocks.length;
-        const { error } = await sb.from('inventory').insert([{ name, amount: 0, unit: '개', low_alert: 1, sort_order }]);
+        const { error } = await sb.from('inventory').insert([{ user_id: USER_ID, baby_id: BABY_ID, name, amount: 0, unit: '개', low_alert: 1, sort_order }]);
         if (!error) stockAdded = true;
       }
     }
@@ -1371,28 +2965,269 @@ async function autoAddUpcoming() {
 }
 
 /* ================================================
-   탭 전환
+   탭 전환 / 월간 진입
 ================================================ */
-function switchTab(tab) {
-  document.getElementById('main-view').style.display = tab === 'main' ? 'block' : 'none';
-  document.getElementById('cal-view').style.display = tab === 'cal' ? 'block' : 'none';
-  document.getElementById('tab-main').classList.toggle('active', tab === 'main');
-  document.getElementById('tab-cal').classList.toggle('active', tab === 'cal');
-  if (tab === 'cal') document.getElementById('cal-content').innerHTML = buildCal();
+function clearViews() {
+  document.getElementById('home-view').innerHTML = '';
+  document.getElementById('stock-view').innerHTML = '';
+  document.getElementById('meal-content').innerHTML = '';
+  document.getElementById('record-view').innerHTML = '';
+  document.getElementById('more-view').innerHTML = '';
 }
+function switchTab(tab) {
+  activeTab = tab;
+  swapOpenKey = null;        /* 탭 이동 시 열린 교환 피커 자동 닫기 */
+  pendingSwapTarget = null;
+  document.getElementById('cal-view').style.display = 'none';
+  ['home','stock','meal','record','more'].forEach(t => {
+    document.getElementById(t + '-view').style.display = (t === tab) ? 'block' : 'none';
+    const tb = document.getElementById('tab-' + t); if (tb) tb.classList.toggle('active', t === tab);
+  });
+  clearViews();   /* 중복 element id 방지: 비활성 탭 내용 비우기 */
+  rerender();
+  window.scrollTo(0, 0);
+}
+function openMonthly() {
+  lastTab = activeTab;
+  ['home','stock','meal','record','more'].forEach(t => { document.getElementById(t + '-view').style.display = 'none'; });
+  const cv = document.getElementById('cal-view'); cv.style.display = 'block';
+  document.getElementById('cal-content').innerHTML = buildCal();
+  window.scrollTo(0, 0);
+}
+function backFromMonthly() { switchTab(lastTab); }
 
 /* ================================================
    초기화
 ================================================ */
-async function init() {
-  await loadMealLog();
-  loadLocalState();
+async function startApp() {
+  curMonth = Math.max(MONTH_MIN, Math.min(MONTH_MAX, TODAY.getMonth()));
+  recordMonth = curMonth;
+  sel = new Date(TODAY);
+  await loadAppState();  /* 교환·편집·저녁완료·건너뜀 상태를 Supabase에서 로드 (모든 기기 동일) */
+  replayShifts();        /* 하루 밀기 이력 재적용 (교환보다 먼저) */
+  replaySwaps();         /* 날짜 교환 이력을 식단에 재적용 (완료기록 로드 전) */
+  loadEdits();           /* 인라인 편집 복원 (표시 날짜 기준) */
+  await loadMealLog();   /* 아침 완료/메모 (날짜별, 이미 동기화) */
+  applySyncedState();    /* 저녁완료·메모·아침건너뜀 반영 (v8 수정: 미정의 loadLocalState → applySyncedState) */
   await loadStocks();
   await loadShops();
-  await autoAddUpcoming();  /* NEW 식재료 2일 전 자동 추가 */
-  renderStrip();
-  renderContent();
+  await autoAddUpcoming();   /* NEW 식재료 2일 전 자동 추가 */
+  switchTab('home');
 }
+/* ================================================
+   v8: 인증 · 온보딩 · 템플릿 식단 생성 (멀티유저)
+   - 이메일/비밀번호 로그인 (세션 자동 유지 → 재방문 시 로그인 생략)
+   - 신규 가입: 아기 정보 1화면 → 시작일 기준 템플릿 식단 자동 생성(meal_plan)
+   - meal_plan 행 존재 → DB 식단 사용 / 없음 → 내장 meals(오너 계정)
+================================================ */
+function gateEl() { return document.getElementById('gate-card'); }
+function showGate() { document.body.classList.add('gated'); document.getElementById('gate-view').style.display = 'flex'; }
+function hideGate() { document.body.classList.remove('gated'); document.getElementById('gate-view').style.display = 'none'; }
+function gateMsg(txt, ok) {
+  const m = document.getElementById('gate-msg');
+  if (!m) return;
+  m.style.display = txt ? 'block' : 'none';
+  m.style.color = ok ? '#2e9e5b' : 'var(--coral-deep)';
+  m.textContent = txt || '';
+}
+function bindEnter(inputId, fn) {
+  const el = document.getElementById(inputId);
+  if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') fn(); });
+}
+
+/* ── 로그인 / 회원가입 화면 ── */
+function showAuth(mode, preMsg) {
+  showGate();
+  const signup = mode === 'signup';
+  gateEl().innerHTML = `
+    <div class="gate-logo">🍚</div>
+    <div class="gate-title">아기 이유식</div>
+    <div class="gate-sub">${signup ? '계정을 만들면 우리 아기 맞춤 식단이<br>자동으로 준비돼요' : '오늘의 이유식 준비를<br>가장 빠르게'}</div>
+    <div class="gate-field"><label class="gate-label">이메일</label><input class="gate-input" id="gate-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+    <div class="gate-field"><label class="gate-label">비밀번호</label><input class="gate-input" id="gate-pw" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" placeholder="6자 이상"></div>
+    ${signup ? `<div class="gate-field"><label class="gate-label">비밀번호 확인</label><input class="gate-input" id="gate-pw2" type="password" autocomplete="new-password" placeholder="한 번 더 입력"></div>` : ''}
+    <button class="gate-btn" id="gate-submit" onclick="${signup ? 'doSignup()' : 'doLogin()'}">${signup ? '가입하고 시작하기' : '로그인'}</button>
+    <div class="gate-msg" id="gate-msg"></div>
+    <div class="gate-switch">${signup ? `이미 계정이 있나요? <b onclick="showAuth('login')">로그인</b>` : `처음이신가요? <b onclick="showAuth('signup')">회원가입</b>`}</div>`;
+  bindEnter(signup ? 'gate-pw2' : 'gate-pw', signup ? doSignup : doLogin);
+  if (preMsg) gateMsg(preMsg, true);
+}
+
+async function doLogin() {
+  const email = document.getElementById('gate-email')?.value?.trim();
+  const pw = document.getElementById('gate-pw')?.value || '';
+  if (!email || !pw) { gateMsg('이메일과 비밀번호를 입력해주세요.'); return; }
+  const btn = document.getElementById('gate-submit'); if (btn) btn.disabled = true;
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+    if (error) {
+      gateMsg(/invalid/i.test(error.message) ? '이메일 또는 비밀번호가 올바르지 않아요.'
+            : /confirm/i.test(error.message) ? '가입 확인 메일의 링크를 먼저 눌러주세요.'
+            : '로그인 실패: ' + error.message);
+      return;
+    }
+    await enterApp(data.session);
+  } catch (e) { console.error('로그인 오류:', e); gateMsg('연결에 실패했어요. 잠시 후 다시 시도해주세요.'); }
+  finally { const b = document.getElementById('gate-submit'); if (b) b.disabled = false; }
+}
+
+async function doSignup() {
+  const email = document.getElementById('gate-email')?.value?.trim();
+  const pw = document.getElementById('gate-pw')?.value || '';
+  const pw2 = document.getElementById('gate-pw2')?.value || '';
+  if (!email || !pw) { gateMsg('이메일과 비밀번호를 입력해주세요.'); return; }
+  if (pw.length < 6) { gateMsg('비밀번호는 6자 이상으로 정해주세요.'); return; }
+  if (pw !== pw2) { gateMsg('비밀번호가 서로 달라요.'); return; }
+  const btn = document.getElementById('gate-submit'); if (btn) btn.disabled = true;
+  try {
+    const { data, error } = await sb.auth.signUp({ email, password: pw });
+    if (error) {
+      gateMsg(/already/i.test(error.message) ? '이미 가입된 이메일이에요. 로그인해주세요.' : '가입 실패: ' + error.message);
+      return;
+    }
+    if (data.session) { await enterApp(data.session); return; }
+    /* 프로젝트에 이메일 확인이 켜져 있는 경우 */
+    showAuth('login', '가입 확인 메일을 보냈어요. 메일의 링크를 누른 뒤 로그인해주세요.');
+  } catch (e) { console.error('가입 오류:', e); gateMsg('연결에 실패했어요. 잠시 후 다시 시도해주세요.'); }
+  finally { const b = document.getElementById('gate-submit'); if (b) b.disabled = false; }
+}
+
+async function doLogout() {
+  if (!confirm('로그아웃할까요?')) return;
+  try { await sb.auth.signOut(); } catch (e) { console.error('로그아웃 오류:', e); }
+  location.reload();
+}
+
+/* ── 온보딩: 아기 정보 → 템플릿 식단 생성 ── */
+function showOnboard() {
+  showGate();
+  gateEl().innerHTML = `
+    <div class="gate-logo">👶</div>
+    <div class="gate-title">아기 정보를 알려주세요</div>
+    <div class="gate-sub">이유식 시작일만 정하면<br>단계별 식단이 자동으로 만들어져요</div>
+    <div class="gate-field"><label class="gate-label">아기 이름 (태명도 좋아요)</label><input class="gate-input" id="ob-name" maxlength="10" placeholder="예) 튼튼이"></div>
+    <div class="gate-field"><label class="gate-label">생년월일</label><input class="gate-input" id="ob-birth" type="date"></div>
+    <div class="gate-field"><label class="gate-label">이유식 시작일 (시작 예정일)</label><input class="gate-input" id="ob-start" type="date"></div>
+    <button class="gate-btn" id="gate-submit" onclick="submitOnboard()">식단 만들고 시작하기</button>
+    <div class="gate-msg" id="gate-msg"></div>
+    <div class="gate-switch">실제 운영 스케줄 기반의 샘플 식단이 생성돼요.<br>모든 식단은 앱에서 수정·하루 밀기로 조정할 수 있어요.</div>`;
+}
+
+async function submitOnboard() {
+  const name = document.getElementById('ob-name')?.value?.trim();
+  const birth = document.getElementById('ob-birth')?.value;
+  const start = document.getElementById('ob-start')?.value;
+  if (!name || !birth || !start) { gateMsg('모든 항목을 입력해주세요.'); return; }
+  const startDate = parseDbDateFull(start);
+  const birthDate = parseDbDateFull(birth);
+  if (!(startDate > birthDate)) { gateMsg('이유식 시작일이 생년월일보다 빨라요.'); return; }
+  const btn = document.getElementById('gate-submit');
+  if (btn) { btn.disabled = true; btn.textContent = '식단 생성 중…'; }
+  try {
+    const { data: babyRows, error: bErr } = await sb.from('babies')
+      .insert([{ user_id: USER_ID, name, birth_date: birth, solid_start_date: start }]).select();
+    if (bErr) throw bErr;
+    await generateTemplatePlan(USER_ID, babyRows[0].id, startDate);
+    await enterApp(null);
+  } catch (e) {
+    console.error('온보딩 오류:', e);
+    gateMsg('식단 생성에 실패했어요: ' + (e.message || e));
+    if (btn) { btn.disabled = false; btn.textContent = '식단 만들고 시작하기'; }
+  }
+}
+
+/* ── 유틸: 'YYYY-MM-DD' → 로컬 Date (UTC 파싱 함정 회피) ── */
+function parseDbDateFull(s) {
+  const m = String(s).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(s);
+}
+
+/* ── 템플릿 식단 생성: 내장 meals를 D+오프셋으로 재배치 ──
+   - 기록성 필드(done/memo 등)는 제거하고 계획만 복사
+   - 찐아 개인 이력 성격의 note(장염 관련)는 제외
+   - v8 한계: 시작 연도 내의 날짜만 생성 (연도 경계는 제외) */
+const TEMPLATE_STRIP = ['done','memo','pmDone','pmMemo','amSkipped','lunchDone','lunchMemo','lunchSkipped'];
+function templateRows(userId, babyId, startDate) {
+  const s = v8DateOnly(startDate);
+  const rows = [];
+  Object.keys(meals).forEach(key => {
+    const m = key.match(/^(\d{1,2})\/(\d{1,2})$/);
+    if (!m) return;
+    const orig = new Date(BASE_START.getFullYear(), +m[1] - 1, +m[2]);
+    const offset = v8DayDiff(orig, BASE_START);
+    if (offset < 0) return;
+    const nd = v8AddDays(s, offset);
+    if (nd.getFullYear() !== s.getFullYear()) return;
+    const plan = {};
+    Object.keys(meals[key]).forEach(f => { if (!TEMPLATE_STRIP.includes(f)) plan[f] = meals[key][f]; });
+    if (plan.note && /장염/.test(plan.note)) delete plan.note;
+    const dbd = nd.getFullYear() + '-' + String(nd.getMonth() + 1).padStart(2, '0') + '-' + String(nd.getDate()).padStart(2, '0');
+    rows.push({ user_id: userId, baby_id: babyId, date: dbd, plan });
+  });
+  return rows;
+}
+async function generateTemplatePlan(userId, babyId, startDate) {
+  const rows = templateRows(userId, babyId, startDate);
+  for (let i = 0; i < rows.length; i += 50) {
+    const { error } = await sb.from('meal_plan').insert(rows.slice(i, i + 50));
+    if (error) throw error;
+  }
+  return rows.length;
+}
+
+/* ── 사용자 식단 로드: meal_plan 행이 있으면 내장 meals를 통째로 교체 ── */
+async function loadMealPlan() {
+  usesDbPlan = false;
+  try {
+    const { data, error } = await sb.from('meal_plan').select('date, plan').eq('baby_id', BABY_ID);
+    if (error) { console.error('meal_plan 오류:', error); return; }
+    if (!data || data.length === 0) return; /* 오너 계정: 내장 식단 유지 */
+    Object.keys(meals).forEach(k => delete meals[k]);
+    data.forEach(r => {
+      const key = fromDbDate(r.date);
+      if (r.plan && typeof r.plan === 'object') meals[key] = r.plan;
+    });
+    usesDbPlan = true;
+  } catch (e) { console.error('meal_plan 연결 오류:', e); }
+}
+
+/* ── 로그인 완료 → 프로필 로드 → 앱 시작 ── */
+async function enterApp(session) {
+  try {
+    if (!session) { const r = await sb.auth.getSession(); session = r.data.session; }
+    if (!session) { showAuth('login'); return; }
+    USER_ID = session.user.id;
+    AUTH_EMAIL = session.user.email || '';
+    const { data: babies, error } = await sb.from('babies').select('*')
+      .eq('user_id', USER_ID).order('created_at', { ascending: true }).limit(1);
+    if (error) throw error;
+    if (!babies || babies.length === 0) { showOnboard(); return; }
+    const b = babies[0];
+    BABY_ID = b.id;
+    BABY_NAME = b.name || '아기';
+    rebaseDates(parseDbDateFull(b.solid_start_date), parseDbDateFull(b.birth_date));
+    await loadMealPlan();
+    recomputeMonthBounds();
+    document.title = BABY_NAME + ' 이유식';
+    hideGate();
+    await startApp();
+  } catch (e) {
+    console.error('프로필 로드 오류:', e);
+    showAuth('login');
+    gateMsg('프로필을 불러오지 못했어요. 다시 로그인해주세요.');
+  }
+}
+
+/* ── 부팅: 세션 확인 → 게이트 or 앱 ── */
+async function init() {
+  document.body.classList.add('gated');
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { showAuth('login'); return; }
+    await enterApp(session);
+  } catch (e) { console.error('부팅 오류:', e); showAuth('login'); }
+}
+sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_OUT') location.reload(); });
 init();
 </script>
 </body>
