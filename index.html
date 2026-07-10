@@ -6,6 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data:;">
 <title>Cubit</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 /* ===== 폰트 ===== */
 /* Pretendard */
@@ -321,6 +322,8 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .mcal .dc.done .meal-item { color:#BBBBBB; text-decoration:line-through; }
 .mcal .print-btn-wrap { padding: 4px 0 12px; }
 .mcal .print-btn { width:100%; background:#1f1a18; color:#fff; border:none; padding:13px; font-size:13px; font-weight:700; border-radius:10px; }
+.mcal .img-btn { width:100%; background:var(--coral-grad); color:#fff; border:none; padding:13px; font-size:13px; font-weight:700; border-radius:10px; margin-top:8px; }
+.mcal .img-btn:disabled { opacity:0.6; }
 
 @media print {
   body { max-width: none; background: #fff; }
@@ -1984,7 +1987,7 @@ function renderMore() {
   </div>`;
   html += `<div class="panel">
     <div class="panel-title">앱 정보</div>
-    <div class="more-row"><span class="more-k">앱</span><span class="more-v">Cubit v9</span></div>
+    <div class="more-row"><span class="more-k">앱</span><span class="more-v">Cubit v17</span></div>
     <div class="more-row"><span class="more-k">식단</span><span class="more-v">${usesDbPlan ? '내 식단 (자동 생성)' : '기본 식단'}</span></div>
   </div>`;
   html += `<div style="height:80px;"></div>`;
@@ -3043,23 +3046,57 @@ function toggleCheck(m, i, checked) {
 function buildCal() {
   let h = `<div class="mcal">`;
   for (let mm = MONTH_MIN + 1; mm <= MONTH_MAX + 1; mm++) h += buildMonthCal(PLAN_YEAR, mm);
-  h += `<div class="print-btn-wrap"><button class="print-btn" onclick="window.print()">📥 인쇄 / PDF 저장</button></div>`;
+  h += `<div class="print-btn-wrap"><button class="print-btn" onclick="window.print()">📥 인쇄 / PDF 저장</button><button class="img-btn" id="img-export-btn" onclick="exportMonthlyImage()">🖼 이미지로 저장</button></div>`;
   h += `</div>`;
   return h;
 }
 
-/* NEW 식재료 2일 전 자동화 (기존 로직 유지 + 재고 충분 시 장볼 목록 자동 추가 스킵) */
+/* 월간 식단표 → PNG 이미지로 저장 (html2canvas) */
+async function exportMonthlyImage() {
+  const btn = document.getElementById('img-export-btn');
+  const target = document.getElementById('cal-content');
+  const wrap = target?.querySelector('.print-btn-wrap');
+  if (!target || typeof html2canvas === 'undefined') {
+    alert('이미지 저장 기능을 불러오지 못했어요. 네트워크 상태를 확인 후 다시 시도해주세요.');
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
+  if (wrap) wrap.style.display = 'none';
+  try {
+    const canvas = await html2canvas(target, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
+    const link = document.createElement('a');
+    const today = new Date();
+    const stamp = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
+    link.download = `찐아_식단표_${stamp}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (e) {
+    console.error('이미지 저장 오류:', e);
+    alert('이미지 저장에 실패했어요. 잠시 후 다시 시도해주세요.');
+  } finally {
+    if (wrap) wrap.style.display = '';
+    if (btn) { btn.disabled = false; btn.textContent = '🖼 이미지로 저장'; }
+  }
+}
+
+/* 식재료 2일 전 자동화 (v17: New 배지 항목뿐 아니라 해당 기간 식단의 모든 재료를 확인 →
+   재고에 아예 없는 재료는 New 여부와 무관하게 0개로 자동 등록. 기존 재료가 나중에 재고 등록만
+   누락된 사각지대(예: 고구마·브로콜리)를 다음 로그인 시 자동으로 채워 넣기 위함. 재고 충분 시
+   장볼 목록 자동 추가는 스킵하는 기존 정책은 그대로 유지) */
 async function autoAddUpcoming() {
   let stockAdded = false, shopAdded = false;
+  let nextSortOrder = dbStocks.length;
+  const seen = new Set();
   for (let offset = 0; offset <= 2; offset++) {
     const d = new Date(TODAY);
     d.setDate(TODAY.getDate() + offset);
     const data = meals[dk(d)];
     if (!data) continue;
-    const newBadges = [data.badge, data.newBadge].filter(b => b && b.t === 'new');
-    for (const badge of newBadges) {
-      const name = badge.x.replace(/^New\s*/, '').trim();
-      if (!name) continue;
+    const rawItems = [...(data.amEdited || data.am || []), ...(data.pmEdited || data.pm || [])];
+    for (const raw of rawItems) {
+      const { name } = parseItem(raw);
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
       const stockItem = dbStocks.find(s => s.name === name);
       const hasEnough = stockItem && stockItem.amount > stockItem.low_alert;
       const inShop = shops.some(s => s.name === name);
@@ -3068,11 +3105,9 @@ async function autoAddUpcoming() {
         const { error } = await sb.from('shop_list').insert([{ user_id: USER_ID, baby_id: BABY_ID, name }]);
         if (!error) shopAdded = true; else console.error('장볼목록 자동추가 오류:', error);
       }
-      const inStock = !!stockItem;
-      if (!inStock) {
-        const sort_order = dbStocks.length;
-        const { error } = await sb.from('inventory').insert([{ user_id: USER_ID, baby_id: BABY_ID, name, amount: 0, unit: '개', low_alert: 1, sort_order }]);
-        if (!error) stockAdded = true; else console.error('재고 자동추가 오류:', error);
+      if (!stockItem) {
+        const { error } = await sb.from('inventory').insert([{ user_id: USER_ID, baby_id: BABY_ID, name, amount: 0, unit: '개', low_alert: 1, sort_order: nextSortOrder }]);
+        if (!error) { stockAdded = true; nextSortOrder++; } else console.error('재고 자동추가 오류:', error);
       }
     }
   }
