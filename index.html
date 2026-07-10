@@ -38,7 +38,7 @@
 
 /* ===== 기본 리셋 ===== */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
+body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; min-height: 100dvh; max-width: 480px; margin: 0 auto; }
 button { font-family: 'Pretendard', sans-serif; cursor: pointer; }
 textarea, input { font-family: 'Pretendard', sans-serif; }
 
@@ -71,7 +71,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .day-item.selected.today .dn { color: #fff; font-weight: 800; }
 
 /* ===== 뷰 전환 ===== */
-#cal-view { display: none; padding-bottom: 64px; min-height: 100vh; background:#fff; }
+#cal-view { display: none; padding-bottom: 64px; min-height: 100vh; min-height: 100dvh; background:#fff; }
 
 /* ===== 날짜 헤더 (D-day) ===== */
 .day-hd { padding: 20px 18px 6px; }
@@ -332,7 +332,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
    ===== v3 추가 — 5탭 구조 / 홈·재고·기록·더보기 =====
    ===================================================== */
 #home-view, #stock-view, #record-view, #more-view, #meal-view {
-  display:none; padding-bottom:64px; min-height:100vh;
+  display:none; padding-bottom:64px; min-height:100vh; min-height:100dvh;
 }
 #cal-view .header-top { display:flex; align-items:center; gap:10px; }
 
