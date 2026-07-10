@@ -233,13 +233,21 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 
 /* ===== 인라인 편집 ===== */
 .edit-row { display:flex; align-items:center; gap:10px; }
-.edit-amt-input { width:70px; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:16px; text-align:center; outline:none; font-family:'Pretendard',sans-serif; background:#faf8f6; flex-shrink:0; }
-.edit-amt-input:focus { border-color:var(--coral); }
+.edit-amt-field { display:flex; align-items:center; gap:4px; background:#faf8f6; border:1px solid var(--border); border-radius:8px; padding:6px 8px; width:76px; flex-shrink:0; }
+.edit-amt-field input { flex:1; min-width:0; border:none; outline:none; font-size:16px; font-weight:700; color:#2b2422; width:100%; text-align:right; background:transparent; font-family:'Pretendard',sans-serif; }
+.edit-amt-field input::-webkit-outer-spin-button, .edit-amt-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.edit-amt-field input[type=number] { -moz-appearance:textfield; }
+.edit-amt-field:focus-within { border-color:var(--coral); }
+.edit-amt-field.readonly-amt input { text-align:center; color:var(--text-sub); font-weight:600; }
+.edit-amt-field .ec-unit { font-size:13px; color:var(--text-sub); font-weight:600; flex-shrink:0; }
 .edit-del-btn { background:none; border:none; font-size:16px; color:#cfc9c4; padding:0 2px; flex-shrink:0; }
 .edit-add-row { display:flex; gap:8px; align-items:center; margin-top:10px; }
-.edit-add-name { flex:1; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:16px; outline:none; font-family:'Pretendard',sans-serif; background:#faf8f6; }
-.edit-add-amt { width:80px; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:16px; outline:none; text-align:center; font-family:'Pretendard',sans-serif; background:#faf8f6; }
-.edit-add-name:focus, .edit-add-amt:focus { border-color:var(--coral); }
+.edit-add-name { flex:1; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:16px; outline:none; font-family:'Pretendard',sans-serif; background:#faf8f6; min-width:0; }
+.edit-add-amt-field { display:flex; align-items:center; gap:2px; background:#faf8f6; border:1px solid var(--border); border-radius:8px; padding:8px 8px; flex-shrink:0; }
+.edit-add-amt-field input { width:44px; border:none; outline:none; font-size:16px; font-weight:700; color:#2b2422; text-align:right; background:transparent; font-family:'Pretendard',sans-serif; }
+.edit-add-amt-field input::-webkit-outer-spin-button, .edit-add-amt-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.edit-add-unit { border:none; outline:none; background:transparent; font-size:13px; color:var(--text-sub); font-weight:600; }
+.edit-add-name:focus, .edit-add-amt-field:focus-within { border-color:var(--coral); }
 .edit-actions { display:flex; gap:8px; margin-top:12px; }
 .edit-save-btn { flex:1; padding:10px; background:var(--coral-grad); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; font-family:'Pretendard',sans-serif; }
 .edit-cancel-btn { flex:1; padding:10px; background:#f5f2ef; color:#6e6661; border:none; border-radius:10px; font-size:13px; font-weight:600; font-family:'Pretendard',sans-serif; }
@@ -1089,6 +1097,17 @@ function parseItem(raw) {
   return { name, amount, cube, repeat };
 }
 
+/* amount 문자열 → {num, unit, fixed} 분리 (편집 UI: 숫자만 입력받고 단위는 고정 표시)
+   fixed=true면 숫자 입력이 불가능한 값(소량/반복노출/반복)이라 읽기전용으로 그대로 노출 */
+function splitAmount(amount) {
+  const s = String(amount || '').trim();
+  if (!s) return { num: '', unit: 'g', fixed: false };
+  if (s === '소량' || s === '반복노출' || s === '반복') return { num: '', unit: s, fixed: true };
+  const m = s.match(/^(\d+)\s*(g|팩|개)$/);
+  if (m) return { num: m[1], unit: m[2], fixed: false };
+  return { num: '', unit: 'g', fixed: false };
+}
+
 /* 재료 → 아이콘 매핑 */
 function iconFor(name) {
   const n = name;
@@ -1220,15 +1239,26 @@ function mealRowsHtml(items, dateKey, slot) {
       const tile = icon
         ? `<div class="ic-tile"><img src="${icon}" alt=""></div>`
         : `<div class="ic-tile"><span class="emoji">${emojiFor(name)}</span></div>`;
+      const { num, unit, fixed } = splitAmount(amount);
+      const amtFieldHtml = fixed
+        ? `<div class="edit-amt-field readonly-amt"><input value="${esc(unit)}" id="ea-${dateKey}-${slot}-${idx}" readonly></div>`
+        : `<div class="edit-amt-field"><input type="number" inputmode="numeric" value="${esc(num)}" id="ea-${dateKey}-${slot}-${idx}" data-unit="${esc(unit)}" placeholder="30" min="0"><span class="ec-unit">${esc(unit)}</span></div>`;
       h += `<div class="edit-row">${tile}
         <span class="mr-name" style="flex:1;">${esc(name)}</span>
-        <input class="edit-amt-input" value="${esc(amount)}" id="ea-${dateKey}-${slot}-${idx}" placeholder="30g">
+        ${amtFieldHtml}
         <button class="edit-del-btn" onclick="deleteEditRow('${dateKey}','${slot}',${idx})">✕</button>
       </div>`;
     });
     h += `<div class="edit-add-row">
       <input class="edit-add-name" id="ean-${dateKey}-${slot}" placeholder="재료명">
-      <input class="edit-add-amt" id="eaa-${dateKey}-${slot}" placeholder="양 (예: 30g)">
+      <div class="edit-add-amt-field">
+        <input type="number" inputmode="numeric" class="edit-add-amt" id="eaa-${dateKey}-${slot}" placeholder="30" min="0">
+        <select class="edit-add-unit" id="eau-${dateKey}-${slot}">
+          <option value="g" selected>g</option>
+          <option value="팩">팩</option>
+          <option value="개">개</option>
+        </select>
+      </div>
       <button onclick="addEditRow('${dateKey}','${slot}')" style="background:var(--coral);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;">+</button>
     </div>`;
     h += `<div class="edit-actions">
@@ -2579,14 +2609,24 @@ function readEditInputs(dateKey, slot, current) {
   return current.map((raw, i) => {
     const { name } = parseItem(raw);
     const amtInput = document.getElementById(`ea-${dateKey}-${slot}-${i}`);
-    const amt = amtInput ? amtInput.value.trim() : '';
-    return amt ? `${name} ${amt}` : raw;
+    if (!amtInput) return raw;
+    if (amtInput.readOnly) {
+      const fixedVal = amtInput.value.trim();
+      return fixedVal ? `${name} ${fixedVal}` : raw;
+    }
+    const num = amtInput.value.trim();
+    const unit = amtInput.dataset.unit || 'g';
+    return num ? `${name} ${num}${unit}` : raw;
   });
 }
 function startEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
   const editedKey = slot + 'Edited';
   const modeKey = slot + 'EditMode';
+  const snapKey = slot + 'EditSnapshot';
+  /* v17: 편집 시작 시점 상태를 스냅샷으로 저장 → 취소 시 정확히 복원하기 위함.
+     null이면 "편집 이력 전혀 없음"을 의미(취소 시 amEdited 자체를 지워 원본 식단으로 복귀). */
+  data[snapKey] = data[editedKey] ? [...data[editedKey]] : null;
   if (!data[editedKey]) data[editedKey] = [...(data[slot] || [])];
   data[modeKey] = true;
   rerender();
@@ -2595,8 +2635,10 @@ function saveEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
   const editedKey = slot + 'Edited';
   const modeKey = slot + 'EditMode';
+  const snapKey = slot + 'EditSnapshot';
   data[editedKey] = readEditInputs(dateKey, slot, data[editedKey] || []);
   data[modeKey] = false;
+  delete data[snapKey];
   persistEdit(dateKey, slot);   /* 편집 내용 appState → Supabase 저장 */
   rerender();
 }
@@ -2620,7 +2662,15 @@ function loadEdits() {
 }
 function cancelEdit(dateKey, slot) {
   const data = meals[dateKey]; if (!data) return;
+  const editedKey = slot + 'Edited';
   const modeKey = slot + 'EditMode';
+  const snapKey = slot + 'EditSnapshot';
+  /* v17: 편집 시작 전 스냅샷으로 복원 (삭제·추가·수량변경 모두 되돌림) */
+  if (Object.prototype.hasOwnProperty.call(data, snapKey)) {
+    if (data[snapKey] === null) delete data[editedKey];
+    else data[editedKey] = data[snapKey];
+    delete data[snapKey];
+  }
   data[modeKey] = false;
   rerender();
 }
@@ -2640,9 +2690,11 @@ function addEditRow(dateKey, slot) {
   const updated = readEditInputs(dateKey, slot, current);
   const nameInput = document.getElementById(`ean-${dateKey}-${slot}`);
   const amtInput2 = document.getElementById(`eaa-${dateKey}-${slot}`);
+  const unitSel = document.getElementById(`eau-${dateKey}-${slot}`);
   const newName = nameInput?.value.trim();
-  const newAmt = amtInput2?.value.trim();
-  if (newName) updated.push(newAmt ? `${newName} ${newAmt}` : newName);
+  const newAmtNum = amtInput2?.value.trim();
+  const unit = unitSel?.value || 'g';
+  if (newName) updated.push(newAmtNum ? `${newName} ${newAmtNum}${unit}` : newName);
   data[editedKey] = updated;
   rerender();
 }
@@ -3003,19 +3055,19 @@ function buildMonthCal(y, m) {
       if (ev.newBadge) h += `<span class="badge b-${ev.newBadge.t}">${esc(ev.newBadge.x)}</span>`;
       h += `</div>`;
     }
-    if (ev.am) {
+    if (ev.amEdited || ev.am) {
       h += `<div class="meal-block"><div class="meal-header"><span class="time-badge">오전</span></div><div class="meal-items">`;
-      ev.am.forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
+      (ev.amEdited || ev.am).forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
       h += `</div></div>`;
     }
-    if (ev.lunch) {
+    if (ev.lunchEdited || ev.lunch) {
       h += `<hr class="meal-sep"><div class="meal-block"><div class="meal-header"><span class="time-badge">점심</span></div><div class="meal-items">`;
-      ev.lunch.forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
+      (ev.lunchEdited || ev.lunch).forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
       h += `</div></div>`;
     }
-    if (ev.pm) {
+    if (ev.pmEdited || ev.pm) {
       h += `<hr class="meal-sep"><div class="meal-block"><div class="meal-header"><span class="time-badge">오후</span></div><div class="meal-items">`;
-      ev.pm.forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
+      (ev.pmEdited || ev.pm).forEach(it => { const r=it.startsWith('반복:'); h += `<div class="meal-item${r?' repeat':''}">${esc(r?it.slice(3):it)}</div>`; });
       h += `</div></div>`;
     } else if (ev.am) {
       h += `<hr class="meal-sep"><div class="meal-block"><div class="meal-header"><span class="time-badge">오후</span></div><div class="meal-item" style="color:#CACACA">-</div></div>`;
