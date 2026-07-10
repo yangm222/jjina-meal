@@ -700,7 +700,10 @@ const ICONS = {
 ================================================ */
 const SUPABASE_URL = 'https://qntrusgrggrpcduwdzld.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFudHJ1c2dyZ2dycGNkdXdkemxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjA4OTksImV4cCI6MjA5NDMzNjg5OX0.wg_UKr5qp8_vWpNx2ZBrCcUe_J0ksqm2aR6R1irLqU0';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+/* v11 수정: 세션 유지 옵션 명시 (기존엔 기본값 의존 → 명시해서 동작 확실히 함) */
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+});
 
 /* ===== v8: 로그인 사용자/아기 컨텍스트 =====
    - 모든 DB 읽기/쓰기는 반드시 BABY_ID 범위로 제한한다 (RLS + 명시 필터 이중 안전장치)
@@ -3456,13 +3459,39 @@ async function loadMealPlan() {
   } catch (e) { console.error('meal_plan 연결 오류:', e); }
 }
 
+/* ── v11 수정: 세션이 살아있는데도 일시 오류로 로그인화면에 튕기던 문제 ──
+   기존 버그: 프로필(babies)/식단 로드 중 네트워크 지연 등 일시 오류만 나도
+   무조건 showAuth('login')을 호출 → 세션 토큰은 멀쩡히 남아있는데
+   "로그인이 풀린 것"처럼 보였음 (자동 로그인 안 되는 문제의 실제 원인).
+   수정: 세션 자체가 없을 때만 로그인 화면 표시, 프로필 로드 실패는
+   "다시 시도"로 세션 유지한 채 재시도 가능하게 분리. */
+let _lastSession = null; /* 재시도 시 재사용 */
+
+function showGateRetry(msg) {
+  showGate();
+  gateEl().innerHTML = `
+    <div class="wordmark gate-wordmark">Cubit</div>
+    <div class="gate-sub" style="margin-top:8px;">${esc(msg)}</div>
+    <button class="gate-btn" onclick="retryEnterApp()">다시 시도</button>
+    <div class="gate-switch" style="margin-top:14px;"><b onclick="forceLogoutToLogin()">로그아웃하고 다시 로그인</b></div>`;
+}
+async function retryEnterApp() { await enterApp(_lastSession); }
+async function forceLogoutToLogin() {
+  try { await sb.auth.signOut(); } catch (e) { console.error('로그아웃 오류:', e); }
+  location.reload();
+}
+
 /* ── 로그인 완료 → 프로필 로드 → 앱 시작 ── */
 async function enterApp(session) {
+  if (!session) {
+    try { const r = await sb.auth.getSession(); session = r.data.session; }
+    catch (e) { console.error('세션 확인 오류:', e); showGateRetry('연결에 문제가 있어요. 다시 시도해주세요.'); return; }
+  }
+  if (!session) { showAuth('login'); return; } /* 세션 자체가 없음 = 실제 로그아웃 상태 */
+  _lastSession = session;
+  USER_ID = session.user.id;
+  AUTH_EMAIL = session.user.email || '';
   try {
-    if (!session) { const r = await sb.auth.getSession(); session = r.data.session; }
-    if (!session) { showAuth('login'); return; }
-    USER_ID = session.user.id;
-    AUTH_EMAIL = session.user.email || '';
     const { data: babies, error } = await sb.from('babies').select('*')
       .eq('user_id', USER_ID).order('created_at', { ascending: true }).limit(1);
     if (error) throw error;
@@ -3480,21 +3509,27 @@ async function enterApp(session) {
     hideGate();
     await startApp();
   } catch (e) {
+    /* 세션은 유효하므로 로그인 화면이 아니라 재시도 화면으로 (v11) */
     console.error('프로필 로드 오류:', e);
-    showAuth('login');
-    gateMsg('프로필을 불러오지 못했어요. 다시 로그인해주세요.');
+    showGateRetry('정보를 불러오지 못했어요. 네트워크를 확인하고 다시 시도해주세요.');
   }
 }
 
 /* ── 부팅: 세션 확인 → 게이트 or 앱 ── */
 async function init() {
   document.body.classList.add('gated');
+  showGate();
+  gateEl().innerHTML = `<div class="wordmark gate-wordmark">Cubit</div><div class="gate-sub" style="margin-top:8px;">불러오는 중...</div>`;
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { showAuth('login'); return; }
     await enterApp(session);
-  } catch (e) { console.error('부팅 오류:', e); showAuth('login'); }
+  } catch (e) {
+    console.error('부팅 오류:', e);
+    showGateRetry('연결에 문제가 있어요. 다시 시도해주세요.');
+  }
 }
+/* SIGNED_OUT은 명시적 로그아웃(forceLogoutToLogin) 시에만 발생 → 새로고침해 게이트로 복귀 */
 sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_OUT') location.reload(); });
 init();
 </script>
