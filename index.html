@@ -120,7 +120,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .memo-block { margin-top: 16px; }
 .memo-input-lbl { font-size: 12px; font-weight: 700; color: #6e6661; margin-bottom: 8px; }
 .memo-input-lbl span { color:#b3aca7; font-weight:500; font-size:11px; }
-.memo-input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 13px; resize: none; outline: none; color: #2b2422; background:#faf8f6; }
+.memo-input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 16px; resize: none; outline: none; color: #2b2422; background:#faf8f6; }
 .memo-input:focus { border-color: var(--coral); }
 .check-btn { width: 100%; margin-top: 14px; padding: 15px; background: var(--coral-grad); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 700; box-shadow:0 6px 16px rgba(249,112,112,0.32); }
 
@@ -198,7 +198,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .stock-low { color: var(--coral-deep) !important; }
 .stock-edit-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; gap: 8px; }
 .stock-edit-row:last-of-type { border-bottom: none; }
-.stock-input { width: 60px; border: 1px solid var(--border); border-radius: 6px; padding: 5px 6px; font-size: 12px; text-align: center; outline: none; }
+.stock-input { width: 64px; border: 1px solid var(--border); border-radius: 6px; padding: 5px 6px; font-size: 16px; text-align: center; outline: none; }
 .stock-input:focus { border-color: var(--sky); }
 .stock-unit { font-size: 11px; color: var(--text-sub); }
 .stock-edit-btn { width: 100%; margin-top: 10px; padding: 10px; background: #f5f2ef; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: #6e6661; }
@@ -207,7 +207,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .add-divider { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .add-stock-btn { width: 100%; padding: 10px; background: #f5f2ef; border: 1px dashed var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--gray); }
 .add-form { margin-top: 10px; padding: 12px; background: #faf8f6; border-radius: 8px; border: 1px solid var(--border); }
-.add-form input { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 12px; margin-bottom: 6px; outline: none; }
+.add-form input { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 16px; margin-bottom: 6px; outline: none; }
 .add-form input:focus { border-color: var(--coral); }
 .add-form-row { display: flex; gap: 6px; margin-bottom: 6px; }
 .add-form-row input { margin-bottom: 0; flex: 1; }
@@ -232,12 +232,12 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 
 /* ===== 인라인 편집 ===== */
 .edit-row { display:flex; align-items:center; gap:10px; }
-.edit-amt-input { width:70px; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:13px; text-align:center; outline:none; font-family:'Pretendard',sans-serif; background:#faf8f6; flex-shrink:0; }
+.edit-amt-input { width:70px; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:16px; text-align:center; outline:none; font-family:'Pretendard',sans-serif; background:#faf8f6; flex-shrink:0; }
 .edit-amt-input:focus { border-color:var(--coral); }
 .edit-del-btn { background:none; border:none; font-size:16px; color:#cfc9c4; padding:0 2px; flex-shrink:0; }
 .edit-add-row { display:flex; gap:8px; align-items:center; margin-top:10px; }
-.edit-add-name { flex:1; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; outline:none; font-family:'Pretendard',sans-serif; background:#faf8f6; }
-.edit-add-amt { width:80px; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; outline:none; text-align:center; font-family:'Pretendard',sans-serif; background:#faf8f6; }
+.edit-add-name { flex:1; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:16px; outline:none; font-family:'Pretendard',sans-serif; background:#faf8f6; }
+.edit-add-amt { width:80px; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:16px; outline:none; text-align:center; font-family:'Pretendard',sans-serif; background:#faf8f6; }
 .edit-add-name:focus, .edit-add-amt:focus { border-color:var(--coral); }
 .edit-actions { display:flex; gap:8px; margin-top:12px; }
 .edit-save-btn { flex:1; padding:10px; background:var(--coral-grad); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; font-family:'Pretendard',sans-serif; }
@@ -483,12 +483,12 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .ec-bottom { display:flex; gap:10px; }
 .ec-field { flex:1; display:flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:7px 10px; }
 .ec-field label { font-size:11px; color:var(--text-sub); white-space:nowrap; }
-.ec-field input { flex:1; border:none; outline:none; font-size:14px; font-weight:700; color:#2b2422; width:100%; text-align:right; background:transparent; }
+.ec-field input { flex:1; border:none; outline:none; font-size:16px; font-weight:700; color:#2b2422; width:100%; text-align:right; background:transparent; }
 .ec-field .ec-unit { font-size:11px; color:var(--text-sub); }
-.base-g-select { flex:1; border:none; outline:none; font-size:14px; font-weight:700; color:#2b2422; background:transparent; text-align:right; cursor:pointer; }
+.base-g-select { flex:1; border:none; outline:none; font-size:16px; font-weight:700; color:#2b2422; background:transparent; text-align:right; cursor:pointer; }
 .add-form-select-wrap { flex:1; display:flex; flex-direction:column; gap:4px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
 .add-form-label { font-size:11px; color:var(--text-sub); }
-.add-form-select-wrap .base-g-select { font-size:14px; font-weight:600; text-align:left; padding:0; }
+.add-form-select-wrap .base-g-select { font-size:16px; font-weight:600; text-align:left; padding:0; }
 .ec-warn { margin-top:8px; font-size:11px; font-weight:600; color:var(--coral-deep); line-height:1.4; background:#fff4f2; border-radius:8px; padding:7px 10px; }
 .stock-x { background:none; border:none; color:#cfc9c4; font-size:15px; padding:2px 4px; }
 
@@ -566,7 +566,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .gate-sub { text-align:center; font-size:13px; color:var(--text-sub); margin-bottom:18px; line-height:1.55; }
 .gate-field { margin-bottom:10px; }
 .gate-label { font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:4px; display:block; }
-.gate-input { width:100%; padding:13px 14px; border:1px solid var(--border); border-radius:12px; font-size:15px; font-family:inherit; background:#fbfaf9; color:var(--text); }
+.gate-input { width:100%; padding:13px 14px; border:1px solid var(--border); border-radius:12px; font-size:16px; font-family:inherit; background:#fbfaf9; color:var(--text); }
 .gate-input:focus { outline:none; border-color:var(--coral); background:#fff; }
 .gate-btn { width:100%; padding:14px; border:none; border-radius:12px; background:var(--coral-grad); color:#fff; font-size:15px; font-weight:800; margin-top:8px; cursor:pointer; font-family:inherit; }
 .gate-btn:disabled { opacity:.55; }
@@ -589,7 +589,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .gate-check b { color:var(--coral-deep); font-weight:600; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
 /* ── 날짜 셀렉트 ── */
 .ob-date-row { display:flex; gap:8px; }
-.gate-select { flex:1; -webkit-appearance:none; appearance:none; border:1.5px solid #f0e8e4; background:#fdfbfa url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22><path d=%22M1 1l4 4 4-4%22 stroke=%22%23b9b0ab%22 stroke-width=%221.6%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 12px center; border-radius:14px; padding:13px 14px; font-size:15px; font-family:'Pretendard',sans-serif; color:var(--text); }
+.gate-select { flex:1; -webkit-appearance:none; appearance:none; border:1.5px solid #f0e8e4; background:#fdfbfa url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22><path d=%22M1 1l4 4 4-4%22 stroke=%22%23b9b0ab%22 stroke-width=%221.6%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 12px center; border-radius:14px; padding:13px 14px; font-size:16px; font-family:'Pretendard',sans-serif; color:var(--text); }
 .gate-select:focus { outline:none; border-color:var(--coral); }
 /* ── 약관 모달 ── */
 .legal-ovl { position:fixed; inset:0; background:rgba(30,22,18,0.45); z-index:9999; display:flex; align-items:flex-end; justify-content:center; }
@@ -599,7 +599,7 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .legal-x { border:none; background:#f5efec; border-radius:50%; width:30px; height:30px; font-size:14px; color:var(--text-sub); }
 .legal-body { overflow-y:auto; font-size:12.5px; line-height:1.7; color:#4c443f; white-space:pre-line; -webkit-overflow-scrolling:touch; }
 /* ── 계정 수정 ── */
-.acct-input { width:100%; border:1.5px solid #f0e8e4; background:#fdfbfa; border-radius:14px; padding:12px 14px; font-size:15px; font-family:'Pretendard',sans-serif; color:var(--text); margin-top:6px; }
+.acct-input { width:100%; border:1.5px solid #f0e8e4; background:#fdfbfa; border-radius:14px; padding:12px 14px; font-size:16px; font-family:'Pretendard',sans-serif; color:var(--text); margin-top:6px; }
 .acct-input:focus { outline:none; border-color:var(--coral); }
 .acct-lbl { font-size:12px; font-weight:600; color:var(--text-sub); margin-top:12px; }
 .acct-btns { display:flex; gap:8px; margin-top:14px; }
