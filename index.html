@@ -2427,15 +2427,27 @@ async function checkPmDone(dateKey) {
   const memo = composeMemo('pm-reactions', 'pm-memo-input');
 
   const stockChanges = [];
+  let deductErr = null;
   for (const raw of (data.pmEdited || data.pm || [])) {
     const { name, amount } = parseItem(raw);
     const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
     const useCount = calcUseCount(amount, stock.base_g || 15);
     if (useCount <= 0) continue;
     const actualDeduct = Math.min(useCount, stock.amount);
-    await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
+    const { error } = await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
+    if (error) { deductErr = error; break; }
     stock.amount -= actualDeduct;
     stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
+  }
+  if (deductErr) {
+    /* v16 수정: 재고 차감 실패 시 이미 차감된 부분 되돌리고 알림 (조용히 넘어가지 않음) */
+    for (const change of stockChanges) {
+      const stock = dbStocks.find(s => s.id === change.id);
+      if (stock) await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
+    }
+    alert('재고 차감에 실패했어요. 잠시 후 다시 시도해주세요.\n(' + deductErr.message + ')');
+    await loadStocks();
+    return;
   }
 
   data.pmDone = true;
@@ -2480,15 +2492,27 @@ async function checkLunchDone(dateKey) {
   const memo = composeMemo('lunch-reactions', 'lunch-memo-input');
 
   const stockChanges = [];
+  let deductErr = null;
   for (const raw of (data.lunchEdited || data.lunch || [])) {
     const { name, amount } = parseItem(raw);
     const stock = dbStocks.find(s => s.name === name); if (!stock) continue;
     const useCount = calcUseCount(amount, stock.base_g || 15);
     if (useCount <= 0) continue;
     const actualDeduct = Math.min(useCount, stock.amount);
-    await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
+    const { error } = await sb.from('inventory').update({ amount: stock.amount - actualDeduct }).eq('id', stock.id);
+    if (error) { deductErr = error; break; }
     stock.amount -= actualDeduct;
     stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
+  }
+  if (deductErr) {
+    /* v16 수정: 재고 차감 실패 시 이미 차감된 부분 되돌리고 알림 */
+    for (const change of stockChanges) {
+      const stock = dbStocks.find(s => s.id === change.id);
+      if (stock) await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
+    }
+    alert('재고 차감에 실패했어요. 잠시 후 다시 시도해주세요.\n(' + deductErr.message + ')');
+    await loadStocks();
+    return;
   }
 
   data.lunchDone = true;
@@ -3042,13 +3066,13 @@ async function autoAddUpcoming() {
       // 재고가 충분하면(수량 > 알림기준) 장볼 목록에 자동 추가 안 함
       if (!inShop && !hasEnough) {
         const { error } = await sb.from('shop_list').insert([{ user_id: USER_ID, baby_id: BABY_ID, name }]);
-        if (!error) shopAdded = true;
+        if (!error) shopAdded = true; else console.error('장볼목록 자동추가 오류:', error);
       }
       const inStock = !!stockItem;
       if (!inStock) {
         const sort_order = dbStocks.length;
         const { error } = await sb.from('inventory').insert([{ user_id: USER_ID, baby_id: BABY_ID, name, amount: 0, unit: '개', low_alert: 1, sort_order }]);
-        if (!error) stockAdded = true;
+        if (!error) stockAdded = true; else console.error('재고 자동추가 오류:', error);
       }
     }
   }
