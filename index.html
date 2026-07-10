@@ -2364,7 +2364,18 @@ async function checkDone(dateKey) {
     stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
   }
   const { error: logErr } = await sb.from('meal_log').upsert({ user_id: USER_ID, baby_id: BABY_ID, date: toDbDate(dateKey), done: true, memo, stock_changes: stockChanges }, { onConflict: 'baby_id,date' });
-  if (logErr) console.error('meal_log 저장 오류:', logErr);
+  if (logErr) {
+    /* v15 수정: 예전엔 콘솔에만 찍고 화면은 무조건 완료로 표시 → 저장 실패해도 완료된 것처럼 보이는 버그.
+       이미 차감한 재고를 되돌리고, 사용자에게 실제로 알린다. */
+    console.error('meal_log 저장 오류:', logErr);
+    for (const change of stockChanges) {
+      const stock = dbStocks.find(s => s.id === change.id);
+      if (stock) await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
+    }
+    alert('저장에 실패했어요. 잠시 후 다시 시도해주세요.\n(' + logErr.message + ')');
+    await loadStocks();
+    return;
+  }
   meals[dateKey].done = true; meals[dateKey].memo = memo;
   await loadStocks(); rerender();
 }
@@ -2645,8 +2656,10 @@ async function loadAppState() {
 }
 /* 전체 상태를 통째로 저장 (마지막 저장이 항상 최신 → 누락돼도 다음 저장이 복구) */
 async function saveAppState() {
+  /* v15 수정: 기존엔 error를 확인 안 해서 실패해도 아무 표시가 없었음(저녁완료·건너뛰기·교환·편집 전부 해당) */
   try {
-    await sb.from('meal_log').upsert({ user_id: USER_ID, baby_id: BABY_ID, date: STATE_ROW, done: false, memo: '_appstate', stock_changes: appState }, { onConflict: 'baby_id,date' });
+    const { error } = await sb.from('meal_log').upsert({ user_id: USER_ID, baby_id: BABY_ID, date: STATE_ROW, done: false, memo: '_appstate', stock_changes: appState }, { onConflict: 'baby_id,date' });
+    if (error) { console.error('앱 상태 저장 오류:', error); alert('저장에 실패했어요. 새로고침 후 다시 시도해주세요.\n(' + error.message + ')'); }
   } catch (e) { console.error('앱 상태 저장 오류:', e); }
 }
 /* 저녁완료/메모/아침건너뜀 상태를 meals에 반영 (로그인 후·재교환 후 호출) */
