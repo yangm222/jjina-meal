@@ -1518,7 +1518,7 @@ function todayWarnHtml(data) {
   items.forEach(raw => {
     const { name } = parseItem(raw);
     const st = dbStocks.find(s => s.name === name);
-    if (st && st.amount <= st.low_alert && !lowNames.includes(name)) lowNames.push(name);
+    if (st && isStockLow(st) && !lowNames.includes(name)) lowNames.push(name);
   });
   return lowNames.length ? `<span class="stock-warn">⚠️ ${lowNames.join(' · ')} 부족</span>` : '';
 }
@@ -1529,6 +1529,39 @@ function todayWarnHtml(data) {
    구매 데드라인 = 사용 예정일 - 2일 / D-day = 데드라인 - 오늘
 ================================================ */
 function dateOnly(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+/* v17: 향후 2일(오늘~+2일) 식단에서 해당 재료가 필요로 하는 큐브 수 합산.
+   - 이미 완료(또는 건너뜀) 처리된 끼니는 재고가 이미 차감됐으므로 수요에서 제외
+   - 차감 로직과 동일한 calcUseCount 기준으로 계산해 정합성 유지 */
+function projectedNeedCubes(name) {
+  let need = 0;
+  const st = dbStocks.find(s => s.name === name);
+  const base = (st && st.base_g) || 15;
+  for (let off = 0; off <= 2; off++) {
+    const d = new Date(TODAY); d.setDate(TODAY.getDate() + off);
+    const data = meals[dk(d)]; if (!data) continue;
+    const slots = [
+      { items: data.amEdited || data.am, skip: data.done || data.amSkipped },
+      { items: data.lunchEdited || data.lunch, skip: data.lunchDone || data.lunchSkipped },
+      { items: data.pmEdited || data.pm, skip: data.pmDone },
+    ];
+    for (const sl of slots) {
+      if (!sl.items || sl.skip) continue;
+      for (const raw of sl.items) {
+        const p = parseItem(raw);
+        if (p.name === name) need += calcUseCount(p.amount, base);
+      }
+    }
+  }
+  return need;
+}
+/* v17: 재고 임박 판정 — 절대 수량이 아니라 향후 2일 식단 수요를 차감한
+   "예상 잔여"가 알림 기준(low_alert, 기본 2개) 이하로 떨어질 예정이면 임박.
+   수요가 없으면 기존 규칙(amount <= low_alert)과 완전히 동일하게 동작. */
+function isStockLow(s) {
+  return (s.amount - projectedNeedCubes(s.name)) <= s.low_alert;
+}
+
 function nextUseDate(name) {
   const base = dateOnly(TODAY);
   for (let off = 0; off <= 120; off++) {
@@ -1549,7 +1582,7 @@ function deadlineInfo(name) {
 function imminentDeadlineStocks() {
   if (!dbStocks.length) return [];
   return dbStocks.filter(s => {
-    if (s.amount > s.low_alert) return false;       // 재고 충분하면 제외
+    if (!isStockLow(s)) return false;               // 수요 감안해도 여유 있으면 제외
     const info = deadlineInfo(s.name);
     return info && info.dday <= 2;                    // 마감 2일 이내
   });
@@ -1575,7 +1608,7 @@ function stockSummaryHtml() {
   let full = 0, soon = 0, out = 0;
   dbStocks.forEach(s => {
     if (s.amount <= 0) out++;
-    else if (s.amount <= s.low_alert) soon++;
+    else if (isStockLow(s)) soon++;
     else full++;
   });
   return `<div class="sum-badges">
@@ -2045,7 +2078,7 @@ function toggleAcc(id) { const e = document.getElementById(id); if (e) e.classLi
    오늘 할 일 — 재고 부족/임박 + 구매 데드라인
 ================================================ */
 function todoCardHtml() {
-  const low = dbStocks.filter(s => s.amount <= s.low_alert);
+  const low = dbStocks.filter(s => s.amount <= 0 || isStockLow(s));
   let rows;
   if (low.length === 0) {
     rows = `<div class="todo-empty">재고가 넉넉해요 · 오늘 장볼 건 없어요 ✓</div>`;
@@ -2089,10 +2122,10 @@ function stockHtml() {
   if (dbStocks.length === 0) return '<div style="padding:8px 0;color:#aaa;font-size:12px;">재고 정보를 불러오는 중...</div>';
   let html = '';
   if (!stockEditMode) {
-    const rank = s => (s.amount <= 0 ? 0 : (s.amount <= s.low_alert ? 1 : 2));
+    const rank = s => (s.amount <= 0 ? 0 : (isStockLow(s) ? 1 : 2));
     const sorted = [...dbStocks].sort((a, b) => rank(a) - rank(b));
     html += sorted.map(s => {
-      const out = s.amount <= 0, soon = !out && s.amount <= s.low_alert;
+      const out = s.amount <= 0, soon = !out && isStockLow(s);
       const base = s.base_g || 15;
       const icon = iconFor(s.name);
       const iconEl = icon
@@ -2179,7 +2212,7 @@ function toggleAddForm() {
    장볼 재료 (기존 로직 유지 + D-day)
 ================================================ */
 function shopHtml() {
-  const autoShopNames = dbStocks.filter(s => s.amount <= s.low_alert).map(s => s.name);
+  const autoShopNames = dbStocks.filter(s => s.amount <= 0 || isStockLow(s)).map(s => s.name);
   const manualShops = shops.filter(s => !autoShopNames.includes(s.name));
   const allItems = [
     ...autoShopNames.map(n => ({ name: n, id: null })),
@@ -3150,7 +3183,7 @@ async function autoAddUpcoming() {
       if (!name || seen.has(name)) continue;
       seen.add(name);
       const stockItem = dbStocks.find(s => s.name === name);
-      const hasEnough = stockItem && stockItem.amount > stockItem.low_alert;
+      const hasEnough = stockItem && !isStockLow(stockItem);
       const inShop = shops.some(s => s.name === name);
       // 재고가 충분하면(수량 > 알림기준) 장볼 목록에 자동 추가 안 함
       if (!inShop && !hasEnough) {
