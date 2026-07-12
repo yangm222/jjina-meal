@@ -777,7 +777,7 @@ const BASE_TWO   = new Date(2026, 5, 8);     // 템플릿 2끼 전환 (참고용
 
 /* ── 실제 적용 날짜 (로그인 후 아기 프로필로 재기준화됨. 기본값=템플릿) ── */
 let START = new Date(BASE_START);            // 이유식 시작
-const TODAY = new Date();
+let TODAY = new Date();                      // v19: 자정 자동갱신 위해 const→let (checkDateRollover 참고)
 let BIRTH = new Date(BASE_BIRTH);            // 생년월일
 let MID_START = new Date(BASE_MID);          // 중기 전환
 let TWO_MEAL_START = new Date(BASE_TWO);
@@ -909,7 +909,7 @@ const meals = {
   "7/9":  { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
   "7/10": { am:['쌀 45g','닭고기 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
   "7/11": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
-  "7/12": { am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'] },
+  "7/12": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'], note:'7/11 식단과 동일 (앱 새로고침 지연으로 실제로 7/11 식단을 먹임)' },
   "7/13": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
   "7/14": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'] },
   "7/15": { am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','두부 15g','당근 15g'] },
@@ -2235,7 +2235,7 @@ function renderMore() {
   </div>`;
   html += `<div class="panel">
     <div class="panel-title">앱 정보</div>
-    <div class="more-row"><span class="more-k">앱</span><span class="more-v">Cubit v18</span></div>
+    <div class="more-row"><span class="more-k">앱</span><span class="more-v">Cubit v19</span></div>
     <div class="more-row"><span class="more-k">식단</span><span class="more-v">${usesDbPlan ? '내 식단 (자동 생성)' : '기본 식단'}</span></div>
   </div>`;
   html += `<div style="height:80px;"></div>`;
@@ -4066,6 +4066,25 @@ async function init() {
 }
 /* SIGNED_OUT은 명시적 로그아웃(forceLogoutToLogin) 시에만 발생 → 새로고침해 게이트로 복귀 */
 sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_OUT') location.reload(); });
+
+/* v19: 자정 자동 갱신 — 이전엔 TODAY를 부팅 시 한 번만 계산해서, 탭을 새로고침 없이
+   자정 넘겨 켜두면 "오늘"이 어제로 고정된 채 남아있었음(어제 실제로 발생 — 어제 식단을
+   오늘 먹이는 사고). 화면이 다시 보일 때 + 포커스 복귀 시 + 1분마다 날짜가 바뀌었는지
+   확인해서, 바뀌었으면 TODAY를 갱신하고 화면을 다시 그린다. 로그인 전(게이트 화면)에는
+   아직 렌더할 화면 자체가 없으므로 건드리지 않는다. */
+function checkDateRollover() {
+  if (document.body.classList.contains('gated')) return; /* 로그인 전이면 스킵 */
+  const now = new Date();
+  if (now.toDateString() !== TODAY.toDateString()) {
+    TODAY = now;
+    recomputeMonthBounds();
+    rerender();
+  }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkDateRollover(); });
+window.addEventListener('focus', checkDateRollover);
+setInterval(checkDateRollover, 60000);
+
 init();
 </script>
 </body>
