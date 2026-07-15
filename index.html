@@ -182,6 +182,29 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .todo-row.imminent .todo-name { color:#1f1a18; }
 .todo-row.imminent .todo-dday { color:var(--coral-deep) !important; font-weight:700; }
 
+/* ===== 홈 하이라이트 카드 (v19: 마감임박 재료 + 이번주 새 재료 도입) =====
+   - 오늘 첫 진입 시에만 펼쳐진 카드로 잠깐 보여준 뒤 자동으로 슬림 배너로 접힘 (js: scheduleHlAutoCollapse)
+   - 재방문 시엔 처음부터 접힌 배너로 시작, 탭하면 다시 펼쳐짐
+   - 디자인 원칙: 펼침/접힘 모두 다른 카드와 동일한 좌우폭(margin 16px)·라운드(18px)·그림자 유지,
+     카드 내부 텍스트는 본문 컬러(붉은색 금지), 행 구조는 "오늘 할 일" 섹션과 동일 패턴(dot+이름+우측정보) */
+.hl-wrap { display:flex; flex-direction:column; gap:8px; margin: 8px 16px 0; }
+.hl-card { background:var(--card); border-radius:18px; padding:16px 18px; box-shadow:0 4px 18px rgba(60,45,40,0.06); cursor:pointer; }
+.hl-card:active { opacity:0.7; }
+.hl-card-title { font-family:'Paperlogy',sans-serif; font-size:14px; font-weight:600; color:#1f1a18; margin-bottom:4px; }
+.hl-row { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--border); }
+.hl-row:last-child { border-bottom:none; padding-bottom:2px; }
+.hl-row-dot { width:7px; height:7px; border-radius:50%; background:#1f1a18; flex-shrink:0; }
+.hl-row-name { flex:1; font-size:14px; font-weight:600; color:var(--text); }
+.hl-row-sub { font-size:12px; font-weight:500; color:var(--text-sub); margin-left:4px; }
+.hl-dday { font-size:11px; font-weight:600; color:var(--text-sub); white-space:nowrap; }
+/* 접힘 상태: 풀폭 슬림 배너 (칩 대신 — 가독성/폭 통일), 내용 중앙정렬 */
+.hl-card.collapsed { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px 18px; }
+.hl-chip-txt { font-size:13px; font-weight:600; color:var(--text); }
+.hl-dot { width:7px; height:7px; border-radius:50%; background:var(--coral); flex-shrink:0; }
+.hl-arrow { font-size:13px; color:var(--text-sub); font-weight:700; }
+
+
+
 /* ===== 아코디언 (카드 형태) ===== */
 .acc { margin: 8px 16px 0; background: var(--card); border-radius: 18px; overflow: hidden; box-shadow: 0 4px 18px rgba(60,45,40,0.06); }
 .acc-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px; user-select: none; cursor: pointer; }
@@ -761,6 +784,11 @@ let stockEditMode = false;
 let showAddForm = false;
 let showShopAddForm = false;
 
+/* v18: 재료 선호도 로테이션 — 현재 baby_id의 관찰상태/선호도 캐시 (loadIntroStatus/loadIngredientPrefs) */
+let introStatus = [];
+let ingredientPrefs = [];
+let prefEditMode = false;
+
 /* ================================================
    기준 날짜
 ================================================ */
@@ -772,7 +800,7 @@ const BASE_TWO   = new Date(2026, 5, 8);     // 템플릿 2끼 전환 (참고용
 
 /* ── 실제 적용 날짜 (로그인 후 아기 프로필로 재기준화됨. 기본값=템플릿) ── */
 let START = new Date(BASE_START);            // 이유식 시작
-const TODAY = new Date();
+let TODAY = new Date();                      // v19: 자정 자동갱신 위해 const→let (checkDateRollover 참고)
 let BIRTH = new Date(BASE_BIRTH);            // 생년월일
 let MID_START = new Date(BASE_MID);          // 중기 전환
 let TWO_MEAL_START = new Date(BASE_TWO);
@@ -904,12 +932,12 @@ const meals = {
   "7/9":  { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
   "7/10": { am:['쌀 45g','닭고기 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
   "7/11": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
-  "7/12": { am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'] },
+  "7/12": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'], note:'7/11 식단과 동일 (앱 새로고침 지연으로 실제로 7/11 식단을 먹임)' },
   "7/13": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
-  "7/14": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'] },
+  "7/14": { am:['쌀 45g','한우 15g','당근 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'브로콜리→당근 임시 대체(준비시간 부족, 금요일 이후 재개 예정 / 2026-07-13 요청)' },
   "7/15": { am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','두부 15g','당근 15g'] },
   "7/16": { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
-  "7/17": { am:['쌀 45g','닭고기 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
+  "7/17": { am:['쌀 45g','닭고기 15g','단호박 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'고구마·브로콜리→단호박·양배추 임시 대체(준비시간 부족, 금요일 이후 재개 예정 / 2026-07-13 요청)' },
   "7/18": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
   "7/19": { badge:{t:'grain',x:'입자 Lv.2'}, am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'입자 Lv.2 전환 (신규 도입 없음)' },
   "7/20": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
@@ -984,6 +1012,65 @@ const meals = {
   "8/30": { am:['쌀 60g','닭고기 15g','단호박 15g'], lunch:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','대게 15g','애호박 15g'] },
   "8/31": { am:['쌀 60g','한우 15g','당근 15g'], lunch:['쌀 60g','닭고기 15g','애호박 15g'], pm:['쌀 60g','참깨 15g','단호박 15g'] },
 };
+
+/* v18: 오너 원본 식단의 불변 스냅샷 (컷오버 로테이션 생성용 — meals는 loadMealPlan()에서 런타임에 변형되므로
+   원본을 별도 보관해야 나중에 "7/20 이전 그대로/이후 재생성" 컷오버 계산이 가능함) */
+const OWNER_MEALS_SNAPSHOT = JSON.parse(JSON.stringify(meals));
+
+/* ================================================
+   v18: 재료 선호도 기반 식단 로테이션 — 데이터 모델
+   (스펙: 재료선호도_로테이션_스펙_v1.md 2026-07-12 확정본)
+   - 카테고리/위험도는 v1은 코드 상수로 시작 (스키마 변경 최소화 원칙, DEV RULES)
+     ③ Claude API(Edge Function) 단계 진입 시 DB 테이블로 승격 예정
+================================================ */
+const INGREDIENT_CATEGORY = {
+  '쌀':'곡물류', '오트밀':'곡물류', '밀':'곡물류', '메밀':'곡물류',
+  '한우':'고기류', '닭고기':'고기류',
+  '브로콜리':'채소류', '애호박':'채소류', '단호박':'채소류', '당근':'채소류', '양배추':'채소류', '감자':'채소류', '고구마':'채소류',
+  '두부':'단백질기타', '조개':'단백질기타', '노른자':'단백질기타', '계란흰자':'단백질기타',
+  '새우':'단백질기타', '흰살생선':'단백질기타', '대게':'단백질기타',
+  '땅콩':'견과류', '호두':'견과류', '참깨':'견과류',
+  '아기치즈':'유제품',
+};
+const INGREDIENT_RISK = {
+  '조개':'high', '땅콩':'high', '새우':'high', '흰살생선':'high', '대게':'high',
+  '참깨':'high', '호두':'high', '메밀':'high', '계란흰자':'high',
+  '아기치즈':'mid',
+  '당근':'low', '닭고기':'low',
+};
+/* 위험도별 시스템 기본 주간캡 (딩굴이가 재료별로 직접 override 가능, ingredient_preference 참고) */
+const RISK_WEEKLY_DEFAULT = { high: 1, mid: 2, low: 99, normal: 99 };
+function categoryOf(name) { return INGREDIENT_CATEGORY[name] || null; }
+function riskLevelOf(name) { return INGREDIENT_RISK[name] || 'normal'; }
+function defaultWeeklyMax(name) { return RISK_WEEKLY_DEFAULT[riskLevelOf(name)]; }
+
+/* 재료 도입 스케줄 원본(오너 기준 BASE_START로부터의 offset일수) — meals의 badge/note를 구조화한 것.
+   신규계정 생성 시 이 offset을 그대로 D+오프셋 적용해 ingredient_intro_status를 생성한다. */
+const INTRO_SCHEDULE_TEMPLATE = [
+  { name:'한우',     offset:3,   observeDays:2 },
+  { name:'브로콜리', offset:8,   observeDays:3 },
+  { name:'감자',     offset:11,  observeDays:3 },
+  { name:'애호박',   offset:14,  observeDays:2 },
+  { name:'오트밀',   offset:16,  observeDays:3 },
+  { name:'고구마',   offset:21,  observeDays:2 },
+  { name:'노른자',   offset:24,  observeDays:3 },
+  { name:'땅콩',     offset:27,  observeDays:3 },
+  { name:'양배추',   offset:33,  observeDays:3 },
+  { name:'단호박',   offset:36,  observeDays:3 },
+  { name:'두부',     offset:39,  observeDays:3 },
+  { name:'밀',       offset:42,  observeDays:3 },
+  { name:'조개',     offset:45,  observeDays:3 },
+  { name:'당근',     offset:50,  observeDays:2 },
+  { name:'닭고기',   offset:52,  observeDays:2 },
+  { name:'새우',     offset:81,  observeDays:3 },
+  { name:'흰살생선', offset:84,  observeDays:3 },
+  { name:'대게',     offset:87,  observeDays:3 },
+  { name:'참깨',     offset:91,  observeDays:3 },
+  { name:'호두',     offset:94,  observeDays:3 },
+  { name:'메밀',     offset:98,  observeDays:3 },
+  { name:'계란흰자', offset:104, observeDays:3 },
+  { name:'아기치즈', offset:109, observeDays:3 },
+];
 
 /* 월별 재료 체크리스트 (월간 플래너) */
 const CHECKLIST = {
@@ -1071,6 +1158,126 @@ function weekNumber(d) {
   const f = new Date(PLAN_YEAR, d.getMonth(), 1);
   return Math.ceil((d.getDate() + ((f.getDay() || 7) - 1)) / 7);
 }
+
+/* ================================================
+   v18: 재료 선호도 기반 식단 로테이션 — 핵심 로직 (순수 함수)
+   - 전역 상태(meals/dbStocks/BABY_ID 등)를 참조하지 않고 인자로만 동작 → 테스트 용이
+   - rows: [{date:'YYYY-MM-DD', plan:{am,pm,lunch,...}}] 형태(templateRows/오너컷오버 생성 공용)
+   - introStatusRows: [{ingredient_name, first_intro_date:'YYYY-MM-DD', observe_days}]
+   - prefRows: [{ingredient_name, mode:'weekly_cap'|'category_swap', weekly_max}]
+   - "주" 정의 확정: 캘린더 주(월~일), weekStart()/weekDays() 재사용
+================================================ */
+function introRowOf(introStatusRows, name) {
+  return introStatusRows.find(s => s.ingredient_name === name);
+}
+/* 해당 날짜가 이 재료의 관찰기간(도입일~도입일+observe_days) 내인가 */
+function isObservingOn(introStatusRows, name, dateObj) {
+  const s = introRowOf(introStatusRows, name);
+  if (!s) return false;
+  const start = parseDbDateFull(s.first_intro_date);
+  const end = v8AddDays(start, s.observe_days);
+  return dateObj >= start && dateObj < end;
+}
+/* 관찰기간이 완전히 끝났는가 (아직 시작 전인 미래 도입 예정 재료는 false) */
+function hasPassedObservation(introStatusRows, name, dateObj) {
+  const s = introRowOf(introStatusRows, name);
+  if (!s) return true; /* 추적 대상이 아닌 기존 정착 재료(쌀·한우 등 관찰기록 없는 재료 포함) */
+  const start = parseDbDateFull(s.first_intro_date);
+  const end = v8AddDays(start, s.observe_days);
+  return dateObj >= end;
+}
+function weeklyMaxFor(prefRows, name) {
+  const p = prefRows.find(x => x.ingredient_name === name && x.mode === 'weekly_cap');
+  if (p && p.weekly_max != null) return p.weekly_max;
+  return defaultWeeklyMax(name);
+}
+/* rows(byDate 맵)에서 dateObj가 속한 캘린더 주(월~일) 내 재료 등장 횟수.
+   v18 수정: 그 주 "전체"가 아니라 월요일부터 dateObj 당일까지만 집계(누적 캡 방식).
+   이유: applyIngredientPreferences는 날짜를 오름차순으로 순회하며 그 자리에서 즉시 치환하므로,
+   아직 검사하지 않은 미래 날짜의 원본(치환 전) 값까지 세어버리면 이번 주 초반 날짜가
+   실제로는 아직 캡을 넘기지 않았는데도 미리 치환되는 문제가 있었음(테스트로 발견). */
+function countInWeek(byDate, name, dateObj) {
+  const monday = weekStart(dateObj);
+  let c = 0;
+  weekDays(monday).forEach(d => {
+    if (d > dateObj) return; /* 아직 처리 전인 이번 주의 미래 날짜는 집계하지 않음 */
+    const plan = byDate[toDbDateFull(d)];
+    if (!plan) return;
+    [...(plan.am || []), ...(plan.lunch || []), ...(plan.pm || [])].forEach(raw => {
+      if (typeof raw === 'string' && raw.startsWith('반복:')) return; /* 반복노출 프로토콜은 집계 제외 */
+      if (parseItem(raw).name === name) c++;
+    });
+  });
+  return c;
+}
+/* countInWeek의 "오늘 이전까지만" 버전 — 오늘 자기 자신의 칸은 지금 막 결정하는 중이라 카운트에서 제외해야
+   "이번 주 2회까지 허용"이 실제로 2회를 허용하게 됨(오늘 것까지 포함해서 세면 1회로 줄어드는 오프바이원 버그가 있었음, 테스트로 발견) */
+function countInWeekBefore(byDate, name, dateObj) {
+  const monday = weekStart(dateObj);
+  let c = 0;
+  weekDays(monday).forEach(d => {
+    if (d >= dateObj) return;
+    const plan = byDate[toDbDateFull(d)];
+    if (!plan) return;
+    [...(plan.am || []), ...(plan.lunch || []), ...(plan.pm || [])].forEach(raw => {
+      if (typeof raw === 'string' && raw.startsWith('반복:')) return;
+      if (parseItem(raw).name === name) c++;
+    });
+  });
+  return c;
+}
+/* 같은 카테고리 내 대체 후보 선정: 관찰중 아님 + 관찰완료 + 주간캡 여유 + 오늘 아직 안 쓴 재료, 최근 빈도 낮은 순 */
+function pickSubstitute(byDate, introStatusRows, prefRows, name, dateObj, usedToday) {
+  const cat = categoryOf(name);
+  if (!cat) return name;
+  const candidates = Object.keys(INGREDIENT_CATEGORY).filter(n => INGREDIENT_CATEGORY[n] === cat && n !== name);
+  const usable = candidates.filter(n =>
+    !isObservingOn(introStatusRows, n, dateObj) &&
+    hasPassedObservation(introStatusRows, n, dateObj) &&
+    countInWeekBefore(byDate, n, dateObj) < weeklyMaxFor(prefRows, n) &&
+    !usedToday.has(n)
+  );
+  if (!usable.length) return name; /* 대체 불가 → 원본 유지 (콘솔 경고는 호출부에서) */
+  usable.sort((a, b) => countInWeekBefore(byDate, a, dateObj) - countInWeekBefore(byDate, b, dateObj));
+  return usable[0];
+}
+/* rows 전체에 선호도 규칙 적용 (in-place). rows는 날짜 오름차순이 아니어도 되며 내부에서 정렬함.
+   반환: { rows, warnings } — warnings는 대체 실패(후보 없음) 로그용 */
+function applyIngredientPreferences(rows, introStatusRows, prefRows) {
+  const byDate = {};
+  rows.forEach(r => { byDate[r.date] = r.plan; });
+  const warnings = [];
+  Object.keys(byDate).sort().forEach(dateKey => {
+    const plan = byDate[dateKey];
+    const dateObj = parseDbDateFull(dateKey);
+    const usedToday = new Set();
+    ['am', 'lunch', 'pm'].forEach(slot => {
+      if (!plan[slot]) return;
+      plan[slot] = plan[slot].map(raw => {
+        if (typeof raw !== 'string' || raw.startsWith('반복:')) return raw; /* 반복노출은 항상 고정 */
+        const { name } = parseItem(raw);
+        if (!name) return raw;
+        if (isObservingOn(introStatusRows, name, dateObj)) { usedToday.add(name); return raw; } /* 관찰중 고정 */
+        if (countInWeekBefore(byDate, name, dateObj) < weeklyMaxFor(prefRows, name)) { usedToday.add(name); return raw; } /* 캡 이내 */
+        const sub = pickSubstitute(byDate, introStatusRows, prefRows, name, dateObj, usedToday);
+        usedToday.add(sub);
+        if (sub === name) { warnings.push(`${dateKey} ${name}: 대체 후보 없음(카테고리 내 통과재료 부족)`); return raw; }
+        return raw.replace(name, sub);
+      });
+    });
+  });
+  return { rows, warnings };
+}
+
+/* 신규계정 온보딩: INTRO_SCHEDULE_TEMPLATE을 D+오프셋 적용해 ingredient_intro_status 행 생성 */
+function templateIntroStatusRows(userId, babyId, startDate) {
+  const s = v8DateOnly(startDate);
+  return INTRO_SCHEDULE_TEMPLATE.map(t => ({
+    user_id: userId, baby_id: babyId, ingredient_name: t.name,
+    first_intro_date: toDbDateFull(v8AddDays(s, t.offset)), observe_days: t.observeDays,
+  }));
+}
+
 function esc(v) {
   return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
@@ -1499,7 +1706,7 @@ function mealCardsHtml(d) {
   if (!amDone && !amSkipped && !swapping) {
     const isPastDay = d < new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
     if (!isPastDay) {
-      html += `<div class="shift-day-wrap"><button class="shift-day-btn" onclick="shiftFromDay('${key}')"><span class="sdb-ic">↻</span><span class="sdb-txt"><b>오늘 쉬어가기</b> · 일정 하루 미루기</span></button></div>`;
+      html += `<div class="shift-day-wrap">${observingNoticeHtml(key)}<button class="shift-day-btn" onclick="shiftFromDay('${key}')"><span class="sdb-ic">↻</span><span class="sdb-txt"><b>오늘 쉬어가기</b> · 일정 하루 미루기</span></button></div>`;
     }
   }
   return html;
@@ -1671,6 +1878,9 @@ function renderHome() {
     </div>
   </div>`;
 
+  /* v19: 홈 하이라이트 카드 (재고 임박 + 새 재료 도입) — 인사말/D+헤더 바로 아래 */
+  html += highlightSectionHtml();
+
   /* 오늘 식단 */
   html += `<div class="sec-title"><span class="accent">오늘</span> 식단${todayWarnHtml(data)}</div>`;
   if (data && data.midStart) html += midBannerHtml();
@@ -1704,6 +1914,7 @@ function renderHome() {
 
   html += `<div style="height:80px;"></div>`;
   document.getElementById('home-view').innerHTML = html;
+  scheduleHlAutoCollapse();
 }
 
 function renderMeal() {
@@ -2017,6 +2228,7 @@ function renderMore() {
     <div class="panel-title">식단표 인쇄</div>
     <button class="more-print-btn" onclick="openMonthly()">📅 월간 식단표 보기 / 인쇄</button>
   </div>`;
+  html += prefPanelHtml();
   if (acctEditMode) {
     html += `<div class="panel">
       <div class="panel-title">계정 정보 수정</div>
@@ -2050,11 +2262,101 @@ function renderMore() {
   </div>`;
   html += `<div class="panel">
     <div class="panel-title">앱 정보</div>
-    <div class="more-row"><span class="more-k">앱</span><span class="more-v">Cubit v17</span></div>
+    <div class="more-row"><span class="more-k">앱</span><span class="more-v">Cubit v19</span></div>
     <div class="more-row"><span class="more-k">식단</span><span class="more-v">${usesDbPlan ? '내 식단 (자동 생성)' : '기본 식단'}</span></div>
   </div>`;
   html += `<div style="height:80px;"></div>`;
   document.getElementById('more-view').innerHTML = html;
+}
+
+/* v18: 더보기 > "식단 재료 선호도" 패널 — 재료를 적게/드물게 쓰고 싶을 때 설정
+   - 입력 피로 최소화: 재료 선택 + 모드 select + (필요시) 숫자만 입력, 기존 .ec-field 패턴 재사용
+   - 관찰 중인 재료는 설정과 무관하게 항상 그대로 유지됨(생성 로직에서 보장) — 안내 문구로만 고지 */
+function prefPanelHtml() {
+  if (!prefEditMode) {
+    const n = ingredientPrefs.length;
+    return `<div class="panel">
+      <div class="panel-title">식단 재료 선호도</div>
+      <div class="more-row"><span class="more-k">설정된 재료</span><span class="more-v">${n ? n + '개' : '없음'}</span></div>
+      <button class="acct-edit-link" onclick="prefEditMode=true; renderMore();">재료 선호도 설정</button>
+    </div>`;
+  }
+  /* v19: 재고(dbStocks)에 없는 재료에 설정이 남아있으면(예: 아직 미도입 재료) 목록에 안 보이는데
+     "설정된 재료 N개"에는 집계돼 유령 카운트처럼 보이던 문제 수정 — 설정된 재료는 항상 목록에 포함 */
+  const nameSet = new Set([...dbStocks].map(s => s.name));
+  ingredientPrefs.forEach(p => nameSet.add(p.ingredient_name));
+  const names = [...nameSet].sort((a, b) => a.localeCompare(b, 'ko'));
+  const rows = names.map(name => {
+    const p = ingredientPrefs.find(x => x.ingredient_name === name);
+    const mode = p ? p.mode : 'none';
+    /* v19: 주간횟수 미설정 시 표시 기본값을 0으로 시작 (0회 = 이번 주에 배치하지 않음) */
+    const wm = (p && p.weekly_max != null) ? p.weekly_max : 0;
+    return `<div class="pref-row" style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div class="pref-name" style="flex:1;font-size:14px;font-weight:600;">${esc(name)}</div>
+      <select class="pref-mode-sel" id="pref-mode-${esc(name)}" onchange="onPrefModeChange('${esc(name)}')" style="border:1px solid var(--border);border-radius:8px;padding:6px;font-size:12px;">
+        <option value="none"${mode === 'none' ? ' selected' : ''}>일반</option>
+        <option value="weekly_cap"${mode === 'weekly_cap' ? ' selected' : ''}>주간 횟수 제한</option>
+        <option value="category_swap"${mode === 'category_swap' ? ' selected' : ''}>적게 쓰기(자동 치환)</option>
+      </select>
+      <div class="ec-field" id="pref-wm-wrap-${esc(name)}" style="flex:0 0 110px;${mode === 'weekly_cap' ? '' : 'display:none;'}">
+        <label>주당</label><input type="number" id="pref-wm-${esc(name)}" value="${wm}" min="0"><span class="ec-unit">회</span>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="panel">
+    <div class="panel-title">식단 재료 선호도</div>
+    <div class="gate-hint" style="margin-bottom:10px;">재료를 적게/드물게 쓰고 싶을 때 설정하세요. 도입 관찰 중인 재료는 설정과 무관하게 그대로 유지돼요.</div>
+    ${rows || '<div class="gate-hint">등록된 재고 재료가 없어요.</div>'}
+    <div class="acct-btns">
+      <button class="acct-cancel" onclick="prefEditMode=false; renderMore();">취소</button>
+      <button class="acct-save" onclick="saveIngredientPrefs()">저장</button>
+    </div>
+  </div>`;
+}
+function onPrefModeChange(name) {
+  const sel = document.getElementById(`pref-mode-${name}`);
+  const wrap = document.getElementById(`pref-wm-wrap-${name}`);
+  if (sel && wrap) wrap.style.display = sel.value === 'weekly_cap' ? '' : 'none';
+}
+/* 저장: none=행 삭제, weekly_cap=weekly_max 포함 upsert, category_swap=weekly_max null로 upsert */
+async function saveIngredientPrefs() {
+  /* v19: 표시 목록과 동일하게 재고 재료 + 기존 설정 재료 모두 순회 (재고에 없는 재료 설정도 해제 가능해야 함) */
+  const nameSet = new Set([...dbStocks].map(s => s.name));
+  ingredientPrefs.forEach(p => nameSet.add(p.ingredient_name));
+  const names = [...nameSet];
+  try {
+    for (const name of names) {
+      const modeSel = document.getElementById(`pref-mode-${name}`);
+      if (!modeSel) continue;
+      const mode = modeSel.value;
+      const existing = ingredientPrefs.find(p => p.ingredient_name === name);
+      if (mode === 'none') {
+        if (existing) {
+          const { error } = await sb.from('ingredient_preference').delete().eq('id', existing.id);
+          if (error) { console.error('선호도 삭제 오류:', error); alert('저장에 실패했어요: ' + (error.message || error)); return; }
+        }
+        continue;
+      }
+      const wmInput = document.getElementById(`pref-wm-${name}`);
+      /* v19: parseInt(...) || 기본값 패턴은 0 입력이 falsy라 기본값으로 덮어써지던 버그 → isFinite로 판정 */
+      let weekly_max = null;
+      if (mode === 'weekly_cap') {
+        const n = parseInt(wmInput?.value, 10);
+        weekly_max = Number.isFinite(n) && n >= 0 ? n : 0;
+      }
+      const row = { user_id: USER_ID, baby_id: BABY_ID, ingredient_name: name, mode, weekly_max };
+      if (existing) {
+        const { error } = await sb.from('ingredient_preference').update(row).eq('id', existing.id);
+        if (error) { console.error('선호도 저장 오류:', error); alert('저장에 실패했어요: ' + (error.message || error)); return; }
+      } else {
+        const { error } = await sb.from('ingredient_preference').insert(row);
+        if (error) { console.error('선호도 저장 오류:', error); alert('저장에 실패했어요: ' + (error.message || error)); return; }
+      }
+    }
+    await loadIngredientPrefs();
+    prefEditMode = false;
+    renderMore();
+  } catch (e) { console.error('선호도 저장 오류:', e); alert('저장 중 오류가 발생했어요.'); }
 }
 
 /* 활성 탭 다시 렌더 */
@@ -2073,6 +2375,102 @@ function accHtml(id, title, body) {
   return `<div class="acc" id="${id}"><div class="acc-header" onclick="toggleAcc('${id}')"><span class="acc-title">${title}</span><span class="acc-arrow">▼</span></div><div class="acc-body">${body}</div></div>`;
 }
 function toggleAcc(id) { const e = document.getElementById(id); if (e) e.classList.toggle('open'); }
+
+/* ================================================
+   v19: 홈 하이라이트 카드 (재고 임박 + 새 재료 도입 안내)
+   - 오늘 첫 진입 시에만 펼친 채로 잠깐 보여준 뒤 칩으로 자동 접힘
+   - 재방문 시엔 접힌 칩부터 시작, 탭하면 다시 펼침(탭별 runtime 상태, 새로고침하면 초기화)
+================================================ */
+let hlManualExpand = {};      /* 세션 내 수동 펼침 상태 (persist 안 함) */
+let hlAutoCollapseTimer = null;
+
+/* 카드에 넣을 항목 계산
+   - 재고: 부족/임박(isStockLow)이면서 소진예정 마감 D-1 이하(오늘·내일까지)인 재료만
+   - 새 재료: 이번주(오늘~일요일) 도입 예정인 New 배지 재료 */
+function highlightCardData() {
+  const items = [];
+  const urgent = dbStocks.filter(s => {
+    if (!(s.amount <= 0 || isStockLow(s))) return false;
+    const info = deadlineInfo(s.name);
+    return info && info.dday <= 1;
+  });
+  if (urgent.length) {
+    items.push({
+      type: 'stock',
+      chipTitle: '마감 임박 재료를 확인해요',
+      title: `재고 확인 ${urgent.length}건을 찾았어요`,
+      rows: urgent.map(s => ({
+        name: s.name,
+        sub: s.amount <= 0 ? '소진' : '부족',
+        right: ddayChipHtml(s.name, 'hl-dday'),
+      })),
+    });
+  }
+  const upcoming = [];
+  weekDays(weekStart(TODAY)).forEach(d => {
+    if (dateOnly(d) < dateOnly(TODAY)) return; /* 이번주 중 이미 지난 날은 제외 */
+    const ev = meals[dk(d)];
+    if (ev && ev.badge && ev.badge.t === 'new') upcoming.push({ d, x: ev.badge.x });
+  });
+  if (upcoming.length) {
+    items.push({
+      type: 'newIngredient',
+      chipTitle: '새로운 식재료가 있어요',
+      title: '이번주 도입예정인 식재료가 있어요',
+      rows: upcoming.map(u => ({
+        name: u.x,
+        sub: `${u.d.getMonth() + 1}/${u.d.getDate()} (${dows(u.d)})`,
+        right: '',
+      })),
+    });
+  }
+  return items;
+}
+function highlightSectionHtml() {
+  const items = highlightCardData();
+  if (!items.length) return '';
+  const key = dk(TODAY);
+  const collapsedNow = appState.homeIntroSeenDate === key;
+  const cards = items.map(it => {
+    const isCollapsed = collapsedNow && !hlManualExpand[it.type];
+    if (isCollapsed) {
+      /* 접힘: 풀폭 슬림 배너 — 코랄 dot으로만 포인트, 텍스트는 본문 컬러 */
+      return `<div class="hl-card collapsed" onclick="toggleHlCard('${it.type}')">
+        <span class="hl-dot"></span>
+        <span class="hl-chip-txt">${esc(it.chipTitle)}</span>
+        <span class="hl-arrow">›</span>
+      </div>`;
+    }
+    /* 펼침: "오늘 할 일" 섹션과 동일한 행 패턴 (dot + 이름 + 우측 정보), 본문 컬러 */
+    return `<div class="hl-card" onclick="toggleHlCard('${it.type}')">
+      <div class="hl-card-title">${esc(it.title)}</div>
+      ${it.rows.map(r => `<div class="hl-row">
+        <span class="hl-row-dot"></span>
+        <span class="hl-row-name">${esc(r.name)}${r.sub ? ` <span class="hl-row-sub">${esc(r.sub)}</span>` : ''}</span>
+        ${r.right || ''}
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+  return `<div class="hl-wrap">${cards}</div>`;
+}
+function toggleHlCard(type) {
+  hlManualExpand[type] = !hlManualExpand[type];
+  renderHome();
+}
+/* 오늘 처음 홈을 열었을 때만 잠깐 펼쳤다가 자동으로 접히는 타이머 예약 (renderHome 끝에서 호출) */
+function scheduleHlAutoCollapse() {
+  const key = dk(TODAY);
+  if (appState.homeIntroSeenDate === key) return;      /* 오늘 이미 봤음 → 예약 불필요 */
+  if (!highlightCardData().length) return;               /* 보여줄 항목이 없음 */
+  if (hlAutoCollapseTimer) return;                        /* 이미 예약됨(중복 방지) */
+  hlAutoCollapseTimer = setTimeout(() => {
+    appState.homeIntroSeenDate = key;
+    saveAppState();
+    hlManualExpand = {};
+    hlAutoCollapseTimer = null;
+    if (activeTab === 'home') renderHome();
+  }, 1800);
+}
 
 /* ================================================
    오늘 할 일 — 재고 부족/임박 + 구매 데드라인
@@ -2432,8 +2830,8 @@ async function checkDone(dateKey) {
     stockChanges.push({ id: stock.id, name: stock.name, amount: actualDeduct });
   }
   if (deductErr) {
-    /* v18 수정: 아침 완료도 저녁/점심과 동일하게 재고차감 실패 시 롤백+알림 처리
-       (기존엔 이 루프에서 error를 확인하지 않아, DB 차감이 실패해도 완료 기록은 성공한 것처럼 남는 버그가 있었음) */
+    /* v19: 아침 완료도 저녁/점심과 동일하게 재고차감 실패 시 롤백+알림 처리
+       (기존엔 이 루프에서 error를 확인하지 않아, DB 차감이 실패해도 완료 기록은 성공한 것처럼 남는 버그가 있었음 — 7/14 재고 불일치 원인 후보) */
     for (const change of stockChanges) {
       const stock = dbStocks.find(s => s.id === change.id);
       if (stock) await sb.from('inventory').update({ amount: stock.amount + change.amount }).eq('id', change.id);
@@ -2755,7 +3153,7 @@ function addEditRow(dateKey, slot) {
    - 아침 완료/메모는 기존처럼 meal_log의 해당 날짜 행(이미 동기화됨)
 ================================================ */
 const STATE_ROW = '_appstate';
-let appState = { swaps: [], edits: {}, pmDone: {}, pmMemo: {}, amSkip: {}, pmStock: {}, lunchDone: {}, lunchMemo: {}, lunchSkip: {}, lunchStock: {}, shifts: [], checklist: {}, checklistAt: {} };
+let appState = { swaps: [], edits: {}, pmDone: {}, pmMemo: {}, amSkip: {}, pmStock: {}, lunchDone: {}, lunchMemo: {}, lunchSkip: {}, lunchStock: {}, shifts: [], checklist: {}, checklistAt: {}, homeIntroSeenDate: null };
 
 async function loadAppState() {
   try {
@@ -2777,6 +3175,7 @@ async function loadAppState() {
         shifts: Array.isArray(s.shifts) ? s.shifts : [],
         checklist: (s.checklist && typeof s.checklist === 'object') ? s.checklist : {},
         checklistAt: (s.checklistAt && typeof s.checklistAt === 'object') ? s.checklistAt : {},
+        homeIntroSeenDate: (typeof s.homeIntroSeenDate === 'string') ? s.homeIntroSeenDate : null,
       };
     }
   } catch (e) { console.error('앱 상태 로드 연결 오류:', e); }
@@ -2922,6 +3321,31 @@ function showSwapUndoToast(a, b) {
 function hideSwapUndoToast() {
   const t = document.getElementById('undo-toast'); if (t) t.style.display = 'none';
 }
+/* v18: "M/D" 키 → Date 객체 (PLAN_YEAR 기준) */
+function keyDateObj(key) {
+  const m = String(key).match(/^(\d{1,2})\/(\d{1,2})$/);
+  return m ? new Date(PLAN_YEAR, +m[1] - 1, +m[2]) : null;
+}
+/* v18: 하루밀기/교환과 관찰기간 — 확정: 구조적 동기화 없이 안내 문구만(2026-07-12 결정).
+   최종 판단은 부모 몫이므로 차단하지 않고, 해당 날짜에 "지금 관찰 중"인 재료명만 알려준다. */
+function dayObservingNames(key) {
+  const m = meals[key]; if (!m) return [];
+  const d = keyDateObj(key); if (!d) return [];
+  const items = [...(m.amEdited || m.am || []), ...(m.lunchEdited || m.lunch || []), ...(m.pmEdited || m.pm || [])];
+  const set = new Set();
+  items.forEach(raw => {
+    if (typeof raw !== 'string' || raw.startsWith('반복:')) return;
+    const { name } = parseItem(raw);
+    if (name && isObservingOn(introStatus, name, d)) set.add(name);
+  });
+  return [...set];
+}
+function observingNoticeHtml(key) {
+  const names = dayObservingNames(key);
+  if (!names.length) return '';
+  return `<div class="gate-hint" style="color:#b45309;">⚠️ ${esc(names.join(', '))} 관찰기간 중인 날짜예요. 옮기면 관찰 연속성이 끊길 수 있어요 — 참고만 해주세요.</div>`;
+}
+
 /* 교환 피커 패널 (식단 카드 하단) */
 function swapPickerHtml(srcKey) {
   const targets = Object.keys(meals)
@@ -2932,7 +3356,8 @@ function swapPickerHtml(srcKey) {
     });
   let h = `<div class="swap-panel">
     <div class="swap-panel-title">↕ 어느 날과 바꿀까요?</div>
-    <div class="swap-panel-sub">고른 날과 식단을 통째로 맞바꿔요</div>`;
+    <div class="swap-panel-sub">고른 날과 식단을 통째로 맞바꿔요</div>
+    ${observingNoticeHtml(srcKey)}`;
   if (!targets.length) {
     h += `<div class="swap-empty">교환할 수 있는 날짜가 없어요.</div>`;
   } else {
@@ -2947,6 +3372,7 @@ function swapPickerHtml(srcKey) {
     });
     h += `</div>`;
     if (pendingSwapTarget) {
+      h += observingNoticeHtml(pendingSwapTarget);
       h += `<div class="swap-confirm-row">
         <span class="swap-confirm-lbl">${esc(srcKey)} ↔ ${esc(pendingSwapTarget)} 교환</span>
         <button class="swap-do-btn" onclick="confirmSwap('${srcKey}','${pendingSwapTarget}')">교환하기</button>
@@ -3091,10 +3517,13 @@ function buildMonthCal(y, m) {
   for (let d=1; d<=last; d++) {
     const ev = meals[`${m}/${d}`] || {};
     const dObj = new Date(y, m-1, d);
+    /* v19: 오전만 완료돼도 하루 완료(✓)로 표시되던 버그 수정 — 스트립과 동일하게 isDayDone() 재사용
+       (저녁 식단이 있는 날은 저녁 완료 여부가 하루 완료 기준) */
+    const dayDone = isDayDone(ev);
     let cls = 'dc';
     if (isToday(dObj)) cls += ' today';
-    if (ev.done) cls += ' done';
-    h += `<div class="${cls}"><div class="day-row"><span class="dn">${d}${ev.done ? ' ✓' : ''}</span>`;
+    if (dayDone) cls += ' done';
+    h += `<div class="${cls}"><div class="day-row"><span class="dn">${d}${dayDone ? ' ✓' : ''}</span>`;
     if (isMondayYMD(y,m,d)) h += `<span class="meal-day-count">이유식 ${mealDayCount(y,m,d)}일째</span>`;
     h += `</div>`;
     if (ev.badge || ev.newBadge) {
@@ -3486,9 +3915,19 @@ function templateRows(userId, babyId, startDate) {
 }
 async function generateTemplatePlan(userId, babyId, startDate) {
   const rows = templateRows(userId, babyId, startDate);
+  /* v18: 재료 선호도 로테이션 — 생성 시점에 위험도 기본캡(견과류·고위험 알러지군 등)을 적용해 배경 재료 치환.
+     이 시점엔 아직 사용자가 직접 설정한 ingredient_preference가 없으므로 prefRows는 빈 배열 →
+     RISK_WEEKLY_DEFAULT 시스템 기본값만 적용됨(딩굴이가 나중에 설정 화면에서 재료별로 override 가능) */
+  const introRows = templateIntroStatusRows(userId, babyId, startDate);
+  const { warnings } = applyIngredientPreferences(rows, introRows, []);
+  if (warnings.length) console.error('[재료선호도 로테이션] 생성 시 대체 실패:', warnings);
   for (let i = 0; i < rows.length; i += 50) {
     const { error } = await sb.from('meal_plan').insert(rows.slice(i, i + 50));
     if (error) throw error;
+  }
+  for (let i = 0; i < introRows.length; i += 50) {
+    const { error } = await sb.from('ingredient_intro_status').insert(introRows.slice(i, i + 50));
+    if (error) console.error('ingredient_intro_status 생성 오류:', error); /* best-effort: 관찰기간 안내가 안 뜨는 것뿐, 식단 생성은 막지 않음 */
   }
   return rows.length;
 }
@@ -3532,9 +3971,22 @@ async function selfHealNewAccount(b) {
     if (!usesDbPlan) {
       await generateTemplatePlan(USER_ID, BABY_ID, parseDbDateFull(b.solid_start_date));
       await loadMealPlan();
+      await loadIntroStatus(); /* generateTemplatePlan에서 방금 생성된 관찰상태 반영 */
     }
     const { data } = await sb.from('inventory').select('id').eq('baby_id', BABY_ID).limit(1);
     if (!data || data.length === 0) await generateDefaultInventory(USER_ID, BABY_ID, parseDbDateFull(b.solid_start_date));
+    /* v18: 기존 계정(v17 이전 가입)엔 ingredient_intro_status가 없을 수 있음 → 사각지대 보강 */
+    if (!introStatus.length) {
+      const { data: introData } = await sb.from('ingredient_intro_status').select('id').eq('baby_id', BABY_ID).limit(1);
+      if (!introData || introData.length === 0) {
+        const rows = templateIntroStatusRows(USER_ID, BABY_ID, parseDbDateFull(b.solid_start_date));
+        for (let i = 0; i < rows.length; i += 50) {
+          const { error } = await sb.from('ingredient_intro_status').insert(rows.slice(i, i + 50));
+          if (error) { console.error('ingredient_intro_status 보강 오류:', error); break; }
+        }
+        await loadIntroStatus();
+      }
+    }
   } catch (e) { console.error('자가치유 오류:', e); }
 }
 
@@ -3648,20 +4100,51 @@ Cubit(이하 "서비스")은 개인정보보호법에 따라 이용자의 개인
 
 시행일: 2026년 7월 9일` };
 
-/* ── 사용자 식단 로드: meal_plan 행이 있으면 내장 meals를 통째로 교체 ── */
+/* v18: 오너 컷오버 — 이 날짜부터는 오너도 meal_plan DB 생성값을 사용(완전 자동 재생성 확정, 2026-07-12 결정) */
+const OWNER_ROTATION_CUTOVER = '2026-07-20';
+
+/* ── 사용자 식단 로드: meal_plan 행이 있으면 내장 meals를 통째로 교체 ──
+   v18: 오너 계정은 전체 교체가 아니라 "병합"으로 동작 변경 —
+   컷오버(7/20) 이전 과거 하드코딩 기록은 그대로 두고, DB에 있는 날짜(컷오버 이후 자동생성분)만 덮어씀.
+   일반 신규계정은 기존 동작(전체 교체) 그대로 유지 — 리스크 최소화. */
 async function loadMealPlan() {
   usesDbPlan = false;
   try {
     const { data, error } = await sb.from('meal_plan').select('date, plan').eq('baby_id', BABY_ID);
     if (error) { console.error('meal_plan 오류:', error); return; }
-    if (!data || data.length === 0) return; /* 오너 계정: 내장 식단 유지 */
-    Object.keys(meals).forEach(k => delete meals[k]);
-    data.forEach(r => {
-      const key = fromDbDate(r.date);
-      if (r.plan && typeof r.plan === 'object') meals[key] = r.plan;
-    });
+    if (!data || data.length === 0) return; /* 오너 계정(컷오버 전): 내장 식단 유지 */
+    if (IS_OWNER) {
+      /* 병합: 기존 키(5/9~7/19 등)는 그대로, DB에 있는 날짜만 덮어씀 */
+      data.forEach(r => {
+        const key = fromDbDate(r.date);
+        if (r.plan && typeof r.plan === 'object') meals[key] = r.plan;
+      });
+    } else {
+      Object.keys(meals).forEach(k => delete meals[k]);
+      data.forEach(r => {
+        const key = fromDbDate(r.date);
+        if (r.plan && typeof r.plan === 'object') meals[key] = r.plan;
+      });
+    }
     usesDbPlan = true;
   } catch (e) { console.error('meal_plan 연결 오류:', e); }
+}
+
+/* v18: 재료 도입/관찰 상태 로드 (baby_id 스코프, 없으면 빈 배열 유지) */
+async function loadIntroStatus() {
+  try {
+    const { data, error } = await sb.from('ingredient_intro_status').select('ingredient_name, first_intro_date, observe_days').eq('baby_id', BABY_ID);
+    if (error) { console.error('ingredient_intro_status 오류:', error); introStatus = []; return; }
+    introStatus = data || [];
+  } catch (e) { console.error('ingredient_intro_status 연결 오류:', e); introStatus = []; }
+}
+/* v18: 재료 선호도 설정 로드 (baby_id 스코프) */
+async function loadIngredientPrefs() {
+  try {
+    const { data, error } = await sb.from('ingredient_preference').select('id, ingredient_name, mode, weekly_max').eq('baby_id', BABY_ID);
+    if (error) { console.error('ingredient_preference 오류:', error); ingredientPrefs = []; return; }
+    ingredientPrefs = data || [];
+  } catch (e) { console.error('ingredient_preference 연결 오류:', e); ingredientPrefs = []; }
 }
 
 /* ── v11 수정: 세션이 살아있는데도 일시 오류로 로그인화면에 튕기던 문제 ──
@@ -3708,6 +4191,8 @@ async function enterApp(session) {
     PARENT_ROLE = b.parent_role || '엄마';
     rebaseDates(parseDbDateFull(b.solid_start_date), parseDbDateFull(b.birth_date));
     await loadMealPlan();
+    await loadIntroStatus();
+    await loadIngredientPrefs();
     await selfHealNewAccount(b);
     recomputeMonthBounds();
     document.title = 'Cubit — ' + BABY_NAME;
@@ -3736,6 +4221,25 @@ async function init() {
 }
 /* SIGNED_OUT은 명시적 로그아웃(forceLogoutToLogin) 시에만 발생 → 새로고침해 게이트로 복귀 */
 sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_OUT') location.reload(); });
+
+/* v19: 자정 자동 갱신 — 이전엔 TODAY를 부팅 시 한 번만 계산해서, 탭을 새로고침 없이
+   자정 넘겨 켜두면 "오늘"이 어제로 고정된 채 남아있었음(어제 실제로 발생 — 어제 식단을
+   오늘 먹이는 사고). 화면이 다시 보일 때 + 포커스 복귀 시 + 1분마다 날짜가 바뀌었는지
+   확인해서, 바뀌었으면 TODAY를 갱신하고 화면을 다시 그린다. 로그인 전(게이트 화면)에는
+   아직 렌더할 화면 자체가 없으므로 건드리지 않는다. */
+function checkDateRollover() {
+  if (document.body.classList.contains('gated')) return; /* 로그인 전이면 스킵 */
+  const now = new Date();
+  if (now.toDateString() !== TODAY.toDateString()) {
+    TODAY = now;
+    recomputeMonthBounds();
+    rerender();
+  }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkDateRollover(); });
+window.addEventListener('focus', checkDateRollover);
+setInterval(checkDateRollover, 60000);
+
 init();
 </script>
 </body>
