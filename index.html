@@ -540,8 +540,16 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .reaction-chip .re-e { font-size:13px; }
 .reaction-chip.selected { background:#fff1f1; border-color:var(--coral); color:var(--coral-deep); }
 /* 주의·부족함: 별도 차원 플래그 → 기본부터 한 톤 낮은 그레이 배경, 선택 시 더 진하게 */
-.reaction-chip.tone-warn, .reaction-chip.tone-short { background:#eeeae6; border-color:#eeeae6; color:#7a736e; }
+/* v19: 주의/부족함 칩도 선택 전엔 일반 칩과 동일한 중립 스타일 (튀는 배경 제거), 선택 시에만 구분 */
+.reaction-chip.tone-warn, .reaction-chip.tone-short { background:#faf8f6; border-color:var(--border); color:#6e6661; }
 .reaction-chip.tone-warn.selected, .reaction-chip.tone-short.selected { background:#ddd7d1; border-color:#ddd7d1; color:#3e3935; }
+
+/* v19: 미완료 카드의 반응/메모 접기 토글 */
+.memo-toggle { display:flex; align-items:center; gap:6px; width:100%; background:none; border:none; padding:2px 0 12px; font-size:12px; font-weight:700; color:#6e6661; cursor:pointer; text-align:left; }
+.memo-toggle-arrow { display:inline-block; font-size:11px; color:#9a938f; transition:transform 0.15s ease; }
+.memo-toggle-opt { font-weight:500; color:#b3aca7; }
+.memo-collapse { display:none; }
+.memo-collapse.open { display:block; }
 .intro-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0; border-bottom:1px solid var(--border); }
 .intro-row:last-child { border-bottom:none; }
 .intro-name { font-size:13px; font-weight:700; color:#1f1a18; min-width:56px; }
@@ -1375,6 +1383,15 @@ function reactionRowHtml(slot) {
       ${REACTIONS.map(r => `<button type="button" class="reaction-chip${r.tone ? ' tone-' + r.tone : ''}" data-r="${r.e} ${r.t}" onclick="selectReaction(this)"><span class="re-e">${r.e}</span>${r.t}</button>`).join('')}
     </div>`;
 }
+/* v19: 미완료 카드의 반응/메모 영역 접기/펼치기 (기본 접힘 — 입력 피로·스크롤 감소)
+   re-render 없이 DOM만 토글하므로 이미 선택한 반응 칩/입력 중 메모가 유지됨 */
+function toggleMemoBlock(slot) {
+  const el = document.getElementById(`${slot}-memo-collapse`);
+  const ar = document.getElementById(`${slot}-memo-arrow`);
+  if (!el) return;
+  const open = el.classList.toggle('open');
+  if (ar) ar.style.transform = open ? 'rotate(90deg)' : '';
+}
 function selectReaction(el) {
   const cont = el.parentElement;
   const was = el.classList.contains('selected');
@@ -1571,9 +1588,12 @@ function mealCardsHtml(d) {
   } else if (!amDone) {
     html += `
       <div class="memo-block">
-        ${reactionRowHtml('am')}
-        <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
-        <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+        <button type="button" class="memo-toggle" onclick="toggleMemoBlock('am')"><span class="memo-toggle-arrow" id="am-memo-arrow">▸</span>아기 반응 · 섭취 메모 <span class="memo-toggle-opt">(선택)</span></button>
+        <div class="memo-collapse" id="am-memo-collapse">
+          ${reactionRowHtml('am')}
+          <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
+          <textarea id="memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+        </div>
         <button class="check-btn" onclick="checkDone('${key}')">✓ 섭취 완료</button>
         ${isTwomeal ? `<button class="skip-am-btn" onclick="skipAm('${key}')">아침 건너뜀</button>` : ''}
       </div>`;
@@ -1645,9 +1665,12 @@ function mealCardsHtml(d) {
         <div class="meal-card-head"><span class="meal-lbl">${slotLabel.lunch || '점심'}</span>${lunchEditBtn}</div>
         <div class="meal-rows">${mealRowsHtml(data.lunch, key, 'lunch')}</div>
         <div class="memo-block">
-          ${reactionRowHtml('lunch')}
-          <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
-          <textarea id="lunch-memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+          <button type="button" class="memo-toggle" onclick="toggleMemoBlock('lunch')"><span class="memo-toggle-arrow" id="lunch-memo-arrow">▸</span>아기 반응 · 섭취 메모 <span class="memo-toggle-opt">(선택)</span></button>
+          <div class="memo-collapse" id="lunch-memo-collapse">
+            ${reactionRowHtml('lunch')}
+            <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
+            <textarea id="lunch-memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+          </div>
           <button class="check-btn pm-btn" onclick="checkLunchDone('${key}')">✓ 섭취 완료</button>
           <button class="skip-am-btn" onclick="skipLunch('${key}')">점심 건너뜀</button>
         </div>
@@ -1693,9 +1716,12 @@ function mealCardsHtml(d) {
         <div class="meal-card-head"><span class="meal-lbl">${slotLabel.pm || '저녁'}</span>${pmEditBtn}</div>
         <div class="meal-rows">${mealRowsHtml(data.pm, key, 'pm')}</div>
         <div class="memo-block">
-          ${reactionRowHtml('pm')}
-          <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
-          <textarea id="pm-memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+          <button type="button" class="memo-toggle" onclick="toggleMemoBlock('pm')"><span class="memo-toggle-arrow" id="pm-memo-arrow">▸</span>아기 반응 · 섭취 메모 <span class="memo-toggle-opt">(선택)</span></button>
+          <div class="memo-collapse" id="pm-memo-collapse">
+            ${reactionRowHtml('pm')}
+            <div class="memo-input-lbl">📝 섭취 메모 <span>(선택)</span></div>
+            <textarea id="pm-memo-input" class="memo-input" rows="2" placeholder="예) 발진 없음, 새 재료 잘 받음..."></textarea>
+          </div>
           <button class="check-btn pm-btn" onclick="checkPmDone('${key}')">✓ 섭취 완료</button>
         </div>
       </div>`;
@@ -1881,8 +1907,8 @@ function renderHome() {
   /* v19: 홈 하이라이트 카드 (재고 임박 + 새 재료 도입) — 인사말/D+헤더 바로 아래 */
   html += highlightSectionHtml();
 
-  /* 오늘 식단 */
-  html += `<div class="sec-title"><span class="accent">오늘</span> 식단${todayWarnHtml(data)}</div>`;
+  /* 오늘 식단 (v19: 타이틀 옆 마감임박 경고 제거 — 상단 하이라이트 배너와 중복이라 홈에서만 제외, 식단 탭은 유지) */
+  html += `<div class="sec-title"><span class="accent">오늘</span> 식단</div>`;
   if (data && data.midStart) html += midBannerHtml();
   html += mealCardsHtml(TODAY);
 
@@ -2403,6 +2429,7 @@ function highlightCardData() {
         name: s.name,
         sub: s.amount <= 0 ? '소진' : '부족',
         right: ddayChipHtml(s.name, 'hl-dday'),
+        action: `goShop()`, /* v19: 행 탭 → 장보기로 바로 이동 (막다른 길 방지) */
       })),
     });
   }
@@ -2421,6 +2448,7 @@ function highlightCardData() {
         name: u.x,
         sub: `${u.d.getMonth() + 1}/${u.d.getDate()} (${dows(u.d)})`,
         right: '',
+        action: `goMealDay(${u.d.getMonth() + 1},${u.d.getDate()})`, /* v19: 행 탭 → 해당 날짜 식단으로 이동 */
       })),
     });
   }
@@ -2441,10 +2469,11 @@ function highlightSectionHtml() {
         <span class="hl-arrow">›</span>
       </div>`;
     }
-    /* 펼침: "오늘 할 일" 섹션과 동일한 행 패턴 (dot + 이름 + 우측 정보), 본문 컬러 */
+    /* 펼침: "오늘 할 일" 섹션과 동일한 행 패턴 (dot + 이름 + 우측 정보), 본문 컬러
+       행 탭 → 각자의 출구(장보기/식단)로 이동, 행 외 영역 탭 → 다시 접기 */
     return `<div class="hl-card" onclick="toggleHlCard('${it.type}')">
       <div class="hl-card-title">${esc(it.title)}</div>
-      ${it.rows.map(r => `<div class="hl-row">
+      ${it.rows.map(r => `<div class="hl-row"${r.action ? ` onclick="event.stopPropagation(); ${r.action}"` : ''}>
         <span class="hl-row-dot"></span>
         <span class="hl-row-name">${esc(r.name)}${r.sub ? ` <span class="hl-row-sub">${esc(r.sub)}</span>` : ''}</span>
         ${r.right || ''}
@@ -2452,6 +2481,11 @@ function highlightSectionHtml() {
     </div>`;
   }).join('');
   return `<div class="hl-wrap">${cards}</div>`;
+}
+/* 하이라이트 새 재료 행 → 해당 날짜의 식단 탭으로 이동 */
+function goMealDay(mm, dd) {
+  sel = new Date(PLAN_YEAR, mm - 1, dd);
+  switchTab('meal');
 }
 function toggleHlCard(type) {
   hlManualExpand[type] = !hlManualExpand[type];
