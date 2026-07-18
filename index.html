@@ -519,6 +519,9 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .ec-field label { font-size:11px; color:var(--text-sub); white-space:nowrap; }
 .ec-field input { flex:1; border:none; outline:none; font-size:16px; font-weight:700; color:#2b2422; width:100%; text-align:right; background:transparent; }
 .ec-field .ec-unit { font-size:11px; color:var(--text-sub); }
+/* v19: 재고 편집 단위 입력칸 + 수량 접미사 */
+.ec-field .ec-unit-suffix { font-size:11px; color:var(--text-sub); margin-left:2px; }
+.ec-unit-input { width:100%; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:13px; font-weight:600; color:var(--text); text-align:center; box-sizing:border-box; }
 .base-g-select { flex:1; border:none; outline:none; font-size:16px; font-weight:700; color:#2b2422; background:transparent; text-align:right; cursor:pointer; }
 .add-form-select-wrap { flex:1; display:flex; flex-direction:column; gap:4px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
 .add-form-label { font-size:11px; color:var(--text-sub); }
@@ -526,9 +529,10 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .ec-warn { margin-top:8px; font-size:11px; font-weight:600; color:var(--coral-deep); line-height:1.4; background:#fff4f2; border-radius:8px; padding:7px 10px; }
 .stock-x { background:none; border:none; color:#cfc9c4; font-size:15px; padding:2px 4px; }
 
-/* 장볼 재료 2단 카드 */
+/* 장볼 재료 2단 카드 — v19: 기본은 중립 박스, 마감 임박(urgent)만 붉은 박스 */
 .shop-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.shop-card { position:relative; background:#fff5f5; border:1px solid #fde0e0; border-radius:14px; padding:13px 14px; }
+.shop-card { position:relative; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:13px 14px; }
+.shop-card.urgent { background:#fff5f5; border-color:#fde0e0; }
 .shop-card-name { font-size:14px; font-weight:700; color:#2b2422; padding-right:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .shop-card .shop-dday { display:inline-block; margin-top:6px; font-size:11px; font-weight:700; }
 .shop-card-x { position:absolute; top:8px; right:8px; width:20px; height:20px; border-radius:50%; background:rgba(0,0,0,0.06); border:none; color:#8a827d; font-size:11px; line-height:1; padding:0; }
@@ -945,18 +949,18 @@ const meals = {
   "7/14": { am:['쌀 45g','한우 15g','당근 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'브로콜리→당근 임시 대체(준비시간 부족, 금요일 이후 재개 예정 / 2026-07-13 요청)' },
   "7/15": { am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','두부 15g','당근 15g'] },
   "7/16": { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
-  "7/17": { am:['쌀 45g','닭고기 15g','단호박 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'고구마·브로콜리→단호박·양배추 임시 대체(준비시간 부족, 금요일 이후 재개 예정 / 2026-07-13 요청)' },
+  "7/17": { am:['쌀 45g','닭고기 15g','단호박 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'고구마·브로콜리→단호박·양배추 임시 대체(준비시간 부족, 금요일 이후 재개 예정 / 2026-07-13 요청)' },
   "7/18": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
   "7/19": { badge:{t:'grain',x:'입자 Lv.2'}, am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'입자 Lv.2 전환 (신규 도입 없음)' },
   "7/20": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
-  "7/21": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'] },
+  "7/21": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','애호박 15g'] },
   "7/22": { am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','두부 15g','당근 15g'] },
   "7/23": { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
-  "7/24": { am:['쌀 45g','닭고기 15g','고구마 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
+  "7/24": { am:['쌀 45g','닭고기 15g','고구마 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
   "7/25": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
   "7/26": { badge:{t:'grain',x:'입자 Lv.3'}, am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'입자 Lv.3 전환 (신규 도입 없음)' },
   "7/27": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
-  "7/28": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'] },
+  "7/28": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','애호박 15g'] },
 
   /* ═══════════ 알러지 테스트 재개 (7/29~8/17, 2끼) — 회복 후 신규 도입 ═══════════ */
   /* 새우 (고위험·3일) — 7/29~31 */
@@ -976,7 +980,7 @@ const meals = {
   "8/6":  { am:['대게 1팩','쌀 60g','단호박 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'대게 관찰 3일차 · 도입완료' },
 
   /* 완충일 (8/7) — 입자 전환은 7/19·7/26에 완료 */
-  "8/7":  { am:['쌀 45g','한우 15g','당근 15g','오트밀 15g'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
+  "8/7":  { am:['쌀 45g','한우 15g','당근 15g','오트밀가루 1스푼'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
 
   /* 참깨 (고위험·3일) — 8/8~10 */
   "8/8":  { badge:{t:'new',x:'New 참깨'}, am:['참깨 1팩','쌀 60g','닭고기 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'참깨 관찰 1일차(고위험·3일)' },
@@ -989,7 +993,7 @@ const meals = {
   "8/13": { am:['호두 1팩','쌀 60g','당근 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'], note:'호두 관찰 3일차 · 도입완료' },
 
   /* 완충일 (8/14) — 입자 전환은 7/19·7/26에 완료 */
-  "8/14": { am:['쌀 45g','한우 15g','당근 15g','오트밀 15g'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
+  "8/14": { am:['쌀 45g','한우 15g','당근 15g','오트밀가루 1스푼'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
 
   /* 메밀 (고위험·3일) — 8/15~17, 신규 도입 마지막 */
   "8/15": { badge:{t:'new',x:'New 메밀'}, am:['메밀 1팩','쌀 60g','닭고기 15g'], pm:['쌀 60g','한우 15g','단호박 15g'], note:'메밀 관찰 1일차(고위험·3일) · 알러지 반응 주의' },
@@ -998,17 +1002,17 @@ const meals = {
 
   /* ── 8/18 3끼 전환 (점심 추가, 새 재료 없이 적응) ── */
   "8/18": { badge:{t:'trans',x:'3끼 시작'}, mealStart3:true, am:['쌀 60g','닭고기 15g','당근 15g'], lunch:['쌀 60g','한우 15g','단호박 15g'], pm:['쌀 60g','흰살생선 15g','애호박 15g'], note:'3끼 전환 · 점심 추가 · 새 재료 없이 끼니 수 적응' },
-  "8/19": { am:['쌀 60g','한우 15g','애호박 15g'], lunch:['쌀 45g','닭고기 15g','당근 15g','오트밀 15g'], pm:['쌀 60g','새우 15g','단호박 15g'] },
+  "8/19": { am:['쌀 60g','한우 15g','애호박 15g'], lunch:['쌀 45g','닭고기 15g','당근 15g','오트밀가루 1스푼'], pm:['쌀 60g','새우 15g','단호박 15g'] },
   "8/20": { am:['쌀 60g','닭고기 15g','양배추 15g'], lunch:['쌀 60g','한우 15g','단호박 15g'], pm:['쌀 60g','대게 15g','당근 15g'] },
 
   /* 계란흰자 (고위험·3일) — 8/21~23, 오전 시작 */
   "8/21": { badge:{t:'new',x:'New 계란흰자'}, am:['계란흰자 소량','쌀 60g','당근 15g'], lunch:['쌀 60g','닭고기 15g','애호박 15g'], pm:['쌀 60g','한우 15g','단호박 15g'], note:'흰자 관찰 1일차(고위험·3일) · 완숙 후 으깨어 소량부터 · 오전 시작' },
   "8/22": { am:['계란흰자 1/4개','쌀 60g','애호박 15g'], lunch:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'흰자 관찰 2일차' },
-  "8/23": { am:['계란흰자 1/3개','쌀 60g','당근 15g'], lunch:['쌀 45g','닭고기 15g','단호박 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'흰자 관찰 3일차 · 도입완료' },
+  "8/23": { am:['계란흰자 1/3개','쌀 60g','당근 15g'], lunch:['쌀 45g','닭고기 15g','단호박 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'흰자 관찰 3일차 · 도입완료' },
 
   /* 완충 (흰자 경과 관찰) — 8/24~25 */
   "8/24": { am:['쌀 60g','닭고기 15g','양배추 15g'], lunch:['쌀 60g','한우 15g','단호박 15g'], pm:['쌀 60g','새우 15g','당근 15g'] },
-  "8/25": { am:['쌀 45g','한우 15g','애호박 15g','오트밀 15g'], lunch:['쌀 60g','닭고기 15g','당근 15g'], pm:['쌀 60g','대게 15g','단호박 15g'] },
+  "8/25": { am:['쌀 45g','한우 15g','애호박 15g','오트밀가루 1스푼'], lunch:['쌀 60g','닭고기 15g','당근 15g'], pm:['쌀 60g','대게 15g','단호박 15g'] },
 
   /* 치즈 (중위험·3일) — 8/26~28, 무염 아기치즈 */
   "8/26": { badge:{t:'new',x:'New 치즈'}, am:['아기치즈 1/3장','쌀 60g','당근 15g'], lunch:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'치즈 관찰 1일차(중위험·3일) · 무염/저염 아기치즈 · 우유단백 첫 노출' },
@@ -1301,7 +1305,7 @@ function ageStr(d) {
 function parseItem(raw) {
   let repeat=false, s=raw;
   if (s.startsWith('반복:')) { repeat=true; s=s.slice(3); }
-  const m = s.match(/^(.*?)\s+(\d+\s*g|\d+\s*팩|\d+\s*개|소량|반복노출|반복)$/);
+  const m = s.match(/^(.*?)\s+(\d+\s*g|\d+\s*팩|\d+\s*개|\d+\s*스푼|\d+\s*봉|\d+\/\d+\s*개|소량|반복노출|반복)$/);
   let name, amount;
   if (m) { name=m[1]; amount=m[2]; } else { name=s; amount=''; }
   // 해당 재료의 base_g를 dbStocks에서 조회 (없으면 기본값 15)
@@ -1800,7 +1804,16 @@ function nextUseDate(name) {
   for (let off = 0; off <= 120; off++) {
     const d = new Date(base); d.setDate(base.getDate() + off);
     const data = meals[dk(d)]; if (!data) continue;
-    const items = [...(data.amEdited || data.am || []), ...(data.pmEdited || data.pm || [])];
+    /* v19: 오늘(off=0) 이미 완료/건너뛴 끼니는 "다음 사용일"에서 제외 —
+       projectedNeedCubes와 동일한 skip 기준을 적용해야 소진예정일이 과거로 찍히는 버그가 안 남
+       (예: 매일 쓰는 쌀이 오늘 아침 완료 후에도 오늘을 사용일로 잡아 -2일 → 과거날짜 표기되던 문제) */
+    const amActive = !(data.done || data.amSkipped);
+    const lunchActive = !(data.lunchDone || data.lunchSkipped);
+    const pmActive = !(data.pmDone);
+    const items = [];
+    if (amActive) items.push(...(data.amEdited || data.am || []));
+    if (lunchActive) items.push(...(data.lunchEdited || data.lunch || []));
+    if (pmActive) items.push(...(data.pmEdited || data.pm || []));
     if (items.some(raw => parseItem(raw).name === name)) return d;
   }
   return null;
@@ -2567,10 +2580,12 @@ function stockHtml() {
                   : soon ? `<span class="st-badge st-soon">임박</span>`
                   : `<span class="st-badge st-full">충분</span>`;
       const isCube = !s.unit || s.unit === '개' || s.unit === '큐브';
-      const totalG = isCube ? s.amount * base : null;
-      const subText = isCube
-        ? `기준 ${base}g · 총 ${totalG}g`
-        : `기준 ${base}g`;
+      /* v19: 스푼 등 개수형 단위도 1단위=base_g 환산으로 총 g을 함께 표시 (팩은 g 환산이 모호해 생략) */
+      const showTotal = isCube || s.unit === '스푼' || s.unit === '봉';
+      const totalG = showTotal ? s.amount * base : null;
+      const subText = showTotal
+        ? `1${esc(s.unit || '개')} ${base}g · 총 ${totalG}g`
+        : `1${esc(s.unit || '개')} ${base}g`;
       return `<div class="stock-card">
         <div class="stock-card-ic">${iconEl}</div>
         <div class="stock-card-mid">
@@ -2595,8 +2610,9 @@ function stockHtml() {
           <button class="stock-x" onclick="deleteStock(${s.id})">✕</button>
         </div>
         <div class="ec-bottom">
-          <div class="ec-field"><label>수량</label><input type="number" id="si-${s.id}" value="${s._tempAmount ?? s.amount}" min="0"><span class="ec-unit">${esc(s.unit)}</span></div>
-          <div class="ec-field"><label>큐브 기준</label><select id="sb-${s.id}" class="base-g-select" data-orig="${s.base_g ?? 15}" onchange="onBaseChange(${s.id})">${[5,10,15,20,25,30].map(v=>`<option value="${v}"${(s._tempBase ?? s.base_g ?? 15)===v?' selected':''}>${v}g</option>`).join('')}</select></div>
+          <div class="ec-field"><label>수량</label><input type="number" id="si-${s.id}" value="${s._tempAmount ?? s.amount}" min="0"><span class="ec-unit-suffix" id="siu-${s.id}">${esc(s._tempUnit ?? s.unit)}</span></div>
+          <div class="ec-field"><label>단위</label><input type="text" id="su-${s.id}" class="ec-unit-input" value="${esc(s._tempUnit ?? s.unit)}" placeholder="개" oninput="onUnitChange(${s.id})" maxlength="4"></div>
+          <div class="ec-field"><label>1${esc(s._tempUnit ?? s.unit)} = g</label><select id="sb-${s.id}" class="base-g-select" data-orig="${s.base_g ?? 15}" onchange="onBaseChange(${s.id})">${[5,10,15,20,25,30].map(v=>`<option value="${v}"${(s._tempBase ?? s.base_g ?? 15)===v?' selected':''}>${v}g</option>`).join('')}</select></div>
         </div>
         <div class="ec-warn" id="warn-${s.id}" style="display:${(s._tempBase != null && s._tempBase !== (s.base_g ?? 15)) ? 'block' : 'none'};">⚠️ 큐브 기준이 바뀌면 실제 재고와 달라질 수 있어요. 수량을 직접 확인해주세요.</div>
       </div>`).join('');
@@ -2653,12 +2669,22 @@ function shopHtml() {
   if (allItems.length === 0) {
     return `<div style="padding:14px 0;font-size:12px;color:#aaa;text-align:center;">장볼 재료가 없어요 👍</div>`;
   }
+  /* v19: 각 항목의 마감 임박 여부(D-2 이하) 계산 → 임박만 붉은 박스, 임박 항목을 상단에 정렬 */
+  allItems.forEach(item => {
+    const info = deadlineInfo(item.name);
+    item.urgent = !!(info && info.dday <= 2);
+    item.dday = info ? info.dday : Infinity;
+  });
+  allItems.sort((a, b) => {
+    if (a.urgent !== b.urgent) return a.urgent ? -1 : 1; /* 임박 먼저 */
+    return a.dday - b.dday;                               /* 그 안에서는 마감 가까운 순 */
+  });
   let html = `<div class="shop-grid">`;
   allItems.forEach(item => {
     const xBtn = item.id !== null
       ? `<button class="shop-card-x" onclick="removeShopItem(${item.id})">✕</button>` : '';
     const dday = ddayChipHtml(item.name, 'shop-dday');
-    html += `<div class="shop-card">
+    html += `<div class="shop-card${item.urgent ? ' urgent' : ''}">
       ${xBtn}
       <div class="shop-card-name">${esc(item.name)}</div>
       ${dday || '<span class="shop-dday" style="color:#cfc9c4;">예정일 미정</span>'}
@@ -2685,15 +2711,23 @@ function onBaseChange(id) {
   const cur = parseInt(sel.value);
   warn.style.display = (cur !== orig) ? 'block' : 'none';
 }
+/* v19: 재고 단위 입력 변경 시 수량 접미사만 즉시 반영 (라벨의 "1○=g"는 저장 후 재렌더 시 갱신) */
+function onUnitChange(id) {
+  const uEl = document.getElementById(`su-${id}`);
+  const suffix = document.getElementById(`siu-${id}`);
+  if (uEl && suffix) suffix.textContent = uEl.value.trim() || '개';
+}
 function moveStock(idx, dir) {
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= dbStocks.length) return;
-  // 순서 변경 전 현재 입력값 임시 보존 (수량 + base_g 모두)
+  // 순서 변경 전 현재 입력값 임시 보존 (수량 + base_g + 단위 모두)
   dbStocks.forEach(s => {
     const amtEl = document.getElementById(`si-${s.id}`);
     const baseEl = document.getElementById(`sb-${s.id}`);
+    const unitEl = document.getElementById(`su-${s.id}`);
     if (amtEl) s._tempAmount = parseInt(amtEl.value);
     if (baseEl) s._tempBase = parseInt(baseEl.value);
+    if (unitEl) s._tempUnit = unitEl.value.trim() || '개';
   });
   [dbStocks[idx], dbStocks[newIdx]] = [dbStocks[newIdx], dbStocks[idx]];
   refreshStockBody();
@@ -2707,19 +2741,23 @@ async function saveAllStocks() {
     const s = dbStocks[i];
     const input = document.getElementById(`si-${s.id}`);
     const baseEl = document.getElementById(`sb-${s.id}`);
+    const unitEl = document.getElementById(`su-${s.id}`);
     const newAmt = input ? parseInt(input.value) : (s._tempAmount ?? s.amount);
     const newBase = baseEl ? parseInt(baseEl.value) : (s._tempBase ?? s.base_g ?? 15);
+    const newUnit = unitEl ? (unitEl.value.trim() || '개') : (s._tempUnit ?? s.unit ?? '개');
     if (isNaN(newAmt) || newAmt < 0) continue;
     const safeBase = isNaN(newBase) ? 15 : newBase;
     // base_g 컬럼이 없을 수도 있으므로 먼저 base_g 포함 시도 → 실패 시 기본 컬럼만
-    let { error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i, base_g: safeBase }).eq('id', s.id);
+    let { error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i, base_g: safeBase, unit: newUnit }).eq('id', s.id);
     if (error) {
-      ({ error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i }).eq('id', s.id));
+      ({ error } = await sb.from('inventory').update({ amount: newAmt, sort_order: i, unit: newUnit }).eq('id', s.id));
       if (error) { alert(`${s.name} 저장 실패: ${error.message}`); return; }
     } else {
       s.base_g = safeBase;
+      s.unit = newUnit;
       delete s._tempBase;
       delete s._tempAmount;
+      delete s._tempUnit;
     }
   }
   stockEditMode = false; await loadStocks();
@@ -2839,7 +2877,8 @@ function calcUseCount(amount, base) {
   const s = String(amount || '').trim();
   if (!s || s === '반복노출' || s === '반복') return 0;
   if (s === '소량') return 1;
-  if (s.includes('팩') || s.includes('개')) return Math.max(1, parseInt(s) || 1);
+  /* v19: 팩/개/스푼/봉 등 개수형 단위는 g 환산 없이 숫자 그대로 차감 (1스푼=1단위) */
+  if (/(팩|개|스푼|봉)/.test(s)) return Math.max(1, parseInt(s) || 1);
   const g = parseInt(s);
   if (isNaN(g) || g <= 0) return 0;
   return Math.max(1, Math.round(g / base));
@@ -3655,7 +3694,8 @@ async function autoAddUpcoming() {
     d.setDate(TODAY.getDate() + offset);
     const data = meals[dk(d)];
     if (!data) continue;
-    const rawItems = [...(data.amEdited || data.am || []), ...(data.pmEdited || data.pm || [])];
+    /* v19: 점심(lunch) 끼니도 스캔 대상에 포함 (기존 누락 — 3끼 전환 후 점심에만 등장하는 재료가 자동등록 안 되던 버그) */
+    const rawItems = [...(data.amEdited || data.am || []), ...(data.lunchEdited || data.lunch || []), ...(data.pmEdited || data.pm || [])];
     for (const raw of rawItems) {
       const { name } = parseItem(raw);
       if (!name || seen.has(name)) continue;
@@ -3978,7 +4018,7 @@ function templateIngredientNames(rows) {
   rows.forEach(r => {
     ['am', 'pm', 'lunch'].forEach(f => (r.plan[f] || []).forEach(raw => {
       let s = String(raw); if (s.startsWith('반복:')) s = s.slice(3);
-      const m = s.match(/^(.*?)\s+(\d+\s*g|\d+\s*팩|\d+\s*개|소량|반복노출|반복)$/);
+      const m = s.match(/^(.*?)\s+(\d+\s*g|\d+\s*팩|\d+\s*개|\d+\s*스푼|\d+\s*봉|\d+\/\d+\s*개|소량|반복노출|반복)$/);
       const nm = (m ? m[1] : s).trim();
       if (nm) set.add(nm);
     }));
