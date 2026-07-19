@@ -522,6 +522,11 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 /* v19: 재고 편집 단위 입력칸 + 수량 접미사 */
 .ec-field .ec-unit-suffix { font-size:11px; color:var(--text-sub); margin-left:2px; }
 .ec-unit-input { width:100%; border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:13px; font-weight:600; color:var(--text); text-align:center; box-sizing:border-box; }
+/* v19: 삭제 예정(스테이징) 카드 */
+.stock-edit-card.pending-delete { opacity:0.75; background:#f6f2ef; }
+.stock-edit-name.deleted { text-decoration:line-through; color:#9a938f; }
+.pending-delete-lbl { flex:1; font-size:11px; color:#9a938f; text-align:right; margin-right:8px; }
+.pending-undo-btn { border:1px solid var(--border); background:var(--card); border-radius:8px; padding:4px 10px; font-size:12px; font-weight:700; color:var(--text); }
 .base-g-select { flex:1; border:none; outline:none; font-size:16px; font-weight:700; color:#2b2422; background:transparent; text-align:right; cursor:pointer; }
 .add-form-select-wrap { flex:1; display:flex; flex-direction:column; gap:4px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
 .add-form-label { font-size:11px; color:var(--text-sub); }
@@ -793,6 +798,8 @@ let usesDbPlan = false;
 let dbStocks = [];
 let shops = [];
 let stockEditMode = false;
+/* v19: 재고 삭제 스테이징 — "저장"을 눌러야 실제 DB 삭제, 취소하면 복원 */
+let stockPendingDeletes = new Set();
 let showAddForm = false;
 let showShopAddForm = false;
 
@@ -949,18 +956,18 @@ const meals = {
   "7/14": { am:['쌀 45g','한우 15g','당근 15g','오트밀 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'브로콜리→당근 임시 대체(준비시간 부족, 금요일 이후 재개 예정 / 2026-07-13 요청)' },
   "7/15": { am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','두부 15g','당근 15g'] },
   "7/16": { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
-  "7/17": { am:['쌀 45g','닭고기 15g','단호박 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'고구마·브로콜리→단호박·양배추 임시 대체(준비시간 부족, 금요일 이후 재개 예정 / 2026-07-13 요청)' },
+  "7/17": { am:['쌀 60g','닭고기 15g','단호박 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'고구마·브로콜리→단호박·양배추 임시 대체(준비시간 부족, 금요일 이후 재개 예정 / 2026-07-13 요청)' },
   "7/18": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
-  "7/19": { badge:{t:'grain',x:'입자 Lv.2'}, am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'입자 Lv.2 전환 (신규 도입 없음)' },
+  "7/19": { badge:{t:'grain',x:'입자 Lv.2'}, am:['쌀 60g','두부 15g','땅콩버터 1스푼'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'입자 Lv.2 전환 (신규 도입 없음)' },
   "7/20": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
-  "7/21": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','애호박 15g'] },
+  "7/21": { am:['쌀 60g','한우 15g','브로콜리 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','애호박 15g'] },
   "7/22": { am:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','두부 15g','당근 15g'] },
   "7/23": { am:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','감자 15g'] },
-  "7/24": { am:['쌀 45g','닭고기 15g','고구마 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
+  "7/24": { am:['쌀 60g','닭고기 15g','고구마 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','브로콜리 15g'] },
   "7/25": { am:['쌀 60g','한우 15g','애호박 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'] },
-  "7/26": { badge:{t:'grain',x:'입자 Lv.3'}, am:['쌀 60g','두부 15g','땅콩버터'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'입자 Lv.3 전환 (신규 도입 없음)' },
+  "7/26": { badge:{t:'grain',x:'입자 Lv.3'}, am:['쌀 60g','두부 15g','땅콩버터 1스푼'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'입자 Lv.3 전환 (신규 도입 없음)' },
   "7/27": { am:['쌀 60g','닭고기 15g','감자 15g'], pm:['쌀 60g','한우 15g','고구마 15g'] },
-  "7/28": { am:['쌀 45g','한우 15g','브로콜리 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','애호박 15g'] },
+  "7/28": { am:['쌀 60g','한우 15g','브로콜리 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','애호박 15g'] },
 
   /* ═══════════ 알러지 테스트 재개 (7/29~8/17, 2끼) — 회복 후 신규 도입 ═══════════ */
   /* 새우 (고위험·3일) — 7/29~31 */
@@ -980,7 +987,7 @@ const meals = {
   "8/6":  { am:['대게 1팩','쌀 60g','단호박 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'대게 관찰 3일차 · 도입완료' },
 
   /* 완충일 (8/7) — 입자 전환은 7/19·7/26에 완료 */
-  "8/7":  { am:['쌀 45g','한우 15g','당근 15g','오트밀가루 1스푼'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
+  "8/7":  { am:['쌀 60g','한우 15g','당근 15g','오트밀가루 1스푼'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
 
   /* 참깨 (고위험·3일) — 8/8~10 */
   "8/8":  { badge:{t:'new',x:'New 참깨'}, am:['참깨 1팩','쌀 60g','닭고기 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'참깨 관찰 1일차(고위험·3일)' },
@@ -993,7 +1000,7 @@ const meals = {
   "8/13": { am:['호두 1팩','쌀 60g','당근 15g'], pm:['쌀 60g','닭고기 15g','단호박 15g'], note:'호두 관찰 3일차 · 도입완료' },
 
   /* 완충일 (8/14) — 입자 전환은 7/19·7/26에 완료 */
-  "8/14": { am:['쌀 45g','한우 15g','당근 15g','오트밀가루 1스푼'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
+  "8/14": { am:['쌀 60g','한우 15g','당근 15g','오트밀가루 1스푼'], pm:['쌀 60g','닭고기 15g','애호박 15g'], note:'완충일 (신규 도입 없음)' },
 
   /* 메밀 (고위험·3일) — 8/15~17, 신규 도입 마지막 */
   "8/15": { badge:{t:'new',x:'New 메밀'}, am:['메밀 1팩','쌀 60g','닭고기 15g'], pm:['쌀 60g','한우 15g','단호박 15g'], note:'메밀 관찰 1일차(고위험·3일) · 알러지 반응 주의' },
@@ -1002,17 +1009,17 @@ const meals = {
 
   /* ── 8/18 3끼 전환 (점심 추가, 새 재료 없이 적응) ── */
   "8/18": { badge:{t:'trans',x:'3끼 시작'}, mealStart3:true, am:['쌀 60g','닭고기 15g','당근 15g'], lunch:['쌀 60g','한우 15g','단호박 15g'], pm:['쌀 60g','흰살생선 15g','애호박 15g'], note:'3끼 전환 · 점심 추가 · 새 재료 없이 끼니 수 적응' },
-  "8/19": { am:['쌀 60g','한우 15g','애호박 15g'], lunch:['쌀 45g','닭고기 15g','당근 15g','오트밀가루 1스푼'], pm:['쌀 60g','새우 15g','단호박 15g'] },
+  "8/19": { am:['쌀 60g','한우 15g','애호박 15g'], lunch:['쌀 60g','닭고기 15g','당근 15g','오트밀가루 1스푼'], pm:['쌀 60g','새우 15g','단호박 15g'] },
   "8/20": { am:['쌀 60g','닭고기 15g','양배추 15g'], lunch:['쌀 60g','한우 15g','단호박 15g'], pm:['쌀 60g','대게 15g','당근 15g'] },
 
   /* 계란흰자 (고위험·3일) — 8/21~23, 오전 시작 */
   "8/21": { badge:{t:'new',x:'New 계란흰자'}, am:['계란흰자 소량','쌀 60g','당근 15g'], lunch:['쌀 60g','닭고기 15g','애호박 15g'], pm:['쌀 60g','한우 15g','단호박 15g'], note:'흰자 관찰 1일차(고위험·3일) · 완숙 후 으깨어 소량부터 · 오전 시작' },
   "8/22": { am:['계란흰자 1/4개','쌀 60g','애호박 15g'], lunch:['쌀 60g','한우 15g','양배추 15g'], pm:['쌀 60g','닭고기 15g','당근 15g'], note:'흰자 관찰 2일차' },
-  "8/23": { am:['계란흰자 1/3개','쌀 60g','당근 15g'], lunch:['쌀 45g','닭고기 15g','단호박 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'흰자 관찰 3일차 · 도입완료' },
+  "8/23": { am:['계란흰자 1/3개','쌀 60g','당근 15g'], lunch:['쌀 60g','닭고기 15g','단호박 15g','오트밀가루 1스푼'], pm:['쌀 60g','한우 15g','양배추 15g'], note:'흰자 관찰 3일차 · 도입완료' },
 
   /* 완충 (흰자 경과 관찰) — 8/24~25 */
   "8/24": { am:['쌀 60g','닭고기 15g','양배추 15g'], lunch:['쌀 60g','한우 15g','단호박 15g'], pm:['쌀 60g','새우 15g','당근 15g'] },
-  "8/25": { am:['쌀 45g','한우 15g','애호박 15g','오트밀가루 1스푼'], lunch:['쌀 60g','닭고기 15g','당근 15g'], pm:['쌀 60g','대게 15g','단호박 15g'] },
+  "8/25": { am:['쌀 60g','한우 15g','애호박 15g','오트밀가루 1스푼'], lunch:['쌀 60g','닭고기 15g','당근 15g'], pm:['쌀 60g','대게 15g','단호박 15g'] },
 
   /* 치즈 (중위험·3일) — 8/26~28, 무염 아기치즈 */
   "8/26": { badge:{t:'new',x:'New 치즈'}, am:['아기치즈 1/3장','쌀 60g','당근 15g'], lunch:['쌀 60g','닭고기 15g','단호박 15g'], pm:['쌀 60g','한우 15g','애호박 15g'], note:'치즈 관찰 1일차(중위험·3일) · 무염/저염 아기치즈 · 우유단백 첫 노출' },
@@ -2599,7 +2606,19 @@ function stockHtml() {
       </div>`;
     }).join('');
   } else {
-    html += dbStocks.map((s, idx) => `
+    html += dbStocks.map((s, idx) => {
+      /* v19: 삭제 예정 재료는 접힌 카드로 표시 — 저장을 눌러야 실제 삭제, 되돌리기 가능 */
+      if (stockPendingDeletes.has(s.id)) {
+        return `
+      <div class="stock-edit-card pending-delete">
+        <div class="ec-top">
+          <span class="stock-edit-name deleted">${esc(s.name)}</span>
+          <span class="pending-delete-lbl">저장 시 삭제됩니다</span>
+          <button class="pending-undo-btn" onclick="undoDeleteStock(${s.id})">되돌리기</button>
+        </div>
+      </div>`;
+      }
+      return `
       <div class="stock-edit-card">
         <div class="ec-top">
           <div class="stock-order-btns">
@@ -2615,7 +2634,8 @@ function stockHtml() {
           <div class="ec-field"><label>1${esc(s._tempUnit ?? s.unit)} = g</label><select id="sb-${s.id}" class="base-g-select" data-orig="${s.base_g ?? 15}" onchange="onBaseChange(${s.id})">${[5,10,15,20,25,30].map(v=>`<option value="${v}"${(s._tempBase ?? s.base_g ?? 15)===v?' selected':''}>${v}g</option>`).join('')}</select></div>
         </div>
         <div class="ec-warn" id="warn-${s.id}" style="display:${(s._tempBase != null && s._tempBase !== (s.base_g ?? 15)) ? 'block' : 'none'};">⚠️ 큐브 기준이 바뀌면 실제 재고와 달라질 수 있어요. 수량을 직접 확인해주세요.</div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     html += `<div style="margin-top:4px;">
       <button class="stock-save-all-btn" style="margin-top:0;" onclick="saveAllStocks()">저장</button>
     </div>`;
@@ -2628,7 +2648,7 @@ function addStockFormHtml() {
     <input type="text" id="ns-name" placeholder="재료 이름 (예: 당근)" />
     <div class="add-form-row">
       <input type="number" id="ns-amt" placeholder="수량" min="0" />
-      <input type="text" id="ns-unit" placeholder="단위 (개/큐브)" />
+      <input type="text" id="ns-unit" placeholder="단위 (개/팩/스푼)" />
     </div>
     <div class="add-form-row">
       <div class="add-form-select-wrap">
@@ -2640,8 +2660,12 @@ function addStockFormHtml() {
     <button class="add-confirm-btn" onclick="addStock()">추가하기</button>
   </div>`;
 }
-function startStockEdit() { stockEditMode = true; refreshStock(); }
-function cancelStockEdit() { stockEditMode = false; refreshStock(); }
+function startStockEdit() { stockPendingDeletes.clear(); clearStockTemps(); stockEditMode = true; refreshStock(); }
+function cancelStockEdit() { stockPendingDeletes.clear(); clearStockTemps(); stockEditMode = false; refreshStock(); }
+/* v19: 편집 취소/시작 시 입력 임시값 제거 — 이전 편집의 미저장 값이 남지 않도록 */
+function clearStockTemps() {
+  dbStocks.forEach(s => { delete s._tempAmount; delete s._tempBase; delete s._tempUnit; });
+}
 /* 재고 탭 전체 재렌더 (활성일 때) + 홈 요약 동기화 */
 function refreshStock() {
   if (activeTab === 'stock') renderStock();
@@ -2737,6 +2761,16 @@ function moveStock(idx, dir) {
    Supabase (기존 로직 그대로)
 ================================================ */
 async function saveAllStocks() {
+  /* v19: 삭제 예정(스테이징) 재료 먼저 실제 삭제 — 실패 시 중단하고 알림 */
+  for (const delId of stockPendingDeletes) {
+    const s = dbStocks.find(x => x.id === delId);
+    const { error } = await sb.from('inventory').delete().eq('id', delId);
+    if (error) { alert(`${s ? s.name : '재료'} 삭제 실패: ${error.message}`); return; }
+  }
+  if (stockPendingDeletes.size) {
+    dbStocks = dbStocks.filter(s => !stockPendingDeletes.has(s.id));
+    stockPendingDeletes.clear();
+  }
   for (let i = 0; i < dbStocks.length; i++) {
     const s = dbStocks[i];
     const input = document.getElementById(`si-${s.id}`);
@@ -2761,13 +2795,27 @@ async function saveAllStocks() {
     }
   }
   stockEditMode = false; await loadStocks();
+  await cleanupShopList(); /* v19: 재고 채운 직후 장볼목록에서 자동 제거 */
+  refreshStock();
 }
-async function deleteStock(id) {
+/* v19: 삭제는 저장 시점까지 보류(스테이징) — 기존엔 편집 취소해도 삭제가 DB에 즉시 반영되던 버그 */
+function deleteStock(id) {
   const stock = dbStocks.find(s => s.id === id); if (!stock) return;
-  if (!confirm(`'${stock.name}'을(를) 삭제할까요?`)) return;
-  const { error } = await sb.from('inventory').delete().eq('id', id);
-  if (error) { alert('삭제 실패: ' + error.message); return; }
-  stockEditMode = true; await loadStocks();
+  // 현재 입력값 임시 보존 후 재렌더 (다른 재료의 미저장 수정이 날아가지 않게)
+  dbStocks.forEach(s => {
+    const amtEl = document.getElementById(`si-${s.id}`);
+    const baseEl = document.getElementById(`sb-${s.id}`);
+    const unitEl = document.getElementById(`su-${s.id}`);
+    if (amtEl) s._tempAmount = parseInt(amtEl.value);
+    if (baseEl) s._tempBase = parseInt(baseEl.value);
+    if (unitEl) s._tempUnit = unitEl.value.trim() || '개';
+  });
+  stockPendingDeletes.add(id);
+  refreshStockBody();
+}
+function undoDeleteStock(id) {
+  stockPendingDeletes.delete(id);
+  refreshStockBody();
 }
 async function addStock() {
   const name = document.getElementById('ns-name')?.value?.trim();
@@ -3685,6 +3733,19 @@ async function exportMonthlyImage() {
    재고에 아예 없는 재료는 New 여부와 무관하게 0개로 자동 등록. 기존 재료가 나중에 재고 등록만
    누락된 사각지대(예: 고구마·브로콜리)를 다음 로그인 시 자동으로 채워 넣기 위함. 재고 충분 시
    장볼 목록 자동 추가는 스킵하는 기존 정책은 그대로 유지) */
+/* v19: 재고가 채워진(부족/임박 아님) 재료는 장볼 목록에서 자동 삭제 */
+async function cleanupShopList() {
+  let removed = false;
+  for (const item of [...shops]) {
+    const stock = dbStocks.find(s => s.name === item.name);
+    if (stock && stock.amount > 0 && !isStockLow(stock)) {
+      const { error } = await sb.from('shop_list').delete().eq('id', item.id);
+      if (error) { console.error('장볼목록 자동정리 오류:', error); continue; }
+      removed = true;
+    }
+  }
+  if (removed) await loadShops();
+}
 async function autoAddUpcoming() {
   let stockAdded = false, shopAdded = false;
   let nextSortOrder = dbStocks.length;
@@ -3709,7 +3770,12 @@ async function autoAddUpcoming() {
         if (!error) shopAdded = true; else console.error('장볼목록 자동추가 오류:', error);
       }
       if (!stockItem) {
-        const { error } = await sb.from('inventory').insert([{ user_id: USER_ID, baby_id: BABY_ID, name, amount: 0, unit: '개', low_alert: 1, sort_order: nextSortOrder }]);
+        /* v19: 알려진 가루/스프레드류는 스푼 단위 기본값으로 자동 등록 (오트밀가루 1스푼=5g) */
+        const KNOWN_UNITS = { '오트밀가루': { unit: '스푼', base_g: 5 }, '땅콩버터': { unit: '스푼', base_g: 15 } };
+        const ku = KNOWN_UNITS[name];
+        const row = { user_id: USER_ID, baby_id: BABY_ID, name, amount: 0, unit: ku ? ku.unit : '개', low_alert: 1, sort_order: nextSortOrder };
+        let { error } = await sb.from('inventory').insert([Object.assign({}, row, ku ? { base_g: ku.base_g } : {})]);
+        if (error && ku) ({ error } = await sb.from('inventory').insert([row])); /* base_g 컬럼 실패 시 폴백 */
         if (!error) { stockAdded = true; nextSortOrder++; } else console.error('재고 자동추가 오류:', error);
       }
     }
@@ -3766,6 +3832,7 @@ async function startApp() {
   await loadStocks();
   await loadShops();
   await autoAddUpcoming();   /* NEW 식재료 2일 전 자동 추가 */
+  await cleanupShopList();   /* v19: 재고 채워진 재료 장볼목록 자동 정리 */
   switchTab('home');
 }
 /* ================================================
