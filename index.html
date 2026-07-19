@@ -26,6 +26,7 @@
 :root {
   --coral: #F97070;          /* 메인 액션 */
   --coral-deep: #E04545;     /* 경고/부족 (코랄 동일계열, 진하게) */
+  --coral-soft: #E88F8F;     /* v20: 임박 = 연한 코랄 (부족보다 한 톤 연하게, 냉동실 현황·재고 공용) */
   --coral-grad: linear-gradient(135deg,#F97070 0%,#FF9A5C 100%); /* 중요 액션 버튼 */
   --orange: #ff7a4d;
   --sky: #29aaee;
@@ -353,7 +354,8 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 .mcal .meal-item.repeat { color:#F97070; }
 /* v20: 완료 취소선을 하루 단위 → 끼니 단위로 분리 (오전/오후 각각 표시) */
 .mcal .meal-block.mb-done .meal-item { color:#BBBBBB; text-decoration:line-through; }
-.mcal .time-badge.tb-done { color:#fff; background:var(--coral); border-color:var(--coral); font-weight:700; }
+/* v20.1: 완료 배지 코랄 → 그레이톤 (미래 식단 가독성 우선, 완료 표시는 은은하게) */
+.mcal .time-badge.tb-done { color:#9a938f; background:#ece9e6; border-color:#d8d3cf; font-weight:700; }
 .mcal .print-btn-wrap { padding: 4px 0 12px; }
 .mcal .print-btn { width:100%; background:#1f1a18; color:#fff; border:none; padding:13px; font-size:13px; font-weight:700; border-radius:10px; }
 .mcal .img-btn { width:100%; background:var(--coral-grad); color:#fff; border:none; padding:13px; font-size:13px; font-weight:700; border-radius:10px; margin-top:8px; }
@@ -411,9 +413,9 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 
 /* 재고 상태 배지 */
 .st-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; margin-right:8px; flex-shrink:0; }
-/* v20: 상태색 재설계 — 충분=블랙톤(색 강조 제거), 임박=앰버(부족의 코랄계와 확실히 구분), 부족=기존 유지 */
+/* v20.1: 상태색 — 충분=블랙톤, 임박=연한 코랄, 부족=딥코랄 (냉동실 현황 숫자색과 동일 팔레트) */
 .st-badge.st-full { background:#f1efed; color:#3b3733; }
-.st-badge.st-soon { background:#fdf3d3; color:#a2790d; }
+.st-badge.st-soon { background:#fdf1f1; color:var(--coral-soft); }
 .st-badge.st-out  { background:#fdecec; color:var(--coral-deep); }
 
 /* 장볼 재료 리스트 (D-day 포함) */
@@ -490,8 +492,8 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 }
 .sum-num { font-family:'Paperlogy',sans-serif; font-size:26px; font-weight:800; line-height:1; }
 .sum-lbl { font-size:11px; font-weight:600; color:var(--text-sub); }
-.sum-badge.out  .sum-num { color:var(--coral-deep); }   /* 부족 = 딥코랄 (유지) */
-.sum-badge.soon .sum-num { color:#C08A00; }             /* v20: 임박 = 앰버 (코랄과 구분) */
+.sum-badge.out  .sum-num { color:var(--coral-deep); }    /* 부족 = 딥코랄 (유지) */
+.sum-badge.soon .sum-num { color:var(--coral-soft); }    /* v20.1: 임박 = 연한 코랄 (재고 배지와 통일) */
 .sum-badge.full .sum-num { color:var(--text); }          /* 충분 = 블랙톤 */
 
 /* 코랄 + 버튼 (재고/장보기 추가) */
@@ -1209,9 +1211,12 @@ function hasPassedObservation(introStatusRows, name, dateObj) {
   const end = v8AddDays(start, s.observe_days);
   return dateObj >= end;
 }
+/* v20: '적게 쓰기(자동 치환)'의 주간 상한 = 1회 (주 1회를 넘는 등장분은 같은 카테고리 재료로 교체) */
+const CATEGORY_SWAP_WEEKLY_MAX = 1;
 function weeklyMaxFor(prefRows, name) {
-  const p = prefRows.find(x => x.ingredient_name === name && x.mode === 'weekly_cap');
-  if (p && p.weekly_max != null) return p.weekly_max;
+  const p = prefRows.find(x => x.ingredient_name === name);
+  if (p && p.mode === 'weekly_cap' && p.weekly_max != null) return p.weekly_max;
+  if (p && p.mode === 'category_swap') return CATEGORY_SWAP_WEEKLY_MAX;
   return defaultWeeklyMax(name);
 }
 /* rows(byDate 맵)에서 dateObj가 속한 캘린더 주(월~일) 내 재료 등장 횟수.
@@ -1265,8 +1270,10 @@ function pickSubstitute(byDate, introStatusRows, prefRows, name, dateObj, usedTo
   return usable[0];
 }
 /* rows 전체에 선호도 규칙 적용 (in-place). rows는 날짜 오름차순이 아니어도 되며 내부에서 정렬함.
-   반환: { rows, warnings } — warnings는 대체 실패(후보 없음) 로그용 */
-function applyIngredientPreferences(rows, introStatusRows, prefRows) {
+   반환: { rows, warnings } — warnings는 대체 실패(후보 없음) 로그용
+   v20: canSub(dateKey, slot) 콜백 추가 — false면 해당 끼니는 주간 집계에만 포함하고 치환은 하지 않음
+   (과거·완료·수동편집 끼니 보호용. 미전달 시 기존과 동일하게 전체 치환 허용) */
+function applyIngredientPreferences(rows, introStatusRows, prefRows, canSub) {
   const byDate = {};
   rows.forEach(r => { byDate[r.date] = r.plan; });
   const warnings = [];
@@ -1276,10 +1283,12 @@ function applyIngredientPreferences(rows, introStatusRows, prefRows) {
     const usedToday = new Set();
     ['am', 'lunch', 'pm'].forEach(slot => {
       if (!plan[slot]) return;
+      const allowed = !canSub || canSub(dateKey, slot);
       plan[slot] = plan[slot].map(raw => {
         if (typeof raw !== 'string' || raw.startsWith('반복:')) return raw; /* 반복노출은 항상 고정 */
         const { name } = parseItem(raw);
         if (!name) return raw;
+        if (!allowed) { usedToday.add(name); return raw; } /* 치환 금지 끼니: 집계만 */
         if (isObservingOn(introStatusRows, name, dateObj)) { usedToday.add(name); return raw; } /* 관찰중 고정 */
         if (countInWeekBefore(byDate, name, dateObj) < weeklyMaxFor(prefRows, name)) { usedToday.add(name); return raw; } /* 캡 이내 */
         const sub = pickSubstitute(byDate, introStatusRows, prefRows, name, dateObj, usedToday);
@@ -1290,6 +1299,69 @@ function applyIngredientPreferences(rows, introStatusRows, prefRows) {
     });
   });
   return { rows, warnings };
+}
+
+/* ================================================
+   v20: 저장된 재료 선호도를 화면 식단에 "가상 적용" (DB 비파괴)
+   - DB의 meal_plan은 절대 건드리지 않고, 부팅 시 메모리의 meals만 치환
+     → 선호도를 해제하면 다음 적용 때 원래 식단으로 자동 복귀 (비가역성 문제 해결)
+   - 대상: 오늘 이후 + 아직 완료/건너뛰지 않은 끼니만
+     (과거·완료 끼니 = 실제 먹인 기록이므로 고정, 수동 편집 끼니 = 사용자 의도 우선으로 고정.
+      단, 고정 끼니도 주간 횟수 "집계"에는 포함되어 초과분 계산은 정확함)
+   - 표시/재고차감/자동등록/월간표가 모두 치환된 meals를 읽으므로 화면과 차감이 항상 일치
+   - 재적용 가능: 원본을 _pfOrig 스냅샷으로 보관, 매번 원본 기준으로 다시 계산
+================================================ */
+function applyPrefsToMeals() {
+  try {
+    /* 1) 이전 적용분 원복 (선호도 변경/자정 롤오버 시 재계산 대비) */
+    Object.keys(meals).forEach(k => {
+      const d = meals[k];
+      if (d && d._pfOrig) {
+        ['am', 'lunch', 'pm'].forEach(s => { if (d._pfOrig[s]) d[s] = [...d._pfOrig[s]]; });
+        delete d._pfOrig;
+      }
+    });
+    if (!Array.isArray(ingredientPrefs) || !ingredientPrefs.length) return;
+    const todayDb = toDbDateFull(TODAY);
+    /* 2) 유효 표시 기준(편집본 우선)으로 계산용 행 구성 */
+    const rowByDate = {};
+    const rows = [];
+    Object.keys(meals).forEach(k => {
+      const d = meals[k];
+      const dateDb = toDbDate(k);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateDb)) return; /* 예약 키 방어 */
+      const eff = {};
+      ['am', 'lunch', 'pm'].forEach(s => {
+        const arr = d[s + 'Edited'] || d[s];
+        if (Array.isArray(arr)) eff[s] = [...arr];
+      });
+      rowByDate[dateDb] = { data: d, eff };
+      rows.push({ date: dateDb, plan: eff });
+    });
+    const canSub = (dateDb, slot) => {
+      const r = rowByDate[dateDb];
+      if (!r || dateDb < todayDb) return false;                      /* 과거 고정 */
+      const d = r.data;
+      if (d[slot + 'Edited']) return false;                          /* 수동 편집 존중 */
+      if (slot === 'am'    && (d.done || d.amSkipped)) return false; /* 완료·건너뜀 고정 */
+      if (slot === 'lunch' && (d.lunchDone || d.lunchSkipped)) return false;
+      if (slot === 'pm'    && d.pmDone) return false;
+      return true;
+    };
+    const { warnings } = applyIngredientPreferences(rows, introStatus, ingredientPrefs, canSub);
+    if (warnings.length) console.warn('선호도 적용 경고:', warnings);
+    /* 3) 치환 허용 끼니 중 실제로 바뀐 것만 meals에 반영 + 원본 스냅샷 */
+    Object.keys(rowByDate).forEach(dateDb => {
+      const { data, eff } = rowByDate[dateDb];
+      ['am', 'lunch', 'pm'].forEach(s => {
+        if (!eff[s] || !Array.isArray(data[s]) || !canSub(dateDb, s)) return;
+        if (JSON.stringify(eff[s]) === JSON.stringify(data[s])) return;
+        if (!data._pfOrig) data._pfOrig = {};
+        if (!data._pfOrig[s]) data._pfOrig[s] = [...data[s]];
+        data[s] = eff[s];
+      });
+    });
+  } catch (e) { console.error('선호도 가상 적용 오류:', e); }
 }
 
 /* 신규계정 온보딩: INTRO_SCHEDULE_TEMPLATE을 D+오프셋 적용해 ingredient_intro_status 행 생성 */
@@ -2340,7 +2412,7 @@ function prefPanelHtml() {
     return `<div class="panel">
       <div class="panel-title">식단 재료 선호도</div>
       <div class="more-row"><span class="more-k">설정된 재료</span><span class="more-v">${n ? n + '개' : '없음'}</span></div>
-      <div class="gate-hint" style="margin-top:6px;">⚠️ 설정은 저장되지만, 이미 만들어진 식단에는 아직 자동 반영되지 않아요. (반영 방식 확정 후 적용 예정)</div>
+      <div class="gate-hint" style="margin-top:6px;">저장하면 오늘 이후 미완료 식단에 바로 반영돼요. 원본 식단은 보존되어, 설정을 해제하면 원래대로 돌아와요.</div>
       <button class="acct-edit-link" onclick="prefEditMode=true; renderMore();">재료 선호도 설정</button>
     </div>`;
   }
@@ -2369,9 +2441,9 @@ function prefPanelHtml() {
   return `<div class="panel">
     <div class="panel-title">식단 재료 선호도</div>
     <div class="gate-hint" style="margin-bottom:10px;">재료를 적게/드물게 쓰고 싶을 때 설정하세요. 도입 관찰 중인 재료는 설정과 무관하게 그대로 유지돼요.<br>
-      · <b>주간 횟수 제한</b>: 한 주(월~일) 동안 최대 등장 횟수를 지정<br>
-      · <b>적게 쓰기(자동 치환)</b>: 한 주(월~일) 기준 등장 상한을 넘으면 같은 카테고리의 다른 통과 재료로 자동 교체<br>
-      ⚠️ 설정은 저장되지만, <b>이미 만들어진 식단에는 아직 자동 반영되지 않아요</b>. (반영 방식 확정 후 적용 예정)</div>
+      · <b>주간 횟수 제한</b>: 한 주(월~일) 동안 최대 등장 횟수를 지정 (0회 = 배치 안 함)<br>
+      · <b>적게 쓰기(자동 치환)</b>: 한 주(월~일)에 <b>1회까지만</b> 두고, 넘는 등장분은 같은 카테고리의 다른 통과 재료로 자동 교체<br>
+      저장하면 <b>오늘 이후의 미완료 식단에 바로 반영</b>돼요. 과거·완료한 끼니와 직접 편집한 끼니는 바뀌지 않고, 설정을 해제하면 원래 식단으로 돌아와요.</div>
     ${rows || '<div class="gate-hint">등록된 재고 재료가 없어요.</div>'}
     <div class="acct-btns">
       <button class="acct-cancel" onclick="prefEditMode=false; renderMore();">취소</button>
@@ -2420,6 +2492,7 @@ async function saveIngredientPrefs() {
       }
     }
     await loadIngredientPrefs();
+    applyPrefsToMeals();   /* v20: 저장 즉시 오늘 이후 식단에 반영 */
     prefEditMode = false;
     renderMore();
   } catch (e) { console.error('선호도 저장 오류:', e); alert('저장 중 오류가 발생했어요.'); }
@@ -3861,6 +3934,7 @@ async function startApp() {
   loadEdits();           /* 인라인 편집 복원 (표시 날짜 기준) */
   await loadMealLog();   /* 아침 완료/메모 (날짜별, 이미 동기화) */
   applySyncedState();    /* 저녁완료·메모·아침건너뜀 반영 (v8 수정: 미정의 loadLocalState → applySyncedState) */
+  applyPrefsToMeals();   /* v20: 재료 선호도 가상 적용 (완료상태 로드 후·재고 스캔 전이어야 차감/자동등록이 치환 결과와 일치) */
   await loadStocks();
   await loadShops();
   await autoAddUpcoming();   /* NEW 식재료 2일 전 자동 추가 */
@@ -4406,6 +4480,7 @@ function checkDateRollover() {
   if (now.toDateString() !== TODAY.toDateString()) {
     TODAY = now;
     recomputeMonthBounds();
+    applyPrefsToMeals();   /* v20: "오늘 이후" 기준이 바뀌므로 선호도 가상 적용 재계산 */
     rerender();
   }
 }
