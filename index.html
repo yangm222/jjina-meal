@@ -26,7 +26,7 @@
 :root {
   --coral: #F97070;          /* 메인 액션 */
   --coral-deep: #E04545;     /* 경고/부족 (코랄 동일계열, 진하게) */
-  --coral-soft: #E88F8F;     /* v20: 임박 = 연한 코랄 (부족보다 한 톤 연하게, 냉동실 현황·재고 공용) */
+  --coral-soft: #e98484;     /* v20: 임박 = 연한 코랄 (부족보다 한 톤 연하게, 냉동실 현황·재고 공용) */
   --coral-grad: linear-gradient(135deg,#F97070 0%,#FF9A5C 100%); /* 중요 액션 버튼 */
   --orange: #ff7a4d;
   --sky: #29aaee;
@@ -390,8 +390,8 @@ textarea, input { font-family: 'Pretendard', sans-serif; }
 /* 재고 요약 배지 (충분/임박/부족) */
 .sum-badges { display:flex; gap:8px; }
 .sum-badge { flex:1; text-align:center; font-size:12px; font-weight:700; padding:11px 4px; border-radius:12px; line-height:1.2; }
-.sum-badge.full { background:#eef6ee; color:#4a8a4a; }
-.sum-badge.soon { background:#fff3ea; color:#c97a3a; }
+.sum-badge.full { background:#eef6ee; color:#000; }
+.sum-badge.soon { background:#fff3ea; color:#e98484; }
 .sum-badge.out  { background:#fdecec; color:var(--coral-deep); }
 .stock-summary-wrap { margin:12px 16px 0; }
 
